@@ -185,10 +185,6 @@ const handleSubmit = () => {
   }
 
   const normalized = normalize(guess);
-  if (!WORDS.includes(normalized)) {
-    setMessage("That word isn't in the CS list yet.", "warning");
-    return;
-  }
 
   const statuses = evaluateGuess(normalized);
   statuses.forEach((status, index) => {
