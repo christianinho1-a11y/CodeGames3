@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>If / Else Escape Room</title>
+  <title>If / Else Choose-Your-Path</title>
   <link rel="stylesheet" href="style.css" />
   <script defer src="if_else_escape.js"></script>
 </head>
@@ -13,7 +13,7 @@
     <!-- Top title + concept tag -->
     <header class="page-header">
       <div>
-        <h1 class="page-title">// If / Else Escape Room</h1>
+        <h1 class="page-title">// If / Else Choose-Your-Path</h1>
         <p class="page-subtitle">
           Concept: <span class="tag">Conditionals</span>
           <span class="tag">Logic Puzzles</span>
@@ -30,11 +30,11 @@
       <!-- LEFT: Game card -->
       <section class="card card-main">
         <header class="card-header">
-          <h2 class="card-title">Escape the Logic Lab</h2>
+          <h2 class="card-title">Choose Your Conditional Story</h2>
           <p class="card-subtitle">
-            You're locked in a virtual CS lab. Each puzzle is an
-            <code>if / else</code> scenario. Answer correctly to move through
-            rooms. Every 5 puzzles, you reach a checkpoint.
+            Each story is driven by <code>if / else</code> logic. Pick a path,
+            see how the code resolves the decision, and earn (or lose) points on
+            the way to key checkpoints.
           </p>
         </header>
 
@@ -52,11 +52,11 @@
 
             <label for="levelSelect" class="sr-only">Level</label>
             <select id="levelSelect" class="input" style="max-width: 220px;">
-              <option value="1">Level 1 – Intro CS (1 pt/Q)</option>
-              <option value="2">Level 2 – AP CSP (2 pts/Q)</option>
-              <option value="3">Level 3 – AP CSA (3 pts/Q)</option>
-              <option value="4">Level 4 – Honors DSA (4 pts/Q)</option>
-              <option value="5">Level 5 – College CS (5 pts/Q)</option>
+              <option value="1">Level 1 – Intro CS (1x points)</option>
+              <option value="2">Level 2 – AP CSP (2x points)</option>
+              <option value="3">Level 3 – AP CSA (3x points)</option>
+              <option value="4">Level 4 – Honors DSA (4x points)</option>
+              <option value="5">Level 5 – College CS (5x points)</option>
             </select>
 
             <button id="startGameBtn" class="btn">Start Escape</button>
@@ -67,10 +67,10 @@
         <div id="gameArea" class="sub-card" hidden>
           <div class="sub-card-header">
             <h3 class="sub-card-title" id="levelInfo">
-              Level 1 – Room 1
+              Level 1 – Chapter 1
             </h3>
             <p class="sub-card-meta">
-              Question: <span id="questionCounter">1 / 20</span>
+              Step: <span id="questionCounter">1 / 6</span>
             </p>
             <p class="sub-card-meta">
               Score: <span id="scoreDisplay">0</span>
@@ -91,12 +91,14 @@
 <!-- code snippet injected by JS -->
 </pre>
 
+          <p id="resultText" class="scenario-result"></p>
+
           <div id="choiceButtons" class="button-row">
             <!-- choice buttons injected by JS -->
           </div>
 
           <button id="nextQuestionBtn" class="btn btn-small" disabled>
-            Next Puzzle
+            Continue Story
           </button>
         </div>
 
@@ -127,7 +129,7 @@
         <!-- Directions -->
         <section class="card">
           <header class="card-header">
-            <h2 class="card-title">Escape Rules</h2>
+          <h2 class="card-title">Story Rules</h2>
           </header>
           <ol class="info-list">
             <li>Enter your name and pick a <strong>Level</strong>.</li>
@@ -142,36 +144,30 @@
               </ul>
             </li>
             <li>
-              Higher levels get trickier logic and are worth more points per
-              correct answer:
-              <strong>L1 = 1 pt</strong>,
-              <strong>L2 = 2 pts</strong>,
-              <strong>L3 = 3 pts</strong>,
-              <strong>L4 = 4 pts</strong>,
-              <strong>L5 = 5 pts</strong>.
+              Higher levels introduce more complex decisions and a bigger point
+              swing. You can earn or lose points based on the path you take.
             </li>
             <li>
               Read the <strong>scenario</strong> and the
               <strong>if / else code</strong>. The code block shows the
-              <strong>current variable values</strong> at the top.
+              <strong>current variable values</strong> that drive the story.
             </li>
             <li>
-              Choose what the code will actually do for those values (not what
-              you personally would do).
+              Choose which path to take. Each branch has a different outcome.
             </li>
             <li>
-              You have <strong>3 lives</strong>. A wrong answer costs
+              You have <strong>3 lives</strong>. Risky choices can cost
               <strong>1 life</strong>.
             </li>
             <li>
-              Every <strong>5 questions</strong> you reach a
-              <strong>checkpoint</strong>. If you lose all lives, you can
-              restart from your last checkpoint with full lives, but your score
-              beyond that checkpoint resets.
+              Each story has <strong>checkpoints</strong> (scoring a goal,
+              finding treasure, resolving a conflict, etc.). If you lose all
+              lives, you can restart from your last checkpoint with full lives,
+              but your score beyond that checkpoint resets.
             </li>
             <li>
-              Each escape run uses up to <strong>20 questions</strong> for that
-              level (4 rooms of 5 puzzles).
+              Each level is its own story arc with branching choices (up to
+              three options per step).
             </li>
           </ol>
         </section>

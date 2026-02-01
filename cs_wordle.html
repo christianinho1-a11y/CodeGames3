@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CS Wordle</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="cs_wordle.js"></script>
+</head>
+<body class="cs-body">
+  <a href="cs_games.html" class="back-link">← Back to CS Games</a>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// CS Wordle</h1>
+        <p class="page-subtitle">Guess the hidden 5-letter CS term.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title" id="wordleStatusTitle">CS Wordle</h2>
+        <p class="card-subtitle">
+          You have six tries. Green means correct spot, yellow means in the word.
+        </p>
+      </header>
+
+      <section class="sub-card">
+        <h3 class="sub-card-title">Answer Board</h3>
+        <div id="wordleGrid" class="wordle-grid" aria-label="CS Wordle grid"></div>
+        <p id="wordleMessage" class="wordle-message"></p>
+      </section>
+
+      <section class="sub-card">
+        <h3 class="sub-card-title">Keyboard</h3>
+        <div id="wordleKeyboard" class="wordle-keyboard" aria-label="Wordle keyboard"></div>
+      </section>
+
+      <section class="sub-card sub-card-highlight">
+        <h3 class="sub-card-title">Round Controls</h3>
+        <div class="button-row">
+          <button id="wordleNewBtn" class="btn">New Word</button>
+          <button id="wordleBackBtn" class="btn btn-outline">← Back to CS Games</button>
+        </div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
