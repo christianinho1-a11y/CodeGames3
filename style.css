@@ -250,6 +250,16 @@ body.cs-body {
   color: #fca5a5;
 }
 
+.form-note {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.form-note.warning {
+  color: #fca5a5;
+}
+
 /* ==== BUTTONS & INPUTS ==== */
 
 .btn {
@@ -461,8 +471,33 @@ body.cs-body {
   margin-top: 0.75rem;
 }
 
+.binary-difficulty {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.binary-difficulty .btn.active {
+  background: var(--accent);
+  border-color: rgba(59, 130, 246, 0.6);
+  color: #e5f0ff;
+}
+
 .binary-problem {
   margin-top: 0.75rem;
+}
+
+.binary-bit-labels {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0.35rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.binary-bit-labels span {
+  width: 42px;
+  text-align: center;
 }
 
 .binary-answer-group {
@@ -703,6 +738,10 @@ body.cs-body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 1.25rem;
+}
+
+.game-grid + .game-grid {
+  margin-top: 1.5rem;
 }
 
 .game-grid + .game-grid {
