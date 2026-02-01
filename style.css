@@ -401,6 +401,113 @@ body.cs-body {
   color: #bfdbfe;
 }
 
+/* ==== CS WORDLE ==== */
+
+.wordle-grid {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.wordle-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(46px, 1fr));
+  gap: 0.5rem;
+}
+
+.wordle-tile {
+  display: grid;
+  place-items: center;
+  height: 54px;
+  border-radius: var(--radius-sm);
+  border: 2px solid #1f2937;
+  background: #0b1224;
+  color: var(--text-main);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wordle-tile.filled {
+  border-color: #475569;
+}
+
+.wordle-tile.correct {
+  background: rgba(34, 197, 94, 0.75);
+  border-color: rgba(34, 197, 94, 0.9);
+  color: #052e16;
+}
+
+.wordle-tile.present {
+  background: rgba(250, 204, 21, 0.7);
+  border-color: rgba(250, 204, 21, 0.9);
+  color: #422006;
+}
+
+.wordle-tile.absent {
+  background: rgba(71, 85, 105, 0.6);
+  border-color: rgba(71, 85, 105, 0.8);
+  color: #e2e8f0;
+}
+
+.wordle-keyboard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.wordle-keyboard-row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.wordle-key {
+  border: none;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.5rem;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.wordle-key:hover {
+  transform: translateY(-1px);
+  background: #334155;
+}
+
+.wordle-key.correct {
+  background: rgba(34, 197, 94, 0.8);
+  color: #052e16;
+}
+
+.wordle-key.present {
+  background: rgba(250, 204, 21, 0.75);
+  color: #422006;
+}
+
+.wordle-key.absent {
+  background: rgba(100, 116, 139, 0.6);
+  color: #e2e8f0;
+}
+
+.wordle-message {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.wordle-message.success {
+  color: #86efac;
+}
+
+.wordle-message.warning {
+  color: #fca5a5;
+}
+
 /* ==== HUB (HOME PAGE) STYLES ==== */
 
 .hub-meta {
@@ -438,6 +545,10 @@ body.cs-body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 1.25rem;
+}
+
+.game-grid + .game-grid {
+  margin-top: 1.5rem;
 }
 
 /* each game card */
