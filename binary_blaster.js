@@ -130,7 +130,10 @@ const updateScoreboard = () => {
 const updateDifficultyUI = () => {
   easyBtnEl.classList.toggle("active", currentDifficulty === "easy");
   hardBtnEl.classList.toggle("active", currentDifficulty === "hard");
-  bitLabelsEl.hidden = !DIFFICULTY[currentDifficulty].showBits;
+  const showBits =
+    DIFFICULTY[currentDifficulty].showBits &&
+    currentMode === "decimalToBinary";
+  bitLabelsEl.hidden = !showBits;
 };
 
 const buildProblems = () => {
@@ -374,6 +377,11 @@ const initGame = () => {
 
   hardBtnEl.addEventListener("click", () => {
     currentDifficulty = "hard";
+    updateDifficultyUI();
+  });
+
+  modeSelectEl.addEventListener("change", () => {
+    currentMode = modeSelectEl.value;
     updateDifficultyUI();
   });
 
