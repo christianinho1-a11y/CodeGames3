@@ -58,6 +58,7 @@ let binaryInputs = [];
 let decimalInputs = [];
 let easyBtnEl;
 let hardBtnEl;
+let bitLabelsEl;
 
 const setMessage = (text, tone = "") => {
   messageEl.textContent = text;
@@ -131,6 +132,10 @@ const updateScoreboard = () => {
 const updateHelpNumbersVisibility = () => {
   easyBtnEl.classList.toggle("active", currentDifficulty === "easy");
   hardBtnEl.classList.toggle("active", currentDifficulty === "hard");
+  if (bitLabelsEl) {
+    bitLabelsEl.hidden =
+      !(currentDifficulty === "easy" && currentMode === "decimalToBinary");
+  }
 };
 
 const focusNextInput = (inputs, index) => {
@@ -372,6 +377,7 @@ const initGame = () => {
   decimalGroupEl = document.getElementById("binaryAnswerDecimal");
   easyBtnEl = document.getElementById("binaryEasyBtn");
   hardBtnEl = document.getElementById("binaryHardBtn");
+  bitLabelsEl = document.getElementById("binaryBitLabels");
   binaryInputs = Array.from(binaryGroupEl?.querySelectorAll(".binary-box") || []);
   decimalInputs = Array.from(decimalGroupEl?.querySelectorAll(".binary-box") || []);
 
@@ -400,7 +406,8 @@ const initGame = () => {
     binaryInputs.length === 0 ||
     decimalInputs.length === 0 ||
     !easyBtnEl ||
-    !hardBtnEl
+    !hardBtnEl ||
+    !bitLabelsEl
   ) {
     return;
   }
