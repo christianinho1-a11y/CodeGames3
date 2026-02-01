@@ -240,6 +240,16 @@ body.cs-body {
   color: #fca5a5;
 }
 
+.form-note {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.form-note.warning {
+  color: #fca5a5;
+}
+
 /* ==== BUTTONS & INPUTS ==== */
 
 .btn {
@@ -693,6 +703,10 @@ body.cs-body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 1.25rem;
+}
+
+.game-grid + .game-grid {
+  margin-top: 1.5rem;
 }
 
 .game-grid + .game-grid {
