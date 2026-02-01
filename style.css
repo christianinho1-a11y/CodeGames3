@@ -220,6 +220,16 @@ body.cs-body {
   color: #fca5a5;
 }
 
+.form-note {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.form-note.warning {
+  color: #fca5a5;
+}
+
 /* ==== BUTTONS & INPUTS ==== */
 
 .btn {
@@ -417,6 +427,49 @@ body.cs-body {
   color: #bfdbfe;
 }
 
+/* ==== BINARY BLASTER ==== */
+
+.binary-scoreboard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+  text-align: right;
+}
+
+.binary-controls {
+  margin-top: 0.75rem;
+}
+
+.binary-problem {
+  margin-top: 0.75rem;
+}
+
+.binary-prompt {
+  margin: 0 0 0.5rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.binary-message,
+.binary-summary {
+  margin: 0.65rem 0 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.binary-message.success {
+  color: #86efac;
+}
+
+.binary-message.warning {
+  color: #fca5a5;
+}
+
+.binary-summary.info {
+  color: #bfdbfe;
+}
+
 /* ==== BOOLEAN BATTLE ==== */
 
 .boolean-scoreboard {
@@ -604,6 +657,10 @@ body.cs-body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 1.25rem;
+}
+
+.game-grid + .game-grid {
+  margin-top: 1.5rem;
 }
 
 .game-grid + .game-grid {
