@@ -875,6 +875,10 @@ body.cs-body {
   margin-top: 1.5rem;
 }
 
+.game-grid + .game-grid {
+  margin-top: 1.5rem;
+}
+
 /* each game card */
 .game-card {
   position: relative;

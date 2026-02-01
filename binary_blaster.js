@@ -50,7 +50,6 @@ let restartBtnEl;
 let backBtnEl;
 let submitBtnEl;
 let startBtnEl;
-let playerNameEl;
 let modeSelectEl;
 let leaderboardEl;
 let binaryGroupEl;
@@ -59,7 +58,6 @@ let binaryInputs = [];
 let decimalInputs = [];
 let easyBtnEl;
 let hardBtnEl;
-let bitLabelsEl;
 
 const setMessage = (text, tone = "") => {
   messageEl.textContent = text;
@@ -133,10 +131,22 @@ const updateScoreboard = () => {
 const updateHelpNumbersVisibility = () => {
   easyBtnEl.classList.toggle("active", currentDifficulty === "easy");
   hardBtnEl.classList.toggle("active", currentDifficulty === "hard");
-  const showBits =
-    DIFFICULTY[currentDifficulty].showBits &&
-    currentMode === "decimalToBinary";
-  bitLabelsEl.hidden = !showBits;
+};
+
+const focusNextInput = (inputs, index) => {
+  if (index < inputs.length - 1) {
+    inputs[index + 1].focus();
+  }
+};
+
+const handleBoxInput = (input, inputs, index, validator) => {
+  const nextValue = input.value.slice(-1);
+  if (!validator(nextValue)) {
+    input.value = "0";
+    return;
+  }
+  input.value = nextValue;
+  focusNextInput(inputs, index);
 };
 
 const buildProblems = () => {
@@ -355,7 +365,6 @@ const initGame = () => {
   decimalGroupEl = document.getElementById("binaryAnswerDecimal");
   easyBtnEl = document.getElementById("binaryEasyBtn");
   hardBtnEl = document.getElementById("binaryHardBtn");
-  bitLabelsEl = document.getElementById("binaryBitLabels");
   binaryInputs = Array.from(binaryGroupEl?.querySelectorAll(".binary-box") || []);
   decimalInputs = Array.from(decimalGroupEl?.querySelectorAll(".binary-box") || []);
 
@@ -384,8 +393,7 @@ const initGame = () => {
     binaryInputs.length === 0 ||
     decimalInputs.length === 0 ||
     !easyBtnEl ||
-    !hardBtnEl ||
-    !bitLabelsEl
+    !hardBtnEl
   ) {
     return;
   }
@@ -415,11 +423,11 @@ const initGame = () => {
 
   modalStartBtnEl.addEventListener("click", startGame);
 
-  binaryInputs.forEach((input) => {
+  binaryInputs.forEach((input, index) => {
     input.addEventListener("input", () => {
-      if (!["0", "1"].includes(input.value)) {
-        input.value = "0";
-      }
+      handleBoxInput(input, binaryInputs, index, (value) =>
+        ["0", "1"].includes(value)
+      );
     });
     input.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
@@ -428,11 +436,11 @@ const initGame = () => {
       }
     });
   });
-  decimalInputs.forEach((input) => {
+  decimalInputs.forEach((input, index) => {
     input.addEventListener("input", () => {
-      if (!/^[0-9]$/.test(input.value)) {
-        input.value = "0";
-      }
+      handleBoxInput(input, decimalInputs, index, (value) =>
+        /^[0-9]$/.test(value)
+      );
     });
     input.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
