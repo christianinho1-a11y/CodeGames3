@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CS Connections Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="connections_data.js"></script>
+  <script defer src="connections_admin.js"></script>
+</head>
+<body class="cs-body">
+  <a href="cs_games.html" class="back-link">← Back to CS Games</a>
+
+  <div class="modal" id="adminLoginModal">
+    <div class="modal-card">
+      <h2 class="card-title">Admin Login</h2>
+      <p class="card-subtitle">Enter the admin code to manage puzzles.</p>
+      <div class="form-row">
+        <label for="adminCode" class="sr-only">Admin code</label>
+        <input id="adminCode" class="input" type="password" placeholder="Admin code" />
+        <button id="adminLoginBtn" class="btn">Login</button>
+      </div>
+      <p id="adminLoginMessage" class="form-note"></p>
+    </div>
+  </div>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// CS Connections Admin</h1>
+        <p class="page-subtitle">Create and manage CS Connections puzzles.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <section class="sub-card">
+        <h3 class="sub-card-title">Add / Edit Group</h3>
+        <div class="form-row">
+          <input id="adminCategory" class="input" type="text" placeholder="Category" />
+          <select id="adminDifficulty" class="input" style="max-width: 180px;">
+            <option value="yellow">Yellow (Easy)</option>
+            <option value="green">Green</option>
+            <option value="blue">Blue</option>
+            <option value="purple">Purple (Hard)</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <input id="adminWords" class="input" type="text" placeholder="Words (comma-separated)" />
+          <button id="adminAddGroup" class="btn">Add Group</button>
+        </div>
+        <p id="adminGroupMessage" class="form-note"></p>
+      </section>
+
+      <section class="sub-card">
+        <h3 class="sub-card-title">Existing Groups</h3>
+        <textarea id="adminGroupsJson" class="input" rows="10" spellcheck="false"></textarea>
+        <div class="button-row">
+          <button id="adminSaveGroups" class="btn">Save Groups</button>
+          <button id="adminRandomize" class="btn btn-outline">Randomize Puzzle</button>
+        </div>
+      </section>
+
+      <section class="sub-card">
+        <h3 class="sub-card-title">Upload CSV</h3>
+        <p class="card-subtitle">CSV format: category,difficulty,word1,word2,word3,word4</p>
+        <input id="adminCsv" class="input" type="file" accept=".csv" />
+        <div class="button-row">
+          <button id="adminImportCsv" class="btn">Import CSV</button>
+        </div>
+        <p id="adminCsvMessage" class="form-note"></p>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
