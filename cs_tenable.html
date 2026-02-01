@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CS Tenable</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="cs_tenable.js"></script>
+</head>
+<body class="cs-body">
+  <a href="cs_games.html" class="back-link">← Back to CS Games</a>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// CS Tenable</h1>
+        <p class="page-subtitle">Top 10 Computer Science Challenge</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title" id="tenableCategoryTitle">Category Loading…</h2>
+        <p class="card-subtitle">
+          Guess the Top 10 answers before you reach three strikes.
+        </p>
+      </header>
+
+      <section class="sub-card">
+        <div class="sub-card-header">
+          <div>
+            <h3 class="sub-card-title">Answer Board</h3>
+            <p class="sub-card-meta">Ten hidden answers. Can you find them all?</p>
+          </div>
+          <div class="tenable-scoreboard">
+            <p class="sub-card-meta">
+              Correct: <span id="tenableCorrectCount">0</span> /
+              <span id="tenableTotalCount">10</span>
+            </p>
+            <p class="sub-card-meta">
+              Strikes: <span id="tenableStrikeCount">0</span> /
+              <span id="tenableMaxStrikes">3</span>
+            </p>
+          </div>
+        </div>
+        <div id="tenableAnswerBoard" class="tenable-grid"></div>
+      </section>
+
+      <section class="sub-card">
+        <h3 class="sub-card-title">Make a Guess</h3>
+        <div class="form-row">
+          <label for="tenableGuessInput" class="sr-only">Your guess</label>
+          <input
+            id="tenableGuessInput"
+            type="text"
+            class="input"
+            placeholder="Type a guess (e.g., Python, Algorithms)"
+            autocomplete="off"
+          />
+          <button id="tenableSubmitBtn" class="btn">Submit Guess</button>
+        </div>
+        <p id="tenableMessage" class="tenable-message"></p>
+        <p id="tenableSummary" class="tenable-summary"></p>
+      </section>
+
+      <section class="sub-card sub-card-highlight">
+        <h3 class="sub-card-title">Round Controls</h3>
+        <div class="button-row">
+          <button id="tenableRevealBtn" class="btn btn-outline">Reveal Remaining</button>
+          <button id="tenableNextBtn" class="btn">Next Category</button>
+          <button id="tenableBackBtn" class="btn btn-outline">← Back to CS Games</button>
+        </div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
