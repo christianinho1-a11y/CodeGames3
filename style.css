@@ -194,6 +194,12 @@ body.cs-body {
   font-size: 0.95rem;
 }
 
+.scenario-result {
+  margin: 0 0 0.75rem;
+  font-size: 0.92rem;
+  color: #e2e8f0;
+}
+
 .code-block {
   margin: 0 0 0.9rem;
   padding: 0.6rem 0.7rem;
