@@ -147,7 +147,7 @@ const renderBoard = () => {
 
     const indexBadge = document.createElement("span");
     indexBadge.className = "tenable-slot-index";
-    indexBadge.textContent = `${index + 1}.`;
+    indexBadge.textContent = `${currentCategory.answers.length - index}.`;
 
     const text = document.createElement("span");
     if (revealedAnswers[index]) {
