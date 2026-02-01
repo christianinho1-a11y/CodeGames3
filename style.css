@@ -230,6 +230,16 @@ body.cs-body {
   color: #fca5a5;
 }
 
+.form-note {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.form-note.warning {
+  color: #fca5a5;
+}
+
 /* ==== BUTTONS & INPUTS ==== */
 
 .btn {
@@ -445,6 +455,32 @@ body.cs-body {
   margin-top: 0.75rem;
 }
 
+.binary-answer-group {
+  margin-top: 0.65rem;
+}
+
+.binary-box-row {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.binary-box {
+  width: 42px;
+  height: 44px;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 2px solid #1f2937;
+  background: #0b1224;
+  color: var(--text-main);
+}
+
+.binary-box:disabled {
+  opacity: 0.6;
+}
+
 .binary-prompt {
   margin: 0 0 0.5rem;
   color: var(--text-muted);
@@ -657,6 +693,10 @@ body.cs-body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 1.25rem;
+}
+
+.game-grid + .game-grid {
+  margin-top: 1.5rem;
 }
 
 .game-grid + .game-grid {

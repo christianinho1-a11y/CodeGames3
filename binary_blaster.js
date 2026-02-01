@@ -33,7 +33,6 @@ let streakEl;
 let progressEl;
 let strikesEl;
 let promptEl;
-let answerInputEl;
 let messageEl;
 let summaryEl;
 let startMessageEl;
@@ -45,6 +44,10 @@ let startBtnEl;
 let playerNameEl;
 let modeSelectEl;
 let leaderboardEl;
+let binaryGroupEl;
+let decimalGroupEl;
+let binaryInputs = [];
+let decimalInputs = [];
 
 const setMessage = (text, tone = "") => {
   messageEl.textContent = text;
@@ -125,8 +128,32 @@ const buildProblems = () => {
   }
   return values.map((value) => ({
     decimal: value,
-    binary: value.toString(2),
+    binary: value.toString(2).padStart(8, "0"),
   }));
+};
+
+const toggleAnswerGroups = () => {
+  if (currentMode === "binaryToDecimal") {
+    decimalGroupEl.hidden = false;
+    binaryGroupEl.hidden = true;
+  } else {
+    decimalGroupEl.hidden = true;
+    binaryGroupEl.hidden = false;
+  }
+};
+
+const resetBinaryInputs = () => {
+  binaryInputs.forEach((input) => {
+    input.value = "0";
+    input.disabled = false;
+  });
+};
+
+const resetDecimalInputs = () => {
+  decimalInputs.forEach((input) => {
+    input.value = "0";
+    input.disabled = false;
+  });
 };
 
 const renderProblem = () => {
@@ -136,19 +163,29 @@ const renderProblem = () => {
   } else {
     promptEl.textContent = MODES[currentMode].prompt(problem.decimal);
   }
-  answerInputEl.value = "";
-  answerInputEl.disabled = false;
+  toggleAnswerGroups();
+  resetBinaryInputs();
+  resetDecimalInputs();
   submitBtnEl.disabled = false;
   nextBtnEl.disabled = true;
   waitingForNext = false;
   setMessage("");
   updateScoreboard();
-  answerInputEl.focus();
+  const firstInput =
+    currentMode === "binaryToDecimal" ? decimalInputs[0] : binaryInputs[0];
+  if (firstInput) {
+    firstInput.focus();
+  }
 };
 
 const endRound = (summaryText) => {
   setSummary(summaryText, "info");
-  answerInputEl.disabled = true;
+  binaryInputs.forEach((input) => {
+    input.disabled = true;
+  });
+  decimalInputs.forEach((input) => {
+    input.disabled = true;
+  });
   submitBtnEl.disabled = true;
   nextBtnEl.disabled = true;
   saveScore();
@@ -156,12 +193,27 @@ const endRound = (summaryText) => {
 
 const normalizeAnswer = (value) => value.trim().toLowerCase();
 
+const normalizeDecimal = (value) => {
+  const stripped = value.replace(/^0+(?=\d)/, "");
+  return stripped === "" ? "0" : stripped;
+};
+
+const readBinaryAnswer = () => binaryInputs.map((input) => input.value).join("");
+
+const readDecimalAnswer = () => {
+  const joined = decimalInputs.map((input) => input.value).join("");
+  return normalizeDecimal(joined);
+};
+
 const handleSubmit = () => {
   if (waitingForNext) {
     return;
   }
 
-  const answer = normalizeAnswer(answerInputEl.value);
+  const answer =
+    currentMode === "binaryToDecimal"
+      ? readDecimalAnswer()
+      : readBinaryAnswer();
   if (!answer) {
     setMessage("Type an answer before submitting.", "warning");
     return;
@@ -184,7 +236,12 @@ const handleSubmit = () => {
   }
 
   waitingForNext = true;
-  answerInputEl.disabled = true;
+  binaryInputs.forEach((input) => {
+    input.disabled = true;
+  });
+  decimalInputs.forEach((input) => {
+    input.disabled = true;
+  });
   submitBtnEl.disabled = true;
   nextBtnEl.disabled = false;
   updateScoreboard();
@@ -238,7 +295,6 @@ const initGame = () => {
   progressEl = document.getElementById("binaryProgress");
   strikesEl = document.getElementById("binaryStrikes");
   promptEl = document.getElementById("binaryPrompt");
-  answerInputEl = document.getElementById("binaryAnswerInput");
   messageEl = document.getElementById("binaryMessage");
   summaryEl = document.getElementById("binarySummary");
   startMessageEl = document.getElementById("binaryStartMessage");
@@ -250,6 +306,10 @@ const initGame = () => {
   playerNameEl = document.getElementById("binaryPlayerName");
   modeSelectEl = document.getElementById("binaryModeSelect");
   leaderboardEl = document.getElementById("binaryLeaderboard");
+  binaryGroupEl = document.getElementById("binaryAnswerBinary");
+  decimalGroupEl = document.getElementById("binaryAnswerDecimal");
+  binaryInputs = Array.from(binaryGroupEl?.querySelectorAll(".binary-box") || []);
+  decimalInputs = Array.from(decimalGroupEl?.querySelectorAll(".binary-box") || []);
 
   if (
     !modeLabelEl ||
@@ -258,7 +318,6 @@ const initGame = () => {
     !progressEl ||
     !strikesEl ||
     !promptEl ||
-    !answerInputEl ||
     !messageEl ||
     !summaryEl ||
     !startMessageEl ||
@@ -269,21 +328,49 @@ const initGame = () => {
     !startBtnEl ||
     !playerNameEl ||
     !modeSelectEl ||
-    !leaderboardEl
+    !leaderboardEl ||
+    !binaryGroupEl ||
+    !decimalGroupEl ||
+    binaryInputs.length === 0 ||
+    decimalInputs.length === 0
   ) {
     return;
   }
 
   updateLeaderboardUI();
   updateScoreboard();
+  resetBinaryInputs();
+  resetDecimalInputs();
+  toggleAnswerGroups();
+
+  binaryInputs.forEach((input) => {
+    input.addEventListener("input", () => {
+      if (!["0", "1"].includes(input.value)) {
+        input.value = "0";
+      }
+    });
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        handleSubmit();
+      }
+    });
+  });
+  decimalInputs.forEach((input) => {
+    input.addEventListener("input", () => {
+      if (!/^[0-9]$/.test(input.value)) {
+        input.value = "0";
+      }
+    });
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        handleSubmit();
+      }
+    });
+  });
 
   submitBtnEl.addEventListener("click", handleSubmit);
-  answerInputEl.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      handleSubmit();
-    }
-  });
   nextBtnEl.addEventListener("click", handleNext);
   restartBtnEl.addEventListener("click", startRound);
   startBtnEl.addEventListener("click", startRound);

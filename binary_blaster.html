@@ -71,15 +71,27 @@
 
         <div class="binary-problem">
           <p class="binary-prompt" id="binaryPrompt">Problem loading…</p>
+          <div class="binary-answer-group" id="binaryAnswerDecimal">
+            <label class="sr-only" for="binaryDecimalDigit1">Decimal answer</label>
+            <div class="binary-box-row">
+              <input id="binaryDecimalDigit1" class="binary-box" type="text" maxlength="1" value="0" />
+              <input id="binaryDecimalDigit2" class="binary-box" type="text" maxlength="1" value="0" />
+            </div>
+          </div>
+          <div class="binary-answer-group" id="binaryAnswerBinary">
+            <label class="sr-only" for="binaryBit1">Binary answer</label>
+            <div class="binary-box-row">
+              <input id="binaryBit1" class="binary-box" type="text" maxlength="1" value="0" />
+              <input id="binaryBit2" class="binary-box" type="text" maxlength="1" value="0" />
+              <input id="binaryBit3" class="binary-box" type="text" maxlength="1" value="0" />
+              <input id="binaryBit4" class="binary-box" type="text" maxlength="1" value="0" />
+              <input id="binaryBit5" class="binary-box" type="text" maxlength="1" value="0" />
+              <input id="binaryBit6" class="binary-box" type="text" maxlength="1" value="0" />
+              <input id="binaryBit7" class="binary-box" type="text" maxlength="1" value="0" />
+              <input id="binaryBit8" class="binary-box" type="text" maxlength="1" value="0" />
+            </div>
+          </div>
           <div class="form-row">
-            <label for="binaryAnswerInput" class="sr-only">Your answer</label>
-            <input
-              id="binaryAnswerInput"
-              type="text"
-              class="input"
-              placeholder="Type your answer"
-              autocomplete="off"
-            />
             <button id="binarySubmitBtn" class="btn">Submit</button>
           </div>
         </div>
