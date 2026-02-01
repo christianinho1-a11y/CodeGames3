@@ -25,17 +25,25 @@ const WORDS = [
 
 const MAX_ROWS = 6;
 const WORD_LENGTH = 5;
+const LEADERBOARD_KEY = "cs_wordle_leaderboard";
 
 let currentWord = "";
 let currentRow = 0;
 let currentCol = 0;
 let gameOver = false;
+let gameStarted = false;
+let playerName = "";
+let scoreSaved = false;
 
 let gridEl;
 let keyboardEl;
 let messageEl;
 let newBtnEl;
 let backBtnEl;
+let startBtnEl;
+let playerNameEl;
+let startMessageEl;
+let leaderboardEl;
 
 const tileGrid = [];
 const keyStatus = new Map();
@@ -51,6 +59,59 @@ const normalize = (value) => value.trim().toLowerCase();
 const setMessage = (text, tone = "") => {
   messageEl.textContent = text;
   messageEl.className = `wordle-message ${tone}`.trim();
+};
+
+const setStartMessage = (text, tone = "") => {
+  startMessageEl.textContent = text;
+  startMessageEl.className = `form-note ${tone}`.trim();
+};
+
+const loadLeaderboard = () => {
+  const stored = localStorage.getItem(LEADERBOARD_KEY);
+  return stored ? JSON.parse(stored) : [];
+};
+
+const saveLeaderboard = (entries) => {
+  localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(entries));
+};
+
+const updateLeaderboardUI = () => {
+  const entries = loadLeaderboard();
+  leaderboardEl.innerHTML = "";
+
+  if (!entries.length) {
+    const empty = document.createElement("li");
+    empty.textContent = "No scores yet. Be the first!";
+    leaderboardEl.appendChild(empty);
+    return;
+  }
+
+  entries
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10)
+    .forEach((entry) => {
+      const item = document.createElement("li");
+      item.textContent = `${entry.name} — ${entry.result} — ${entry.score} pts`;
+      leaderboardEl.appendChild(item);
+    });
+};
+
+const saveScore = (didWin) => {
+  if (scoreSaved) {
+    return;
+  }
+  const attemptsUsed = currentRow + 1;
+  const score = didWin ? (MAX_ROWS - attemptsUsed + 1) * 10 : 0;
+  const entries = loadLeaderboard();
+  entries.push({
+    name: playerName,
+    result: didWin ? "Solved" : "Missed",
+    score,
+    date: new Date().toISOString(),
+  });
+  saveLeaderboard(entries);
+  updateLeaderboardUI();
+  scoreSaved = true;
 };
 
 const pickWord = () => {
@@ -92,6 +153,7 @@ const buildKeyboard = () => {
       keyBtn.className = "wordle-key";
       keyBtn.dataset.key = key;
       keyBtn.textContent = key;
+      keyBtn.disabled = !gameStarted;
       keyBtn.addEventListener("click", () => handleKeyPress(key));
       rowEl.appendChild(keyBtn);
     });
@@ -122,7 +184,7 @@ const getGuess = (row) =>
   tileGrid[row].map((tile) => tile.textContent || "").join("");
 
 const handleLetter = (letter) => {
-  if (gameOver || currentCol >= WORD_LENGTH) {
+  if (!gameStarted || gameOver || currentCol >= WORD_LENGTH) {
     return;
   }
 
@@ -133,7 +195,7 @@ const handleLetter = (letter) => {
 };
 
 const handleBackspace = () => {
-  if (gameOver || currentCol === 0) {
+  if (!gameStarted || gameOver || currentCol === 0) {
     return;
   }
 
@@ -174,7 +236,7 @@ const evaluateGuess = (guess) => {
 };
 
 const handleSubmit = () => {
-  if (gameOver) {
+  if (!gameStarted || gameOver) {
     return;
   }
 
@@ -200,12 +262,14 @@ const handleSubmit = () => {
   if (normalized === currentWord) {
     setMessage("Nice! You solved the CS Wordle.", "success");
     gameOver = true;
+    saveScore(true);
     return;
   }
 
   if (currentRow === MAX_ROWS - 1) {
     setMessage(`Out of tries! The word was "${currentWord.toUpperCase()}".`, "warning");
     gameOver = true;
+    saveScore(false);
     return;
   }
 
@@ -215,6 +279,9 @@ const handleSubmit = () => {
 };
 
 const handleKeyPress = (key) => {
+  if (!gameStarted) {
+    return;
+  }
   if (key === "ENTER") {
     handleSubmit();
     return;
@@ -231,14 +298,24 @@ const handleKeyPress = (key) => {
 };
 
 const resetGame = () => {
+  const nameValue = playerNameEl.value.trim();
+  if (!nameValue) {
+    setStartMessage("Enter your name before starting.", "warning");
+    return;
+  }
+
+  playerName = nameValue;
   currentWord = pickWord();
   currentRow = 0;
   currentCol = 0;
   gameOver = false;
+  gameStarted = true;
+  scoreSaved = false;
   keyStatus.clear();
   buildGrid();
   buildKeyboard();
   setMessage("");
+  setStartMessage("");
 };
 
 const initWordle = () => {
@@ -247,12 +324,28 @@ const initWordle = () => {
   messageEl = document.getElementById("wordleMessage");
   newBtnEl = document.getElementById("wordleNewBtn");
   backBtnEl = document.getElementById("wordleBackBtn");
+  startBtnEl = document.getElementById("wordleStartBtn");
+  playerNameEl = document.getElementById("wordlePlayerName");
+  startMessageEl = document.getElementById("wordleStartMessage");
+  leaderboardEl = document.getElementById("wordleLeaderboard");
 
-  if (!gridEl || !keyboardEl || !messageEl || !newBtnEl || !backBtnEl) {
+  if (
+    !gridEl ||
+    !keyboardEl ||
+    !messageEl ||
+    !newBtnEl ||
+    !backBtnEl ||
+    !startBtnEl ||
+    !playerNameEl ||
+    !startMessageEl ||
+    !leaderboardEl
+  ) {
     return;
   }
 
+  updateLeaderboardUI();
   newBtnEl.addEventListener("click", resetGame);
+  startBtnEl.addEventListener("click", resetGame);
   backBtnEl.addEventListener("click", () => {
     window.location.href = "cs_games.html";
   });
@@ -270,7 +363,8 @@ const initWordle = () => {
     }
   });
 
-  resetGame();
+  buildGrid();
+  buildKeyboard();
 };
 
 window.addEventListener("DOMContentLoaded", initWordle);

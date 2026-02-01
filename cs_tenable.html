@@ -43,6 +43,17 @@
             </p>
           </div>
         </div>
+        <div class="form-row">
+          <label for="tenablePlayerName" class="sr-only">Player name</label>
+          <input
+            id="tenablePlayerName"
+            type="text"
+            class="input"
+            placeholder="Your name"
+          />
+          <button id="tenableStartBtn" class="btn">Start Round</button>
+        </div>
+        <p id="tenableStartMessage" class="form-note"></p>
         <div id="tenableAnswerBoard" class="tenable-grid"></div>
       </section>
 
@@ -70,6 +81,14 @@
           <button id="tenableNextBtn" class="btn">Next Category</button>
           <button id="tenableBackBtn" class="btn btn-outline">← Back to CS Games</button>
         </div>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="tenableLeaderboard" class="leaderboard-list"></ol>
       </section>
     </section>
   </main>

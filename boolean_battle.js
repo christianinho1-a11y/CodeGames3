@@ -2,6 +2,7 @@
 
 const MAX_STRIKES = 3;
 const ROUND_LENGTH = 25;
+const LEADERBOARD_KEY = "boolean_battle_leaderboard";
 
 const LEVEL_CONFIG = {
   1: { label: "Level 1 – Intro CS", multiplier: 1 },
@@ -321,6 +322,8 @@ let currentIndex = 0;
 let roundQuestions = [];
 let waitingForNext = false;
 let currentLevel = 1;
+let playerName = "";
+let scoreSaved = false;
 
 let scoreEl;
 let streakEl;
@@ -331,6 +334,7 @@ let contextEl;
 let expressionEl;
 let messageEl;
 let summaryEl;
+let startMessageEl;
 let trueBtnEl;
 let falseBtnEl;
 let nextBtnEl;
@@ -338,6 +342,8 @@ let restartBtnEl;
 let backBtnEl;
 let levelSelectEl;
 let startBtnEl;
+let playerNameEl;
+let leaderboardEl;
 
 const shuffle = (array) => {
   const copy = [...array];
@@ -366,6 +372,57 @@ const setSummary = (text, tone = "") => {
   summaryEl.className = `boolean-summary ${tone}`.trim();
 };
 
+const setStartMessage = (text, tone = "") => {
+  startMessageEl.textContent = text;
+  startMessageEl.className = `form-note ${tone}`.trim();
+};
+
+const loadLeaderboard = () => {
+  const stored = localStorage.getItem(LEADERBOARD_KEY);
+  return stored ? JSON.parse(stored) : [];
+};
+
+const saveLeaderboard = (entries) => {
+  localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(entries));
+};
+
+const updateLeaderboardUI = () => {
+  const entries = loadLeaderboard();
+  leaderboardEl.innerHTML = "";
+
+  if (!entries.length) {
+    const empty = document.createElement("li");
+    empty.textContent = "No scores yet. Be the first!";
+    leaderboardEl.appendChild(empty);
+    return;
+  }
+
+  entries
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10)
+    .forEach((entry) => {
+      const item = document.createElement("li");
+      item.textContent = `${entry.name} — ${entry.level} — ${entry.score} pts`;
+      leaderboardEl.appendChild(item);
+    });
+};
+
+const saveScore = () => {
+  if (scoreSaved) {
+    return;
+  }
+  const entries = loadLeaderboard();
+  entries.push({
+    name: playerName,
+    level: LEVEL_CONFIG[currentLevel].label,
+    score,
+    date: new Date().toISOString(),
+  });
+  saveLeaderboard(entries);
+  updateLeaderboardUI();
+  scoreSaved = true;
+};
+
 const renderQuestion = () => {
   const question = roundQuestions[currentIndex];
   contextEl.textContent = question.context;
@@ -383,6 +440,7 @@ const endRound = (summaryText) => {
   trueBtnEl.disabled = true;
   falseBtnEl.disabled = true;
   nextBtnEl.disabled = true;
+  saveScore();
 };
 
 const handleAnswer = (value) => {
@@ -433,6 +491,13 @@ const getQuestionsForLevel = (level) =>
   BOOLEAN_QUESTIONS.filter((question) => question.level === level);
 
 const startRound = () => {
+  const nameValue = playerNameEl.value.trim();
+  if (!nameValue) {
+    setStartMessage("Enter your name before starting.", "warning");
+    return;
+  }
+
+  playerName = nameValue;
   currentLevel = parseInt(levelSelectEl.value, 10);
   const questions = getQuestionsForLevel(currentLevel);
   roundQuestions = shuffle(questions).slice(0, ROUND_LENGTH);
@@ -440,6 +505,8 @@ const startRound = () => {
   streak = 0;
   strikes = 0;
   currentIndex = 0;
+  scoreSaved = false;
+  setStartMessage("");
   setSummary("");
   renderQuestion();
 };
@@ -454,6 +521,7 @@ const initGame = () => {
   expressionEl = document.getElementById("booleanExpression");
   messageEl = document.getElementById("booleanMessage");
   summaryEl = document.getElementById("booleanSummary");
+  startMessageEl = document.getElementById("booleanStartMessage");
   trueBtnEl = document.getElementById("booleanTrueBtn");
   falseBtnEl = document.getElementById("booleanFalseBtn");
   nextBtnEl = document.getElementById("booleanNextBtn");
@@ -461,6 +529,8 @@ const initGame = () => {
   backBtnEl = document.getElementById("booleanBackBtn");
   levelSelectEl = document.getElementById("booleanLevelSelect");
   startBtnEl = document.getElementById("booleanStartBtn");
+  playerNameEl = document.getElementById("booleanPlayerName");
+  leaderboardEl = document.getElementById("booleanLeaderboard");
 
   if (
     !scoreEl ||
@@ -472,13 +542,16 @@ const initGame = () => {
     !expressionEl ||
     !messageEl ||
     !summaryEl ||
+    !startMessageEl ||
     !trueBtnEl ||
     !falseBtnEl ||
     !nextBtnEl ||
     !restartBtnEl ||
     !backBtnEl ||
     !levelSelectEl ||
-    !startBtnEl
+    !startBtnEl ||
+    !playerNameEl ||
+    !leaderboardEl
   ) {
     return;
   }
@@ -486,6 +559,8 @@ const initGame = () => {
   if (BOOLEAN_QUESTIONS.length === 0) {
     buildQuestions();
   }
+
+  updateLeaderboardUI();
 
   trueBtnEl.addEventListener("click", () => handleAnswer(true));
   falseBtnEl.addEventListener("click", () => handleAnswer(false));
@@ -496,7 +571,7 @@ const initGame = () => {
     window.location.href = "cs_games.html";
   });
 
-  startRound();
+  updateScoreboard();
 };
 
 window.addEventListener("DOMContentLoaded", initGame);

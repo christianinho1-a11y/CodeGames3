@@ -928,6 +928,7 @@ let lives = MAX_LIVES;
 let checkpointNode = null;
 let checkpointScore = 0;
 let checkpointSteps = 0;
+let scoreSaved = false;
 
 let gameAreaEl;
 let scenarioTextEl;
@@ -954,6 +955,7 @@ let startGameBtnEl;
 let playerNameInputEl;
 let levelSelectEl;
 let openLeaderboardBtnEl;
+let startMessageEl;
 
 const updateScoreboard = () => {
   scoreDisplayEl.textContent = score;
@@ -1031,7 +1033,16 @@ const goToNextNode = () => {
 };
 
 const startGame = () => {
-  playerName = playerNameInputEl.value.trim() || "Player";
+  const nameValue = playerNameInputEl.value.trim();
+  if (!nameValue) {
+    startMessageEl.textContent = "Enter your name before starting.";
+    startMessageEl.className = "form-note warning";
+    return;
+  }
+
+  playerName = nameValue;
+  startMessageEl.textContent = "";
+  startMessageEl.className = "form-note";
   currentLevel = parseInt(levelSelectEl.value, 10);
   currentStory = STORY_LEVELS[currentLevel];
   currentNodeId = currentStory.start;
@@ -1042,6 +1053,7 @@ const startGame = () => {
   checkpointNode = null;
   checkpointScore = 0;
   checkpointSteps = 0;
+  scoreSaved = false;
 
   gameAreaEl.hidden = false;
   gameOverEl.hidden = true;
@@ -1061,6 +1073,7 @@ const endGame = (message) => {
   finalLevelEl.textContent = LEVEL_CONFIG[currentLevel].label;
   finalScoreEl.textContent = score;
   continueCheckpointBtnEl.hidden = !checkpointNode;
+  saveScore();
 };
 
 const continueFromCheckpoint = () => {
@@ -1107,6 +1120,9 @@ const updateLeaderboardUI = () => {
 };
 
 const saveScore = () => {
+  if (scoreSaved || !playerName) {
+    return;
+  }
   const entries = loadLeaderboard();
   entries.push({
     name: playerName,
@@ -1117,6 +1133,7 @@ const saveScore = () => {
   saveLeaderboard(entries);
   updateLeaderboardUI();
   saveScoreBtnEl.disabled = true;
+  scoreSaved = true;
 };
 
 const initGame = () => {
@@ -1145,6 +1162,7 @@ const initGame = () => {
   playerNameInputEl = document.getElementById("playerName");
   levelSelectEl = document.getElementById("levelSelect");
   openLeaderboardBtnEl = document.getElementById("openLeaderboardBtn");
+  startMessageEl = document.getElementById("startMessage");
 
   if (
     !gameAreaEl ||
@@ -1171,7 +1189,8 @@ const initGame = () => {
     !startGameBtnEl ||
     !playerNameInputEl ||
     !levelSelectEl ||
-    !openLeaderboardBtnEl
+    !openLeaderboardBtnEl ||
+    !startMessageEl
   ) {
     return;
   }

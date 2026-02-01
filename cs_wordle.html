@@ -28,6 +28,17 @@
 
       <section class="sub-card">
         <h3 class="sub-card-title">Answer Board</h3>
+        <div class="form-row">
+          <label for="wordlePlayerName" class="sr-only">Player name</label>
+          <input
+            id="wordlePlayerName"
+            type="text"
+            class="input"
+            placeholder="Your name"
+          />
+          <button id="wordleStartBtn" class="btn">Start Round</button>
+        </div>
+        <p id="wordleStartMessage" class="form-note"></p>
         <div id="wordleGrid" class="wordle-grid" aria-label="CS Wordle grid"></div>
         <p id="wordleMessage" class="wordle-message"></p>
       </section>
@@ -43,6 +54,14 @@
           <button id="wordleNewBtn" class="btn">New Word</button>
           <button id="wordleBackBtn" class="btn btn-outline">← Back to CS Games</button>
         </div>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="wordleLeaderboard" class="leaderboard-list"></ol>
       </section>
     </section>
   </main>

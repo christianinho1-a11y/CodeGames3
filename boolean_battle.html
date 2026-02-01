@@ -54,6 +54,13 @@
 
         <div class="form-row boolean-level-row">
           <label for="booleanLevelSelect" class="sr-only">Select level</label>
+          <label for="booleanPlayerName" class="sr-only">Player name</label>
+          <input
+            id="booleanPlayerName"
+            type="text"
+            class="input"
+            placeholder="Your name"
+          />
           <select id="booleanLevelSelect" class="input" style="max-width: 220px;">
             <option value="1">Level 1 – Intro CS (1x points)</option>
             <option value="2">Level 2 – AP CSP (2x points)</option>
@@ -63,6 +70,7 @@
           </select>
           <button id="booleanStartBtn" class="btn">Start Round</button>
         </div>
+        <p id="booleanStartMessage" class="form-note"></p>
 
         <div class="boolean-expression">
           <p class="boolean-context" id="booleanContext">Context loading…</p>
@@ -86,6 +94,14 @@
           <button id="booleanBackBtn" class="btn btn-outline">← Back to CS Games</button>
         </div>
         <p class="boolean-summary" id="booleanSummary"></p>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="booleanLeaderboard" class="leaderboard-list"></ol>
       </section>
     </section>
   </main>

@@ -80,6 +80,7 @@ const TENABLE_CATEGORIES = [
 ];
 
 const MAX_STRIKES = 3;
+const LEADERBOARD_KEY = "cs_tenable_leaderboard";
 
 let currentCategoryIndex = -1;
 let currentCategory = null;
@@ -88,6 +89,8 @@ let normalizedAnswers = [];
 let strikes = 0;
 let correctCount = 0;
 let roundOver = false;
+let playerName = "";
+let scoreSaved = false;
 
 let categoryTitleEl;
 let answerBoardEl;
@@ -102,6 +105,10 @@ let nextBtnEl;
 let backBtnEl;
 let messageEl;
 let summaryEl;
+let playerNameEl;
+let startBtnEl;
+let startMessageEl;
+let leaderboardEl;
 
 const normalizeGuess = (value) => value.trim().toLowerCase();
 
@@ -139,7 +146,7 @@ const pickNewCategory = () => {
 const updateScoreboard = () => {
   correctCountEl.textContent = correctCount;
   strikeCountEl.textContent = strikes;
-  totalCountEl.textContent = currentCategory.answers.length;
+  totalCountEl.textContent = currentCategory ? currentCategory.answers.length : 0;
   maxStrikesEl.textContent = MAX_STRIKES;
 };
 
@@ -151,6 +158,58 @@ const setMessage = (text, tone = "") => {
 const setSummary = (text, tone = "") => {
   summaryEl.textContent = text;
   summaryEl.className = `tenable-summary ${tone}`.trim();
+};
+
+const setStartMessage = (text, tone = "") => {
+  startMessageEl.textContent = text;
+  startMessageEl.className = `form-note ${tone}`.trim();
+};
+
+const loadLeaderboard = () => {
+  const stored = localStorage.getItem(LEADERBOARD_KEY);
+  return stored ? JSON.parse(stored) : [];
+};
+
+const saveLeaderboard = (entries) => {
+  localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(entries));
+};
+
+const updateLeaderboardUI = () => {
+  const entries = loadLeaderboard();
+  leaderboardEl.innerHTML = "";
+
+  if (!entries.length) {
+    const empty = document.createElement("li");
+    empty.textContent = "No scores yet. Be the first!";
+    leaderboardEl.appendChild(empty);
+    return;
+  }
+
+  entries
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10)
+    .forEach((entry) => {
+      const item = document.createElement("li");
+      item.textContent = `${entry.name} — ${entry.score} / ${entry.total} (${entry.category})`;
+      leaderboardEl.appendChild(item);
+    });
+};
+
+const saveScore = () => {
+  if (scoreSaved) {
+    return;
+  }
+  const entries = loadLeaderboard();
+  entries.push({
+    name: playerName,
+    score: correctCount,
+    total: currentCategory.answers.length,
+    category: currentCategory.title,
+    date: new Date().toISOString(),
+  });
+  saveLeaderboard(entries);
+  updateLeaderboardUI();
+  scoreSaved = true;
 };
 
 const renderBoard = () => {
@@ -194,6 +253,7 @@ const endRound = (summaryText) => {
   revealAllAnswers();
   setRoundState(true);
   setSummary(summaryText, "info");
+  saveScore();
 };
 
 const handleCorrectGuess = (answerIndex) => {
@@ -243,6 +303,11 @@ const handleGuess = () => {
 };
 
 const startNewRound = () => {
+  if (!playerName) {
+    setStartMessage("Enter your name before starting.", "warning");
+    return;
+  }
+
   currentCategory = pickNewCategory();
   revealedAnswers = currentCategory.answers.map(() => false);
   normalizedAnswers = currentCategory.answers.map((answer) =>
@@ -250,9 +315,11 @@ const startNewRound = () => {
   );
   strikes = 0;
   correctCount = 0;
+  scoreSaved = false;
   setRoundState(false);
   setMessage("");
   setSummary("");
+  setStartMessage("");
 
   categoryTitleEl.textContent = currentCategory.title;
   updateScoreboard();
@@ -276,6 +343,10 @@ const initGame = () => {
   backBtnEl = document.getElementById("tenableBackBtn");
   messageEl = document.getElementById("tenableMessage");
   summaryEl = document.getElementById("tenableSummary");
+  playerNameEl = document.getElementById("tenablePlayerName");
+  startBtnEl = document.getElementById("tenableStartBtn");
+  startMessageEl = document.getElementById("tenableStartMessage");
+  leaderboardEl = document.getElementById("tenableLeaderboard");
 
   if (
     !categoryTitleEl ||
@@ -290,10 +361,18 @@ const initGame = () => {
     !nextBtnEl ||
     !backBtnEl ||
     !messageEl ||
-    !summaryEl
+    !summaryEl ||
+    !playerNameEl ||
+    !startBtnEl ||
+    !startMessageEl ||
+    !leaderboardEl
   ) {
     return;
   }
+
+  updateLeaderboardUI();
+
+  setRoundState(true);
 
   submitBtnEl.addEventListener("click", handleGuess);
   guessInputEl.addEventListener("keydown", (event) => {
@@ -310,13 +389,24 @@ const initGame = () => {
     endRound("Remaining answers revealed.");
   });
 
+  startBtnEl.addEventListener("click", () => {
+    const nameValue = playerNameEl.value.trim();
+    if (!nameValue) {
+      setStartMessage("Enter your name before starting.", "warning");
+      return;
+    }
+    playerName = nameValue;
+    startNewRound();
+  });
+
   nextBtnEl.addEventListener("click", startNewRound);
 
   backBtnEl.addEventListener("click", () => {
     window.location.href = "cs_games.html";
   });
 
-  startNewRound();
+  answerBoardEl.innerHTML = "";
+  updateScoreboard();
 };
 
 window.addEventListener("DOMContentLoaded", initGame);
