@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Risk Radar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="cyber_risk_radar.js"></script>
+</head>
+<body class="cs-body">
+  <a href="cyber_games.html" class="back-link">← Back to Cyber Games</a>
+
+  <div class="modal" id="riskNameModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Your score will appear on the leaderboard.</p>
+      <div class="form-row">
+        <label for="riskModalName" class="sr-only">Player name</label>
+        <input id="riskModalName" class="input" type="text" placeholder="Your name" />
+        <button id="riskModalStart" class="btn">Start Round</button>
+      </div>
+      <p id="riskModalMessage" class="form-note"></p>
+    </div>
+  </div>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// Risk Radar</h1>
+        <p class="page-subtitle">Rate the risk level of each scenario.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title">Risk Scenarios</h2>
+        <p class="card-subtitle">Low, Medium, High, or Critical. 3 strikes max.</p>
+      </header>
+
+      <section class="sub-card">
+        <div class="sub-card-header">
+          <div>
+            <h3 class="sub-card-title">Scenario</h3>
+            <p id="riskPrompt" class="quiz-prompt">Press start to begin.</p>
+          </div>
+          <div class="quiz-scoreboard">
+            <p class="sub-card-meta">Score: <span id="riskScore">0</span></p>
+            <p class="sub-card-meta">Strikes: <span id="riskStrikes">0</span> / 3</p>
+            <p class="sub-card-meta">Question: <span id="riskProgress">0</span></p>
+          </div>
+        </div>
+        <div id="riskOptions" class="quiz-options quiz-options-grid"></div>
+        <p id="riskMessage" class="quiz-message"></p>
+      </section>
+
+      <section class="sub-card sub-card-highlight">
+        <h3 class="sub-card-title">Round Controls</h3>
+        <div class="button-row">
+          <button id="riskStartBtn" class="btn">Start Round</button>
+          <button id="riskNextBtn" class="btn btn-outline" disabled>Next Scenario</button>
+        </div>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="riskLeaderboard" class="leaderboard-list"></ol>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

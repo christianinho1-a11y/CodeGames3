@@ -16,6 +16,7 @@ const TENABLE_CATEGORIES = [
       "Kotlin",
       "Scratch",
     ],
+    topic: "cs",
   },
   {
     title: "Core Computer Science Ideas",
@@ -31,6 +32,7 @@ const TENABLE_CATEGORIES = [
       "Recursion",
       "Object-oriented programming",
     ],
+    topic: "cs",
   },
   {
     title: "Common Data Structures",
@@ -46,6 +48,7 @@ const TENABLE_CATEGORIES = [
       "Graph",
       "Set",
     ],
+    topic: "cs",
   },
   {
     title: "Famous Algorithms",
@@ -61,6 +64,7 @@ const TENABLE_CATEGORIES = [
       "Breadth-first search",
       "Depth-first search",
     ],
+    topic: "cs",
   },
   {
     title: "Computer Science Careers",
@@ -76,6 +80,103 @@ const TENABLE_CATEGORIES = [
       "Machine learning engineer",
       "IT support specialist",
     ],
+    topic: "cs",
+  },
+  {
+    title: "Networking Hardware Essentials",
+    answers: [
+      "Router",
+      "Switch",
+      "Access point",
+      "Modem",
+      "Firewall",
+      "Patch panel",
+      "Ethernet cable",
+      "NIC",
+      "Rack",
+      "UPS",
+    ],
+    topic: "it",
+  },
+  {
+    title: "IT Support Ticket Issues",
+    answers: [
+      "Password reset",
+      "Printer offline",
+      "Wi-Fi down",
+      "Slow computer",
+      "Email not syncing",
+      "Blue screen",
+      "VPN access",
+      "Frozen app",
+      "Disk full",
+      "Account lockout",
+    ],
+    topic: "it",
+  },
+  {
+    title: "Cloud & Virtualization Terms",
+    answers: [
+      "Virtual machine",
+      "Hypervisor",
+      "Snapshot",
+      "Instance",
+      "Load balancer",
+      "Auto scaling",
+      "IaaS",
+      "PaaS",
+      "SaaS",
+      "Region",
+    ],
+    topic: "it",
+  },
+  {
+    title: "Common Cyber Threats",
+    answers: [
+      "Phishing",
+      "Ransomware",
+      "Spyware",
+      "DDoS",
+      "SQL injection",
+      "Credential stuffing",
+      "Malware",
+      "Zero-day",
+      "Insider threat",
+      "MITM",
+    ],
+    topic: "cyber",
+  },
+  {
+    title: "Security Best Practices",
+    answers: [
+      "MFA",
+      "Strong passwords",
+      "Least privilege",
+      "Patch updates",
+      "Backups",
+      "Encryption",
+      "Security training",
+      "Firewalls",
+      "Logging",
+      "Antivirus",
+    ],
+    topic: "cyber",
+  },
+  {
+    title: "Cybersecurity Roles",
+    answers: [
+      "SOC analyst",
+      "Incident responder",
+      "Pen tester",
+      "Threat hunter",
+      "Security engineer",
+      "GRC analyst",
+      "CISO",
+      "Blue team",
+      "Red team",
+      "Forensics",
+    ],
+    topic: "cyber",
   },
 ];
 
@@ -91,6 +192,7 @@ let correctCount = 0;
 let roundOver = false;
 let playerName = "";
 let scoreSaved = false;
+let currentTopic = "all";
 
 let categoryTitleEl;
 let answerBoardEl;
@@ -106,6 +208,8 @@ let backBtnEl;
 let messageEl;
 let summaryEl;
 let startBtnEl;
+let topicSelectEl;
+let backLinkEl;
 let nameModalEl;
 let modalNameInputEl;
 let modalMessageEl;
@@ -113,6 +217,34 @@ let modalStartBtnEl;
 let leaderboardEl;
 
 const normalizeGuess = (value) => value.trim().toLowerCase();
+const validTopic = (topic) => ["all", "cs", "it", "cyber"].includes(topic);
+const topicLabels = {
+  all: "All Topics",
+  cs: "Computer Science",
+  it: "Information Technology",
+  cyber: "Cybersecurity",
+};
+
+const getTopicFromQuery = () => {
+  const params = new URLSearchParams(window.location.search);
+  const topic = params.get("topic");
+  return validTopic(topic) ? topic : "all";
+};
+
+const getBackLinkFromQuery = () => {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("from") || "cs_games.html";
+};
+
+const getBackLabel = (href) => {
+  if (href.includes("it_games")) {
+    return "IT Games";
+  }
+  if (href.includes("cyber_games")) {
+    return "Cyber Games";
+  }
+  return "CS Games";
+};
 
 const findMatchingAnswerIndex = (guess) => {
   const guessTokens = guess.split(/\s+/).filter(Boolean);
@@ -130,19 +262,30 @@ const findMatchingAnswerIndex = (guess) => {
   });
 };
 
+const getCategoryPool = () => {
+  if (currentTopic === "all") {
+    return TENABLE_CATEGORIES;
+  }
+  return TENABLE_CATEGORIES.filter((category) => (category.topic || "cs") === currentTopic);
+};
+
 const pickNewCategory = () => {
-  if (TENABLE_CATEGORIES.length === 1) {
+  const pool = getCategoryPool();
+  if (!pool.length) {
+    return null;
+  }
+  if (pool.length === 1) {
     currentCategoryIndex = 0;
-    return TENABLE_CATEGORIES[0];
+    return pool[0];
   }
 
   let nextIndex = currentCategoryIndex;
   while (nextIndex === currentCategoryIndex) {
-    nextIndex = Math.floor(Math.random() * TENABLE_CATEGORIES.length);
+    nextIndex = Math.floor(Math.random() * pool.length);
   }
 
   currentCategoryIndex = nextIndex;
-  return TENABLE_CATEGORIES[nextIndex];
+  return pool[nextIndex];
 };
 
 const updateScoreboard = () => {
@@ -192,7 +335,8 @@ const updateLeaderboardUI = () => {
     .slice(0, 10)
     .forEach((entry) => {
       const item = document.createElement("li");
-      item.textContent = `${entry.name} — ${entry.score} / ${entry.total} (${entry.category})`;
+      const topicLabel = topicLabels[entry.topic] || "All Topics";
+      item.textContent = `${entry.name} — ${entry.score} / ${entry.total} (${entry.category}) — ${topicLabel}`;
       leaderboardEl.appendChild(item);
     });
 };
@@ -207,6 +351,7 @@ const saveScore = () => {
     score: correctCount,
     total: currentCategory.answers.length,
     category: currentCategory.title,
+    topic: currentTopic,
     date: new Date().toISOString(),
   });
   saveLeaderboard(entries);
@@ -320,6 +465,13 @@ const startNewRound = () => {
   }
 
   currentCategory = pickNewCategory();
+  if (!currentCategory) {
+    categoryTitleEl.textContent = "No categories available";
+    answerBoardEl.innerHTML = "";
+    setMessage("No categories exist for this topic yet.", "warning");
+    setRoundState(true);
+    return;
+  }
   revealedAnswers = currentCategory.answers.map(() => false);
   normalizedAnswers = currentCategory.answers.map((answer) =>
     normalizeGuess(answer)
@@ -372,6 +524,8 @@ const initGame = () => {
   modalMessageEl = document.getElementById("tenableModalMessage");
   modalStartBtnEl = document.getElementById("tenableModalStart");
   leaderboardEl = document.getElementById("tenableLeaderboard");
+  topicSelectEl = document.getElementById("tenableTopic");
+  backLinkEl = document.getElementById("tenableBackLink");
 
   if (
     !categoryTitleEl ||
@@ -392,10 +546,20 @@ const initGame = () => {
     !modalNameInputEl ||
     !modalMessageEl ||
     !modalStartBtnEl ||
-    !leaderboardEl
+    !leaderboardEl ||
+    !topicSelectEl ||
+    !backLinkEl
   ) {
     return;
   }
+
+  backLinkEl.href = getBackLinkFromQuery();
+  const backLabel = getBackLabel(backLinkEl.href);
+  backLinkEl.textContent = `← Back to ${backLabel}`;
+  const initialTopic = getTopicFromQuery();
+  topicSelectEl.value = initialTopic;
+  currentTopic = initialTopic;
+  currentCategoryIndex = -1;
 
   updateLeaderboardUI();
 
@@ -420,10 +584,16 @@ const initGame = () => {
   modalStartBtnEl.addEventListener("click", startGame);
 
   nextBtnEl.addEventListener("click", startNewRound);
+  topicSelectEl.addEventListener("change", (event) => {
+    currentTopic = validTopic(event.target.value) ? event.target.value : "all";
+    currentCategoryIndex = -1;
+    startNewRound();
+  });
 
   backBtnEl.addEventListener("click", () => {
-    window.location.href = "cs_games.html";
+    window.location.href = getBackLinkFromQuery();
   });
+  backBtnEl.textContent = `← Back to ${backLabel}`;
 
   answerBoardEl.innerHTML = "";
   updateScoreboard();

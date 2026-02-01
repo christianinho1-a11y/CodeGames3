@@ -37,6 +37,11 @@
         <h3 class="sub-card-title">Add / Edit Group</h3>
         <div class="form-row">
           <input id="adminCategory" class="input" type="text" placeholder="Category" />
+          <select id="adminTopic" class="input" style="max-width: 200px;">
+            <option value="cs">Computer Science</option>
+            <option value="it">Information Technology</option>
+            <option value="cyber">Cybersecurity</option>
+          </select>
           <select id="adminDifficulty" class="input" style="max-width: 180px;">
             <option value="yellow">Yellow (Easy)</option>
             <option value="green">Green</option>
@@ -62,7 +67,7 @@
 
       <section class="sub-card">
         <h3 class="sub-card-title">Upload CSV</h3>
-        <p class="card-subtitle">CSV format: category,difficulty,word1,word2,word3,word4</p>
+        <p class="card-subtitle">CSV format: category,topic,difficulty,word1,word2,word3,word4</p>
         <input id="adminCsv" class="input" type="file" accept=".csv" />
         <div class="button-row">
           <button id="adminImportCsv" class="btn">Import CSV</button>

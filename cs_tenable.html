@@ -8,7 +8,7 @@
   <script defer src="cs_tenable.js"></script>
 </head>
 <body class="cs-body">
-  <a href="cs_games.html" class="back-link">← Back to CS Games</a>
+  <a href="cs_games.html" class="back-link" id="tenableBackLink">← Back to CS Games</a>
 
   <div class="modal" id="tenableNameModal">
     <div class="modal-card">
@@ -38,6 +38,20 @@
           Guess the Top 10 answers before you reach three strikes.
         </p>
       </header>
+
+      <section class="sub-card">
+        <h3 class="sub-card-title">Topic</h3>
+        <div class="form-row">
+          <label for="tenableTopic" class="sr-only">Topic</label>
+          <select id="tenableTopic" class="input">
+            <option value="all">All Topics</option>
+            <option value="cs">Computer Science</option>
+            <option value="it">Information Technology</option>
+            <option value="cyber">Cybersecurity</option>
+          </select>
+        </div>
+        <p class="card-subtitle small">Filter categories by topic.</p>
+      </section>
 
       <section class="sub-card">
         <div class="sub-card-header">

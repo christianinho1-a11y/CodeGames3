@@ -1,27 +1,64 @@
 // cs-wordle.js
 // CS Wordle – 5-letter CS term guessing game
 
-const WORDS = [
-  "array",
-  "stack",
-  "queue",
-  "class",
-  "logic",
-  "scope",
-  "input",
-  "bytes",
-  "float",
-  "loops",
-  "graph",
-  "merge",
-  "cache",
-  "debug",
-  "token",
-  "ascii",
-  "linux",
-  "parse",
-  "build",
-];
+const WORD_BANK = {
+  cs: [
+    "array",
+    "stack",
+    "queue",
+    "class",
+    "logic",
+    "scope",
+    "input",
+    "bytes",
+    "float",
+    "loops",
+    "graph",
+    "merge",
+    "cache",
+    "debug",
+    "token",
+    "ascii",
+    "linux",
+    "parse",
+    "build",
+  ],
+  it: [
+    "login",
+    "panel",
+    "cable",
+    "cloud",
+    "email",
+    "proxy",
+    "drive",
+    "patch",
+    "spool",
+    "audit",
+    "token",
+    "spare",
+    "linux",
+    "power",
+    "print",
+  ],
+  cyber: [
+    "phish",
+    "virus",
+    "spoof",
+    "steal",
+    "adwar",
+    "malwr",
+    "alert",
+    "audit",
+    "honey",
+    "trace",
+    "cloak",
+    "spear",
+    "crypt",
+    "token",
+    "proxy",
+    "vault",
+  ],
+};
 
 const MAX_ROWS = 6;
 const WORD_LENGTH = 5;
@@ -34,6 +71,8 @@ let gameOver = false;
 let gameStarted = false;
 let playerName = "";
 let scoreSaved = false;
+let currentTopic = "all";
+let activeWords = [];
 
 let gridEl;
 let keyboardEl;
@@ -41,6 +80,9 @@ let messageEl;
 let newBtnEl;
 let backBtnEl;
 let startBtnEl;
+let statusTitleEl;
+let topicSelectEl;
+let backLinkEl;
 let nameModalEl;
 let modalNameInputEl;
 let modalMessageEl;
@@ -57,6 +99,35 @@ const keyboardRows = [
 ];
 
 const normalize = (value) => value.trim().toLowerCase();
+const validTopic = (topic) => ["all", "cs", "it", "cyber"].includes(topic);
+
+const topicLabels = {
+  all: "All Topics",
+  cs: "Computer Science",
+  it: "Information Technology",
+  cyber: "Cybersecurity",
+};
+
+const getTopicFromQuery = () => {
+  const params = new URLSearchParams(window.location.search);
+  const topic = params.get("topic");
+  return validTopic(topic) ? topic : "all";
+};
+
+const getBackLinkFromQuery = () => {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("from") || "cs_games.html";
+};
+
+const getBackLabel = (href) => {
+  if (href.includes("it_games")) {
+    return "IT Games";
+  }
+  if (href.includes("cyber_games")) {
+    return "Cyber Games";
+  }
+  return "CS Games";
+};
 
 const setMessage = (text, tone = "") => {
   messageEl.textContent = text;
@@ -93,7 +164,8 @@ const updateLeaderboardUI = () => {
     .slice(0, 10)
     .forEach((entry) => {
       const item = document.createElement("li");
-      item.textContent = `${entry.name} — ${entry.result} — ${entry.score} pts`;
+      const topicLabel = topicLabels[entry.topic] || "All Topics";
+      item.textContent = `${entry.name} — ${entry.result} — ${entry.score} pts — ${topicLabel}`;
       leaderboardEl.appendChild(item);
     });
 };
@@ -109,6 +181,7 @@ const saveScore = (didWin) => {
     name: playerName,
     result: didWin ? "Solved" : "Missed",
     score,
+    topic: currentTopic,
     date: new Date().toISOString(),
   });
   saveLeaderboard(entries);
@@ -116,9 +189,20 @@ const saveScore = (didWin) => {
   scoreSaved = true;
 };
 
+const getActiveWords = () => {
+  if (currentTopic === "all") {
+    const allWords = Object.values(WORD_BANK).flat();
+    return Array.from(new Set(allWords));
+  }
+  return WORD_BANK[currentTopic] || [];
+};
+
 const pickWord = () => {
-  const nextIndex = Math.floor(Math.random() * WORDS.length);
-  return WORDS[nextIndex];
+  if (!activeWords.length) {
+    return "";
+  }
+  const nextIndex = Math.floor(Math.random() * activeWords.length);
+  return activeWords[nextIndex];
 };
 
 const buildGrid = () => {
@@ -249,8 +333,8 @@ const handleSubmit = () => {
   }
 
   const normalized = normalize(guess);
-  if (!WORDS.includes(normalized)) {
-    setMessage("That word isn't in the CS list yet.", "warning");
+  if (!activeWords.includes(normalized)) {
+    setMessage("That word isn't in the current topic list yet.", "warning");
     return;
   }
 
@@ -262,7 +346,7 @@ const handleSubmit = () => {
   });
 
   if (normalized === currentWord) {
-    setMessage("Nice! You solved the CS Wordle.", "success");
+    setMessage("Nice! You solved the Wordle.", "success");
     gameOver = true;
     saveScore(true);
     return;
@@ -315,6 +399,11 @@ const startRound = () => {
   }
 
   currentWord = pickWord();
+  if (!currentWord) {
+    setMessage("No words available for this topic yet.", "warning");
+    gameStarted = false;
+    return;
+  }
   currentRow = 0;
   currentCol = 0;
   gameOver = false;
@@ -338,6 +427,20 @@ const startGame = () => {
   startRound();
 };
 
+const updateTopicUI = () => {
+  const label = topicLabels[currentTopic] || "All Topics";
+  statusTitleEl.textContent = `Wordle — ${label}`;
+};
+
+const applyTopic = (topic, resetRound = false) => {
+  currentTopic = validTopic(topic) ? topic : "all";
+  activeWords = getActiveWords();
+  updateTopicUI();
+  if (resetRound && playerName) {
+    startRound();
+  }
+};
+
 const initWordle = () => {
   gridEl = document.getElementById("wordleGrid");
   keyboardEl = document.getElementById("wordleKeyboard");
@@ -345,6 +448,9 @@ const initWordle = () => {
   newBtnEl = document.getElementById("wordleNewBtn");
   backBtnEl = document.getElementById("wordleBackBtn");
   startBtnEl = document.getElementById("wordleStartBtn");
+  statusTitleEl = document.getElementById("wordleStatusTitle");
+  topicSelectEl = document.getElementById("wordleTopic");
+  backLinkEl = document.getElementById("wordleBackLink");
   nameModalEl = document.getElementById("wordleNameModal");
   modalNameInputEl = document.getElementById("wordleModalName");
   modalMessageEl = document.getElementById("wordleModalMessage");
@@ -362,18 +468,32 @@ const initWordle = () => {
     !modalNameInputEl ||
     !modalMessageEl ||
     !modalStartBtnEl ||
-    !leaderboardEl
+    !leaderboardEl ||
+    !statusTitleEl ||
+    !topicSelectEl ||
+    !backLinkEl
   ) {
     return;
   }
+
+  backLinkEl.href = getBackLinkFromQuery();
+  const backLabel = getBackLabel(backLinkEl.href);
+  backLinkEl.textContent = `← Back to ${backLabel}`;
+  const initialTopic = getTopicFromQuery();
+  topicSelectEl.value = initialTopic;
+  applyTopic(initialTopic);
 
   updateLeaderboardUI();
   newBtnEl.addEventListener("click", startRound);
   startBtnEl.addEventListener("click", startRound);
   backBtnEl.addEventListener("click", () => {
-    window.location.href = "cs_games.html";
+    window.location.href = getBackLinkFromQuery();
   });
+  backBtnEl.textContent = `← Back to ${backLabel}`;
   modalStartBtnEl.addEventListener("click", startGame);
+  topicSelectEl.addEventListener("change", (event) => {
+    applyTopic(event.target.value, true);
+  });
 
   window.addEventListener("keydown", (event) => {
     const key = event.key.toUpperCase();

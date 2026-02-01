@@ -8,7 +8,7 @@
   <script defer src="cs_wordle.js"></script>
 </head>
 <body class="cs-body">
-  <a href="cs_games.html" class="back-link">← Back to CS Games</a>
+  <a href="cs_games.html" class="back-link" id="wordleBackLink">← Back to CS Games</a>
 
   <div class="modal" id="wordleNameModal">
     <div class="modal-card">
@@ -38,6 +38,20 @@
           You have six tries. Green means correct spot, yellow means in the word.
         </p>
       </header>
+
+      <section class="sub-card">
+        <h3 class="sub-card-title">Topic</h3>
+        <div class="form-row">
+          <label for="wordleTopic" class="sr-only">Topic</label>
+          <select id="wordleTopic" class="input">
+            <option value="all">All Topics</option>
+            <option value="cs">Computer Science</option>
+            <option value="it">Information Technology</option>
+            <option value="cyber">Cybersecurity</option>
+          </select>
+        </div>
+        <p class="card-subtitle small">Pick a topic to filter the word list.</p>
+      </section>
 
       <section class="sub-card">
         <h3 class="sub-card-title">Answer Board</h3>

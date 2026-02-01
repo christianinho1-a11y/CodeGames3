@@ -23,6 +23,7 @@ const login = () => {
 
 const addGroup = () => {
   const category = adminEls.category.value.trim();
+  const topic = adminEls.topic.value;
   const difficulty = adminEls.difficulty.value;
   const wordsRaw = adminEls.words.value.trim();
 
@@ -37,7 +38,7 @@ const addGroup = () => {
     return;
   }
 
-  adminGroups.push({ category, words, difficulty });
+  adminGroups.push({ category, words, difficulty, topic });
   renderGroups();
   adminEls.category.value = "";
   adminEls.words.value = "";
@@ -92,9 +93,12 @@ const importCsv = () => {
     const newGroups = [];
     lines.forEach((line) => {
       const parts = line.split(",").map((part) => part.trim());
-      if (parts.length >= 6) {
+      if (parts.length >= 7) {
+        const [category, topic, difficulty, ...words] = parts;
+        newGroups.push({ category, difficulty, topic, words: words.slice(0, 4) });
+      } else if (parts.length >= 6) {
         const [category, difficulty, ...words] = parts;
-        newGroups.push({ category, difficulty, words: words.slice(0, 4) });
+        newGroups.push({ category, difficulty, topic: "cs", words: words.slice(0, 4) });
       }
     });
     if (newGroups.length) {
@@ -114,6 +118,7 @@ const initAdmin = () => {
   adminEls.loginBtn = document.getElementById("adminLoginBtn");
   adminEls.loginMessage = document.getElementById("adminLoginMessage");
   adminEls.category = document.getElementById("adminCategory");
+  adminEls.topic = document.getElementById("adminTopic");
   adminEls.difficulty = document.getElementById("adminDifficulty");
   adminEls.words = document.getElementById("adminWords");
   adminEls.addGroup = document.getElementById("adminAddGroup");

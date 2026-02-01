@@ -887,6 +887,10 @@ body.cs-body {
   margin-top: 1.5rem;
 }
 
+.game-grid + .game-grid {
+  margin-top: 1.5rem;
+}
+
 /* each game card */
 .game-card {
   position: relative;
@@ -1012,4 +1016,39 @@ body.cs-body {
 
 .subject-list li {
   margin-bottom: 0.2rem;
+}
+
+.quiz-prompt {
+  font-size: 1.05rem;
+  color: #d9e6ff;
+  margin-top: 0.35rem;
+}
+
+.quiz-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.quiz-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.quiz-option {
+  flex: 1 1 160px;
+  text-align: center;
+}
+
+.quiz-scoreboard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: flex-end;
+}
+
+.quiz-message {
+  margin-top: 0.75rem;
+  font-weight: 600;
 }

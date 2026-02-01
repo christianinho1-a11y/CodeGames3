@@ -11,8 +11,38 @@ let strikes = 0;
 let timerInterval;
 let startTime;
 let puzzleId = 0;
+let currentTopic = "all";
 
 const elements = {};
+
+const validTopic = (topic) => ["all", "cs", "it", "cyber"].includes(topic);
+const topicLabels = {
+  all: "All Topics",
+  cs: "Computer Science",
+  it: "Information Technology",
+  cyber: "Cybersecurity",
+};
+
+const getTopicFromQuery = () => {
+  const params = new URLSearchParams(window.location.search);
+  const topic = params.get("topic");
+  return validTopic(topic) ? topic : "all";
+};
+
+const getBackLinkFromQuery = () => {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("from") || "cs_games.html";
+};
+
+const getBackLabel = (href) => {
+  if (href.includes("it_games")) {
+    return "IT Games";
+  }
+  if (href.includes("cyber_games")) {
+    return "Cyber Games";
+  }
+  return "CS Games";
+};
 
 const shuffle = (array) => {
   const copy = [...array];
@@ -81,7 +111,8 @@ const updateLeaderboardUI = () => {
     .forEach((entry) => {
       const item = document.createElement("li");
       const date = new Date(entry.date).toLocaleDateString();
-      item.textContent = `${entry.name} — ${formatTime(entry.timeSeconds)} — ${date} — Puzzle ${entry.puzzleId} — Solved ${entry.solvedCount}`;
+      const topicLabel = topicLabels[entry.topic] || "All Topics";
+      item.textContent = `${entry.name} — ${formatTime(entry.timeSeconds)} — ${date} — Puzzle ${entry.puzzleId} — Solved ${entry.solvedCount} — ${topicLabel}`;
       elements.leaderboard.appendChild(item);
     });
 };
@@ -113,6 +144,7 @@ const finalizeGame = (didWin) => {
     date: new Date().toISOString(),
     puzzleId,
     solvedCount: solvedGroups.length,
+    topic: currentTopic,
   };
 
   const entries = loadLeaderboard();
@@ -205,12 +237,28 @@ const checkSelection = () => {
   }
 };
 
+const getGroupsForTopic = () => {
+  if (!Array.isArray(CONNECTIONS_GROUPS)) {
+    return [];
+  }
+  if (currentTopic === "all") {
+    return CONNECTIONS_GROUPS;
+  }
+  return CONNECTIONS_GROUPS.filter((group) => (group.topic || "cs") === currentTopic);
+};
+
 const buildPuzzle = () => {
-  if (!Array.isArray(CONNECTIONS_GROUPS) || CONNECTIONS_GROUPS.length < 4) {
+  const pool = getGroupsForTopic();
+  if (!pool.length || pool.length < 4) {
+    elements.grid.innerHTML = "";
+    elements.solvedGroups.innerHTML = "";
+    elements.endCard.hidden = true;
+    elements.message.textContent = "Not enough groups for this topic yet.";
+    elements.submit.disabled = true;
     return;
   }
 
-  const shuffled = shuffle(CONNECTIONS_GROUPS);
+  const shuffled = shuffle(pool);
   puzzleGroups = shuffled.slice(0, 4);
   puzzleId = Math.floor(Math.random() * 9000) + 1000;
   tiles = shuffle(
@@ -273,10 +321,19 @@ const initGame = () => {
   elements.newPuzzle = document.getElementById("connectionsNewPuzzle");
   elements.backBtn = document.getElementById("connectionsBackBtn");
   elements.leaderboard = document.getElementById("connectionsLeaderboard");
+  elements.topicSelect = document.getElementById("connectionsTopic");
+  elements.backLink = document.getElementById("connectionsBackLink");
 
   if (Object.values(elements).some((el) => !el)) {
     return;
   }
+
+  elements.backLink.href = getBackLinkFromQuery();
+  const backLabel = getBackLabel(elements.backLink.href);
+  elements.backLink.textContent = `← Back to ${backLabel}`;
+  const initialTopic = getTopicFromQuery();
+  elements.topicSelect.value = initialTopic;
+  currentTopic = initialTopic;
 
   updateLeaderboardUI();
   openNameModal();
@@ -287,7 +344,18 @@ const initGame = () => {
   elements.clear.addEventListener("click", clearSelection);
   elements.newPuzzle.addEventListener("click", buildPuzzle);
   elements.backBtn.addEventListener("click", () => {
-    window.location.href = "cs_games.html";
+    window.location.href = getBackLinkFromQuery();
+  });
+  elements.backBtn.textContent = `← Back to ${backLabel}`;
+  elements.topicSelect.addEventListener("change", (event) => {
+    currentTopic = validTopic(event.target.value) ? event.target.value : "all";
+    if (playerName) {
+      buildPuzzle();
+    } else {
+      elements.grid.innerHTML = "";
+      elements.solvedGroups.innerHTML = "";
+      elements.message.textContent = "Start the game to load a puzzle for this topic.";
+    }
   });
 };
 
