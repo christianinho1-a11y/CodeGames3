@@ -1,1356 +1,1239 @@
-
-
 // if_else_escape.js
 
-// ----- Game configuration -----
-
 const MAX_LIVES = 3;
-const QUESTIONS_PER_GAME = 20; // 4 rooms * 5 puzzles each
 const LEADERBOARD_KEY = "if_else_escape_leaderboard";
 
-// ----- Story-based question bank -----
-//
-// Grouped roughly by difficulty slices for levels:
-// Level 1 → Intro CS-style conditionals
-// Level 2 → AP CSP-style if/else
-// Level 3 → AP CSA-style else-if chains
-// Level 4 → Honors DSA-style &&, ||, !
-// Level 5 → College-ish combined / nested logic
+const LEVEL_CONFIG = {
+  1: { label: "Level 1 – Intro CS", multiplier: 1 },
+  2: { label: "Level 2 – AP CSP", multiplier: 2 },
+  3: { label: "Level 3 – AP CSA", multiplier: 3 },
+  4: { label: "Level 4 – Honors DSA", multiplier: 4 },
+  5: { label: "Level 5 – College CS", multiplier: 5 },
+};
 
-const IF_ELSE_QUESTIONS = [
-  // ---------------------------
-  // LEVEL 1 SLICE (Intro CS)
-  // Simple ifs in the "Pixel High CS Lab"
-  // ---------------------------
+const STORY_LEVELS = {
+  1: {
+    title: "Rookie Cup Soccer",
+    maxSteps: 6,
+    start: "kickoff",
+    nodes: {
+      kickoff: {
+        scenario:
+          "Kickoff in the rookie cup. You can play it safe, push forward, or call for a quick pass. stamina = 6, support = true.",
+        code: `if (stamina > 5 && support) {
+  play = "quick pass";
+} else if (stamina > 5) {
+  play = "push forward";
+} else {
+  play = "play it safe";
+}`,
+        choices: [
+          {
+            label: "Call for the quick pass.",
+            next: "throughBall",
+            points: 2,
+            outcome: "Your teammate is ready and the defense shifts.",
+          },
+          {
+            label: "Push forward on your own.",
+            next: "dribble",
+            points: 1,
+            outcome: "You keep the ball but feel the pressure closing in.",
+          },
+          {
+            label: "Play it safe and reset.",
+            next: "reset",
+            points: 0,
+            outcome: "You keep possession, but the crowd groans.",
+          },
+        ],
+      },
+      throughBall: {
+        scenario:
+          "You spot a runner. accuracy = 4, defenderClose = true.",
+        code: `if (accuracy >= 5) {
+  pass = "threaded";
+} else if (defenderClose) {
+  pass = "risky";
+} else {
+  pass = "clean";
+}`,
+        choices: [
+          {
+            label: "Thread the ball through the defenders.",
+            next: "goalChance",
+            points: 3,
+            outcome: "The pass is risky, but it squeaks through.",
+          },
+          {
+            label: "Take a safer touch and look for space.",
+            next: "dribble",
+            points: 1,
+            outcome: "You slow the play and keep control.",
+          },
+          {
+            label: "Reset the play back to midfield.",
+            next: "reset",
+            points: -1,
+            outcome: "You give up momentum for safety.",
+          },
+        ],
+      },
+      dribble: {
+        scenario:
+          "A defender steps up. speed = 7, trickMove = false.",
+        code: `if (speed >= 7 && !trickMove) {
+  outcome = "beat defender";
+} else if (trickMove) {
+  outcome = "fancy move";
+} else {
+  outcome = "lose ball";
+}`,
+        choices: [
+          {
+            label: "Explode past the defender.",
+            next: "goalChance",
+            points: 2,
+            outcome: "You beat them on pace and stay on goal.",
+          },
+          {
+            label: "Try a flashy move.",
+            next: "counter",
+            points: -1,
+            livesChange: -1,
+            outcome: "The trick backfires and you stumble.",
+          },
+          {
+            label: "Shield and look for help.",
+            next: "reset",
+            points: 0,
+            outcome: "You keep the ball but slow the attack.",
+          },
+        ],
+      },
+      reset: {
+        scenario:
+          "Your team resets. focus = 3, coachSignal = true.",
+        code: `if (coachSignal) {
+  plan = "build up";
+} else if (focus > 4) {
+  plan = "quick strike";
+} else {
+  plan = "hold";
+}`,
+        choices: [
+          {
+            label: "Build up patiently.",
+            next: "goalChance",
+            points: 1,
+            outcome: "You regain shape and set up another chance.",
+          },
+          {
+            label: "Hold the ball and burn time.",
+            next: "finalWhistle",
+            points: 0,
+            outcome: "The clock moves, but the crowd wants more.",
+          },
+        ],
+      },
+      goalChance: {
+        scenario:
+          "You line up a shot. shotPower = 8, goalieReady = false.",
+        code: `if (shotPower > 7 && !goalieReady) {
+  result = "goal";
+} else if (shotPower > 7) {
+  result = "save";
+} else {
+  result = "miss";
+}`,
+        checkpoint: "Goal scored!",
+        choices: [
+          {
+            label: "Fire the shot.",
+            next: "finalWhistle",
+            points: 4,
+            outcome: "Goal! The net ripples and the crowd erupts.",
+          },
+          {
+            label: "Square it to a teammate.",
+            next: "finalWhistle",
+            points: 2,
+            outcome: "They finish it calmly for a goal.",
+          },
+          {
+            label: "Hesitate and look for a better angle.",
+            next: "counter",
+            points: -2,
+            livesChange: -1,
+            outcome: "You get closed down and lose the ball.",
+          },
+        ],
+      },
+      counter: {
+        scenario:
+          "The other team counters fast. hustle = 4.",
+        code: `if (hustle >= 5) {
+  defense = "recover";
+} else {
+  defense = "exposed";
+}`,
+        choices: [
+          {
+            label: "Sprint back to defend.",
+            next: "finalWhistle",
+            points: 1,
+            outcome: "You recover just in time to block a shot.",
+          },
+          {
+            label: "Foul to stop the play.",
+            next: "finalWhistle",
+            points: -2,
+            livesChange: -1,
+            outcome: "You take a card but stop the danger.",
+          },
+        ],
+      },
+      finalWhistle: {
+        scenario: "The final whistle blows. tally = 1.",
+        code: `if (tally >= 1) {
+  season = "champions";
+} else {
+  season = "rebuild";
+}`,
+        ending: "Match complete",
+        choices: [
+          {
+            label: "Celebrate with the team.",
+            next: null,
+            points: 2,
+            outcome: "You lift the trophy with a grin.",
+          },
+          {
+            label: "Reflect on what to improve.",
+            next: null,
+            points: 1,
+            outcome: "You plan your next training session.",
+          },
+        ],
+      },
+    },
+  },
+  2: {
+    title: "Temple of Treasure",
+    maxSteps: 7,
+    start: "entrance",
+    nodes: {
+      entrance: {
+        scenario:
+          "You stand at a glowing temple entrance. torchLit = true, mapFound = false.",
+        code: `if (torchLit && mapFound) {
+  path = "inner gate";
+} else if (torchLit) {
+  path = "side corridor";
+} else {
+  path = "dark tunnel";
+}`,
+        choices: [
+          {
+            label: "Take the side corridor.",
+            next: "glyphs",
+            points: 2,
+            outcome: "The torch light reveals ancient markings.",
+          },
+          {
+            label: "Brave the dark tunnel.",
+            next: "pitTrap",
+            points: -1,
+            livesChange: -1,
+            outcome: "You stumble in the dark but push ahead.",
+          },
+          {
+            label: "Search for a map first.",
+            next: "camp",
+            points: 1,
+            outcome: "You find a scrap map near an old camp.",
+          },
+        ],
+      },
+      camp: {
+        scenario:
+          "You find supplies left behind. supplies = 2, water = 1.",
+        code: `if (supplies > 1) {
+  pack = "prepared";
+} else if (water > 0) {
+  pack = "light";
+} else {
+  pack = "risky";
+}`,
+        choices: [
+          {
+            label: "Stock up and move on.",
+            next: "glyphs",
+            points: 2,
+            outcome: "You feel prepared for deeper traps.",
+          },
+          {
+            label: "Move quickly with a light pack.",
+            next: "pitTrap",
+            points: 0,
+            outcome: "Speed helps, but you lack extra gear.",
+          },
+        ],
+      },
+      glyphs: {
+        scenario:
+          "You face a puzzle wall. symbolMatch = 2, hintUsed = false.",
+        code: `if (symbolMatch >= 3) {
+  door = "open";
+} else if (!hintUsed) {
+  door = "half open";
+} else {
+  door = "sealed";
+}`,
+        choices: [
+          {
+            label: "Solve the glyphs carefully.",
+            next: "treasureRoom",
+            points: 3,
+            outcome: "The door slides open with a click.",
+          },
+          {
+            label: "Use a hint to force it open.",
+            next: "treasureRoom",
+            points: 1,
+            outcome: "The door opens, but the mechanism groans.",
+          },
+          {
+            label: "Force the door with brute strength.",
+            next: "pitTrap",
+            points: -2,
+            livesChange: -1,
+            outcome: "A trap triggers as you push.",
+          },
+        ],
+      },
+      pitTrap: {
+        scenario:
+          "A pit trap appears. ropeLength = 4, jumpSkill = 2.",
+        code: `if (ropeLength >= 5) {
+  escape = "swing";
+} else if (jumpSkill >= 3) {
+  escape = "jump";
+} else {
+  escape = "fall";
+}`,
+        choices: [
+          {
+            label: "Swing across with the rope.",
+            next: "treasureRoom",
+            points: 2,
+            outcome: "You swing safely over the pit.",
+          },
+          {
+            label: "Attempt a running jump.",
+            next: "treasureRoom",
+            points: 0,
+            outcome: "You barely clear it with a scrape.",
+          },
+          {
+            label: "Climb down carefully.",
+            next: "treasureRoom",
+            points: -1,
+            livesChange: -1,
+            outcome: "You lose time and get banged up.",
+          },
+        ],
+      },
+      treasureRoom: {
+        scenario:
+          "The treasure chamber glows. guardianAwake = false, respectShown = true.",
+        code: `if (!guardianAwake && respectShown) {
+  treasure = "claim";
+} else if (guardianAwake) {
+  treasure = "negotiate";
+} else {
+  treasure = "leave";
+}`,
+        checkpoint: "Treasure found!",
+        choices: [
+          {
+            label: "Take the treasure respectfully.",
+            next: "exit",
+            points: 4,
+            outcome: "You secure the treasure without a fight.",
+          },
+          {
+            label: "Wake the guardian and negotiate.",
+            next: "exit",
+            points: 2,
+            outcome: "The guardian grants you a smaller prize.",
+          },
+          {
+            label: "Leave the treasure and escape.",
+            next: "exit",
+            points: 1,
+            outcome: "You live to explore another day.",
+          },
+        ],
+      },
+      exit: {
+        scenario:
+          "You reach daylight. teamSafe = true.",
+        code: `if (teamSafe) {
+  ending = "legend";
+} else {
+  ending = "lonely exit";
+}`,
+        ending: "Adventure complete",
+        choices: [
+          {
+            label: "Share the story with your team.",
+            next: null,
+            points: 2,
+            outcome: "Your crew celebrates your success.",
+          },
+          {
+            label: "Keep the details secret.",
+            next: null,
+            points: 1,
+            outcome: "You stash the treasure and slip away.",
+          },
+        ],
+      },
+    },
+  },
+  3: {
+    title: "Team Project Drama",
+    maxSteps: 7,
+    start: "kickoff",
+    nodes: {
+      kickoff: {
+        scenario:
+          "Your group project starts. teammatePrepared = false, deadlinesClose = true.",
+        code: `if (teammatePrepared && !deadlinesClose) {
+  plan = "explore ideas";
+} else if (deadlinesClose) {
+  plan = "assign tasks";
+} else {
+  plan = "review basics";
+}`,
+        choices: [
+          {
+            label: "Assign tasks immediately.",
+            next: "standup",
+            points: 2,
+            outcome: "You give everyone clear ownership.",
+          },
+          {
+            label: "Review the basics together.",
+            next: "standup",
+            points: 1,
+            outcome: "You reset expectations with the team.",
+          },
+          {
+            label: "Let people self-assign later.",
+            next: "conflict",
+            points: -2,
+            outcome: "Confusion builds as the deadline nears.",
+          },
+        ],
+      },
+      standup: {
+        scenario:
+          "Daily standup time. blockers = 1, clarity = 2.",
+        code: `if (blockers == 0) {
+  mood = "confident";
+} else if (clarity >= 2) {
+  mood = "focused";
+} else {
+  mood = "stressed";
+}`,
+        choices: [
+          {
+            label: "Facilitate a quick problem-solve.",
+            next: "conflict",
+            points: 2,
+            outcome: "Blockers drop and momentum rises.",
+          },
+          {
+            label: "Skip standup and keep coding.",
+            next: "conflict",
+            points: -1,
+            outcome: "Progress happens, but issues stay hidden.",
+          },
+          {
+            label: "Ask for clarity on responsibilities.",
+            next: "conflict",
+            points: 1,
+            outcome: "The team re-aligns on roles.",
+          },
+        ],
+      },
+      conflict: {
+        scenario:
+          "Two teammates disagree. respect = 4, timeLeft = 2.",
+        code: `if (respect >= 4 && timeLeft > 1) {
+  approach = "mediate";
+} else if (timeLeft <= 1) {
+  approach = "decide quickly";
+} else {
+  approach = "avoid";
+}`,
+        choices: [
+          {
+            label: "Mediate and find common ground.",
+            next: "resolution",
+            points: 3,
+            outcome: "Everyone feels heard and stays on task.",
+          },
+          {
+            label: "Make a quick decision for the team.",
+            next: "resolution",
+            points: 1,
+            outcome: "You move forward, but tension lingers.",
+          },
+          {
+            label: "Avoid the conflict for now.",
+            next: "resolution",
+            points: -2,
+            livesChange: -1,
+            outcome: "The disagreement resurfaces later.",
+          },
+        ],
+      },
+      resolution: {
+        scenario:
+          "The conflict is almost resolved. accountability = true.",
+        code: `if (accountability) {
+  status = "resolved";
+} else {
+  status = "messy";
+}`,
+        checkpoint: "Conflict resolved!",
+        choices: [
+          {
+            label: "Document the decision and move on.",
+            next: "demoPrep",
+            points: 2,
+            outcome: "Everyone knows what to do next.",
+          },
+          {
+            label: "Let it go and keep coding.",
+            next: "demoPrep",
+            points: 0,
+            outcome: "You move forward but risk confusion later.",
+          },
+        ],
+      },
+      demoPrep: {
+        scenario:
+          "Demo day is close. bugsLeft = 3, polish = 1.",
+        code: `if (bugsLeft <= 1 && polish >= 2) {
+  prep = "showcase";
+} else if (bugsLeft <= 3) {
+  prep = "stable";
+} else {
+  prep = "rough";
+}`,
+        choices: [
+          {
+            label: "Fix the last bugs first.",
+            next: "presentation",
+            points: 2,
+            outcome: "Stability improves before showtime.",
+          },
+          {
+            label: "Polish the visuals.",
+            next: "presentation",
+            points: 1,
+            outcome: "The demo looks sleek, bugs remain.",
+          },
+          {
+            label: "Add one more feature.",
+            next: "presentation",
+            points: -2,
+            livesChange: -1,
+            outcome: "Scope creep adds stress.",
+          },
+        ],
+      },
+      presentation: {
+        scenario:
+          "You present the project. confidence = 5, practiceRuns = 1.",
+        code: `if (confidence >= 5 && practiceRuns > 1) {
+  demo = "smooth";
+} else if (confidence >= 5) {
+  demo = "okay";
+} else {
+  demo = "shaky";
+}`,
+        ending: "Project delivered",
+        choices: [
+          {
+            label: "Let the team handle their sections.",
+            next: null,
+            points: 3,
+            outcome: "The demo flows and the class applauds.",
+          },
+          {
+            label: "Take over the demo yourself.",
+            next: null,
+            points: 1,
+            outcome: "You pull it off, but the team feels sidelined.",
+          },
+        ],
+      },
+    },
+  },
+  4: {
+    title: "Rescue Drone Mission",
+    maxSteps: 7,
+    start: "dispatch",
+    nodes: {
+      dispatch: {
+        scenario:
+          "You pilot a rescue drone. battery = 75, wind = 4.",
+        code: `if (battery >= 70 && wind <= 4) {
+  route = "direct";
+} else if (battery >= 50) {
+  route = "safe";
+} else {
+  route = "land and recharge";
+}`,
+        choices: [
+          {
+            label: "Take the direct route.",
+            next: "scan",
+            points: 2,
+            outcome: "You reach the zone quickly.",
+          },
+          {
+            label: "Choose the safer route.",
+            next: "scan",
+            points: 1,
+            outcome: "You avoid turbulence but lose time.",
+          },
+          {
+            label: "Land and recharge first.",
+            next: "delay",
+            points: -1,
+            outcome: "You lose time but gain stability.",
+          },
+        ],
+      },
+      delay: {
+        scenario:
+          "The delay costs you time. signal = true.",
+        code: `if (signal) {
+  update = "received";
+} else {
+  update = "lost";
+}`,
+        choices: [
+          {
+            label: "Proceed with the latest update.",
+            next: "scan",
+            points: 1,
+            outcome: "You get a better location lock.",
+          },
+          {
+            label: "Proceed cautiously without update.",
+            next: "scan",
+            points: 0,
+            outcome: "You rely on visuals alone.",
+          },
+        ],
+      },
+      scan: {
+        scenario:
+          "You scan for survivors. thermalReading = 2, audioPing = true.",
+        code: `if (thermalReading >= 3) {
+  target = "thermal";
+} else if (audioPing) {
+  target = "audio";
+} else {
+  target = "unknown";
+}`,
+        choices: [
+          {
+            label: "Follow the audio ping.",
+            next: "rescue",
+            points: 2,
+            outcome: "You detect a faint call for help.",
+          },
+          {
+            label: "Search the thermal spot.",
+            next: "rescue",
+            points: 1,
+            outcome: "The heat signature is weak but promising.",
+          },
+          {
+            label: "Circle wider for more data.",
+            next: "storm",
+            points: -1,
+            outcome: "Clouds start to roll in.",
+          },
+        ],
+      },
+      storm: {
+        scenario:
+          "Weather worsens. gusts = 6.",
+        code: `if (gusts >= 5) {
+  mode = "stabilize";
+} else {
+  mode = "search";
+}`,
+        choices: [
+          {
+            label: "Stabilize the drone.",
+            next: "rescue",
+            points: 1,
+            outcome: "You steady the drone and keep it safe.",
+          },
+          {
+            label: "Push through the storm.",
+            next: "rescue",
+            points: -2,
+            livesChange: -1,
+            outcome: "You take damage but stay airborne.",
+          },
+        ],
+      },
+      rescue: {
+        scenario:
+          "You find the stranded team. payload = true, terrainClear = false.",
+        code: `if (payload && terrainClear) {
+  rescue = "land";
+} else if (payload) {
+  rescue = "drop supplies";
+} else {
+  rescue = "signal only";
+}`,
+        checkpoint: "Rescue secured!",
+        choices: [
+          {
+            label: "Drop supplies from above.",
+            next: "return",
+            points: 3,
+            outcome: "Supplies land safely near the team.",
+          },
+          {
+            label: "Attempt a landing.",
+            next: "return",
+            points: 1,
+            outcome: "You land but risk the drone.",
+          },
+          {
+            label: "Signal for a ground team.",
+            next: "return",
+            points: 0,
+            outcome: "Help is on the way, but slower.",
+          },
+        ],
+      },
+      return: {
+        scenario:
+          "Return flight. battery = 25.",
+        code: `if (battery > 20) {
+  return = "successful";
+} else {
+  return = "emergency landing";
+}`,
+        ending: "Mission complete",
+        choices: [
+          {
+            label: "Fly straight home.",
+            next: null,
+            points: 2,
+            outcome: "You get the drone back safely.",
+          },
+          {
+            label: "Land at a safe outpost.",
+            next: null,
+            points: 1,
+            outcome: "You secure the drone and log the rescue.",
+          },
+        ],
+      },
+    },
+  },
+  5: {
+    title: "Hackathon Finals",
+    maxSteps: 7,
+    start: "pitch",
+    nodes: {
+      pitch: {
+        scenario:
+          "Final round pitch. demoReady = false, judgeFocus = true.",
+        code: `if (demoReady && judgeFocus) {
+  approach = "live demo";
+} else if (judgeFocus) {
+  approach = "story pitch";
+} else {
+  approach = "quick summary";
+}`,
+        choices: [
+          {
+            label: "Deliver a story-driven pitch.",
+            next: "qa",
+            points: 3,
+            outcome: "Judges lean in to listen.",
+          },
+          {
+            label: "Attempt a risky live demo.",
+            next: "qa",
+            points: -2,
+            livesChange: -1,
+            outcome: "The demo glitches, but you recover.",
+          },
+          {
+            label: "Give a concise summary.",
+            next: "qa",
+            points: 1,
+            outcome: "You stay on time, but miss details.",
+          },
+        ],
+      },
+      qa: {
+        scenario:
+          "Q&A begins. prepNotes = 2, teammateReady = true.",
+        code: `if (prepNotes >= 3) {
+  response = "detailed";
+} else if (teammateReady) {
+  response = "team answer";
+} else {
+  response = "short answer";
+}`,
+        choices: [
+          {
+            label: "Bring a teammate in to answer.",
+            next: "debug",
+            points: 2,
+            outcome: "The team shows unity and clarity.",
+          },
+          {
+            label: "Answer briefly and move on.",
+            next: "debug",
+            points: 0,
+            outcome: "You keep pace but miss nuance.",
+          },
+          {
+            label: "Offer a detailed technical breakdown.",
+            next: "debug",
+            points: 3,
+            outcome: "Judges nod, impressed by depth.",
+          },
+        ],
+      },
+      debug: {
+        scenario:
+          "A bug appears right before judging. fixTime = 8, impactHigh = true.",
+        code: `if (fixTime <= 5) {
+  plan = "patch now";
+} else if (impactHigh) {
+  plan = "explain workaround";
+} else {
+  plan = "ignore";
+}`,
+        choices: [
+          {
+            label: "Explain a workaround live.",
+            next: "finale",
+            points: 2,
+            outcome: "Judges appreciate the honesty.",
+          },
+          {
+            label: "Patch it quickly anyway.",
+            next: "finale",
+            points: -1,
+            livesChange: -1,
+            outcome: "You fix it, but the stress shows.",
+          },
+          {
+            label: "Ignore it and stay on script.",
+            next: "finale",
+            points: -2,
+            outcome: "The bug appears during the demo.",
+          },
+        ],
+      },
+      finale: {
+        scenario:
+          "Final scores come in. innovation = 4, teamwork = 5.",
+        code: `if (innovation >= 5 && teamwork >= 5) {
+  result = "grand prize";
+} else if (teamwork >= 5) {
+  result = "team award";
+} else {
+  result = "honorable mention";
+}`,
+        checkpoint: "Results announced!",
+        choices: [
+          {
+            label: "Celebrate the team win.",
+            next: "wrap",
+            points: 3,
+            outcome: "Your team takes home a prize.",
+          },
+          {
+            label: "Thank the mentors and judges.",
+            next: "wrap",
+            points: 2,
+            outcome: "You build connections for the future.",
+          },
+          {
+            label: "Set goals for the next hackathon.",
+            next: "wrap",
+            points: 1,
+            outcome: "You leave inspired to improve.",
+          },
+        ],
+      },
+      wrap: {
+        scenario:
+          "The hackathon ends. feedback = true.",
+        code: `if (feedback) {
+  nextStep = "iterate";
+} else {
+  nextStep = "ship";
+}`,
+        ending: "Hackathon complete",
+        choices: [
+          {
+            label: "Iterate on the project.",
+            next: null,
+            points: 2,
+            outcome: "You leave with a roadmap for growth.",
+          },
+          {
+            label: "Ship the project as-is.",
+            next: null,
+            points: 1,
+            outcome: "You push your build to the world.",
+          },
+        ],
+      },
+    },
+  },
+};
 
-  {
-    scenario:
-      "You’re staying after school in the Pixel High CS lab when the lights flicker and the monitors glow neon green. A message appears: 'WELCOME TO THE CODE DUNGEON.' The first door only opens if your keycard level is above 0. keycardLevel = 1.",
-    code: `if (keycardLevel > 0) {
-  openDoor();
-}`,
-    choices: [
-      "The door unlocks and slides open.",
-      "The door stays locked.",
-      "The game crashes and restarts.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "You find a holographic vending machine that dispenses hint tokens—but only if you have at least 10 coins. coins = 7.",
-    code: `if (coins >= 10) {
-  dispenseHintToken();
-}`,
-    choices: [
-      "A hint token pops out.",
-      "Nothing happens.",
-      "Your coins become 10.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "A glowing floor tile says: 'STEP ONLY IF ENERGY == 100.' Your energy is exactly 100. energy = 100.",
-    code: `if (energy == 100) {
-  safeToStep = true;
-}`,
-    choices: [
-      "safeToStep becomes true and you walk across safely.",
-      "safeToStep becomes false and you fall through.",
-      "Nothing changes; the tile ignores you.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "You approach a fan tunnel. A sign reads: 'If fanSpeed > 5, duck or be blasted back.' fanSpeed = 3.",
-    code: `if (fanSpeed > 5) {
-  show("Duck!");
-}`,
-    choices: [
-      'The game shows "Duck!" and you crouch.',
-      "Nothing appears; it’s safe.",
-      "The fan explodes immediately.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "A security drone hovers nearby. It only charges at you if alertLevel is greater than 8. alertLevel = 8.",
-    code: `if (alertLevel > 8) {
-  droneCharge();
-}`,
-    choices: [
-      "The drone charges at you.",
-      "The drone stays where it is.",
-      "The drone powers off.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "You find a teleport pad labeled: 'Teleport if crystalsCollected >= 3'. crystalsCollected = 4.",
-    code: `if (crystalsCollected >= 3) {
-  teleportToNextRoom();
-}`,
-    choices: [
-      "You teleport to the next room.",
-      "You stay where you are.",
-      "You lose all crystals.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "There’s a hallway full of lockers. A note says: 'If lockersOpened > 10, alarms sound.' lockersOpened = 2.",
-    code: `if (lockersOpened > 10) {
-  triggerAlarm();
-}`,
-    choices: [
-      "The alarm blares loudly.",
-      "No alarm sounds.",
-      "All lockers close instantly.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "You see a shimmering save point. The caption says: 'If saveCrystals >= 1, activate checkpoint.' saveCrystals = 1.",
-    code: `if (saveCrystals >= 1) {
-  activateCheckpoint();
-}`,
-    choices: [
-      "The checkpoint activates with a bright flash.",
-      "Nothing happens.",
-      "Your saveCrystals reset to 0, but the checkpoint does not activate.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "A digital whiteboard says: 'If puzzlesSolved == 5, reveal secret door.' puzzlesSolved = 3.",
-    code: `if (puzzlesSolved == 5) {
-  revealSecretDoor();
-}`,
-    choices: [
-      "The secret door appears.",
-      "Nothing happens yet.",
-      "The whiteboard shuts off forever.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "You find a hologram projector that displays hints only if hintMeter < 2. hintMeter = 0.",
-    code: `if (hintMeter < 2) {
-  showHint();
-}`,
-    choices: [
-      "A new hint appears on the projector.",
-      "No hint appears.",
-      "The hintMeter is set to 2, but you get no hint.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "A pressure plate reads: 'If weightOnPlate > 50, spikes extend.' weightOnPlate = 20.",
-    code: `if (weightOnPlate > 50) {
-  extendSpikes();
-}`,
-    choices: [
-      "Spikes extend and block your path.",
-      "The plate does nothing.",
-      "The plate launches you upward.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "A digital sign says: 'If torchesLit >= 3, the hallway lights up.' torchesLit = 3.",
-    code: `if (torchesLit >= 3) {
-  lightHallway();
-}`,
-    choices: [
-      "The hallway lights up so you can see.",
-      "Nothing changes; it stays dark.",
-      "All torches go out.",
-    ],
-    correctIndex: 0,
-  },
-
-  // ---------------------------
-  // LEVEL 2 SLICE (AP CSP)
-  // if / else with story choices
-  // ---------------------------
-
-  {
-    scenario:
-      "You reach a fork in the code dungeon. A panel says: 'If hasMap is true, show the safe path; else show a random path.' hasMap = true.",
-    code: `if (hasMap) {
-  path = "safe";
-} else {
-  path = "random";
-}`,
-    choices: [
-      'path becomes "safe".',
-      'path becomes "random".',
-      "path stays whatever it was before.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "You approach a riddle door. If your riddleScore >= 3, it opens; otherwise, it locks tighter. riddleScore = 1.",
-    code: `if (riddleScore >= 3) {
-  doorStatus = "open";
-} else {
-  doorStatus = "locked";
-}`,
-    choices: [
-      'doorStatus is "open".',
-      'doorStatus is "locked".',
-      "doorStatus is unchanged.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "You find a glowing console labeled 'Snack Dispenser'. If isHungry is true, it gives you a snack; otherwise, it says 'Maybe later.' isHungry = false.",
-    code: `if (isHungry) {
-  message = "Here, have a snack!";
-} else {
-  message = "Maybe later.";
-}`,
-    choices: [
-      'message becomes "Here, have a snack!".',
-      'message becomes "Maybe later."',
-      "message stays empty.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "A digital bridge appears over a lava pit. If bridgeStable is true, crossing is safe; else you fall. bridgeStable = false.",
-    code: `if (bridgeStable) {
-  status = "safe";
-} else {
-  status = "danger";
-}`,
-    choices: [
-      'status is "safe".',
-      'status is "danger".',
-      "status is unchanged.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "A floating book of spells checks your focus. If focusLevel > 5, you cast a correct spell; else you miscast. focusLevel = 9.",
-    code: `if (focusLevel > 5) {
-  castStatus = "success";
-} else {
-  castStatus = "fail";
-}`,
-    choices: [
-      'castStatus is "success".',
-      'castStatus is "fail".',
-      "castStatus stays unknown.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "You are given a digital companion cube. If companionOnline is true, it follows you; else it stays off. companionOnline = false.",
-    code: `if (companionOnline) {
-  cubeState = "following";
-} else {
-  cubeState = "idle";
-}`,
-    choices: [
-      'cubeState is "following".',
-      'cubeState is "idle".',
-      "cubeState stays whatever it was.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "A hallway of doors is labeled 'Only open doors for VIPs.' If isVIP is true, the door opens; else it flashes red. isVIP = true.",
-    code: `if (isVIP) {
-  doorLight = "green";
-} else {
-  doorLight = "red";
-}`,
-    choices: [
-      'doorLight is "green".',
-      'doorLight is "red".',
-      "doorLight turns off.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "A control panel decides if you can access the next puzzle. If puzzlesSolved >= 5, accessGranted is true; else false. puzzlesSolved = 5.",
-    code: `if (puzzlesSolved >= 5) {
-  accessGranted = true;
-} else {
-  accessGranted = false;
-}`,
-    choices: [
-      "accessGranted is true.",
-      "accessGranted is false.",
-      "accessGranted is unchanged.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "You find a terminal that checks if you’ve found the golden key. If hasGoldenKey is false, it says 'Keep searching'; else it says 'Door unlocked.' hasGoldenKey = false.",
-    code: `if (!hasGoldenKey) {
-  message = "Keep searching";
-} else {
-  message = "Door unlocked";
-}`,
-    choices: [
-      'message is "Keep searching".',
-      'message is "Door unlocked".',
-      "message is empty.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "A trap chest checks if chestLocked is false. If it’s not locked, you safely open it; otherwise, it shoots confetti (and scares you). chestLocked = true.",
-    code: `if (!chestLocked) {
-  chestStatus = "opened safely";
-} else {
-  chestStatus = "confetti trap";
-}`,
-    choices: [
-      'chestStatus is "opened safely".',
-      'chestStatus is "confetti trap".',
-      "chestStatus does not change.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "A scoreboard shows your performance. If mistakes == 0, rank is 'Flawless'; else 'Human'. mistakes = 2.",
-    code: `if (mistakes == 0) {
-  rank = "Flawless";
-} else {
-  rank = "Human";
-}`,
-    choices: [
-      'rank is "Flawless".',
-      'rank is "Human".',
-      "rank is blank.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "A puzzle door checks your time. If timeRemaining > 30, it says 'Relax'; else 'Hurry!'. timeRemaining = 15.",
-    code: `if (timeRemaining > 30) {
-  doorMessage = "Relax";
-} else {
-  doorMessage = "Hurry!";
-}`,
-    choices: [
-      'doorMessage is "Relax".',
-      'doorMessage is "Hurry!".',
-      "doorMessage is unchanged.",
-    ],
-    correctIndex: 1,
-  },
-
-  // ---------------------------
-  // LEVEL 3 SLICE (AP CSA)
-  // else-if chains narratively
-  // ---------------------------
-
-  {
-    scenario:
-      "You enter the Elemental Room. The temperature determines which elemental spirit appears. temp = 95.",
-    code: `if (temp >= 90) {
-  spirit = "Fire";
-} else if (temp >= 60) {
-  spirit = "Air";
-} else if (temp >= 30) {
-  spirit = "Water";
-} else {
-  spirit = "Earth";
-}`,
-    choices: [
-      'spirit is "Fire".',
-      'spirit is "Air".',
-      'spirit is "Water".',
-      'spirit is "Earth".',
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "You consult the dungeon’s grade tablet. It assigns a badge based on your puzzleScore. puzzleScore = 82.",
-    code: `if (puzzleScore >= 90) {
-  badge = "Legend";
-} else if (puzzleScore >= 80) {
-  badge = "Expert";
-} else if (puzzleScore >= 70) {
-  badge = "Adept";
-} else {
-  badge = "Novice";
-}`,
-    choices: [
-      'badge is "Legend".',
-      'badge is "Expert".',
-      'badge is "Adept".',
-      'badge is "Novice".',
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "You open a chest that classifies your progress. progressPercent = 74.",
-    code: `if (progressPercent >= 90) {
-  label = "Almost Out";
-} else if (progressPercent >= 70) {
-  label = "Deep In";
-} else if (progressPercent >= 40) {
-  label = "Halfway";
-} else {
-  label = "Just Started";
-}`,
-    choices: [
-      'label is "Almost Out".',
-      'label is "Deep In".',
-      'label is "Halfway".',
-      'label is "Just Started".',
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "The dungeon classifies your health state. health = 35.",
-    code: `if (health > 75) {
-  state = "Strong";
-} else if (health > 50) {
-  state = "Okay";
-} else if (health > 25) {
-  state = "Weak";
-} else {
-  state = "Critical";
-}`,
-    choices: [
-      'state is "Strong".',
-      'state is "Okay".',
-      'state is "Weak".',
-      'state is "Critical".',
-    ],
-    correctIndex: 2,
-  },
-  {
-    scenario:
-      "You adjust the difficulty dial on a console. Setting 0 shows 'Tutorial', 1–2 shows 'Normal', 3–4 shows 'Hard', else 'Insane'. difficultySetting = 3.",
-    code: `if (difficultySetting == 0) {
-  difficultyText = "Tutorial";
-} else if (difficultySetting <= 2) {
-  difficultyText = "Normal";
-} else if (difficultySetting <= 4) {
-  difficultyText = "Hard";
-} else {
-  difficultyText = "Insane";
-}`,
-    choices: [
-      'difficultyText is "Tutorial".',
-      'difficultyText is "Normal".',
-      'difficultyText is "Hard".',
-      'difficultyText is "Insane".',
-    ],
-    correctIndex: 2,
-  },
-  {
-    scenario:
-      "A puzzle classifies how many secret rooms you've found. secretsFound = 0.",
-    code: `if (secretsFound >= 10) {
-  classification = "Master Explorer";
-} else if (secretsFound >= 5) {
-  classification = "Explorer";
-} else if (secretsFound >= 1) {
-  classification = "Curious";
-} else {
-  classification = "Just Passing Through";
-}`,
-    choices: [
-      'classification is "Master Explorer".',
-      'classification is "Explorer".',
-      'classification is "Curious".',
-      'classification is "Just Passing Through".',
-    ],
-    correctIndex: 3,
-  },
-  {
-    scenario:
-      "A door chooses background music based on dangerLevel. dangerLevel = 6.",
-    code: `if (dangerLevel >= 8) {
-  music = "Intense Boss Theme";
-} else if (dangerLevel >= 5) {
-  music = "Tense Drums";
-} else if (dangerLevel >= 2) {
-  music = "Curious Ambience";
-} else {
-  music = "Chill Lo-fi";
-}`,
-    choices: [
-      'music is "Intense Boss Theme".',
-      'music is "Tense Drums".',
-      'music is "Curious Ambience".',
-      'music is "Chill Lo-fi".',
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "The hint system decides how many hints to give. mistakesMade = 3.",
-    code: `if (mistakesMade == 0) {
-  hintMode = "None";
-} else if (mistakesMade == 1) {
-  hintMode = "Subtle";
-} else if (mistakesMade <= 3) {
-  hintMode = "Helpful";
-} else {
-  hintMode = "Aggressive";
-}`,
-    choices: [
-      'hintMode is "None".',
-      'hintMode is "Subtle".',
-      'hintMode is "Helpful".',
-      'hintMode is "Aggressive".',
-    ],
-    correctIndex: 2,
-  },
-  {
-    scenario:
-      "The dungeon rates your speed by timeRemaining. timeRemaining = 5.",
-    code: `if (timeRemaining > 60) {
-  speedRating = "Chill Explorer";
-} else if (timeRemaining > 30) {
-  speedRating = "Balanced Solver";
-} else if (timeRemaining > 10) {
-  speedRating = "Quick Thinker";
-} else {
-  speedRating = "Speed Runner";
-}`,
-    choices: [
-      'speedRating is "Chill Explorer".',
-      'speedRating is "Balanced Solver".',
-      'speedRating is "Quick Thinker".',
-      'speedRating is "Speed Runner".',
-    ],
-    correctIndex: 3,
-  },
-  {
-    scenario:
-      "A mysterious mirror labels your courageLevel. courageLevel = 15.",
-    code: `if (courageLevel >= 25) {
-  courageLabel = "Fearless";
-} else if (courageLevel >= 15) {
-  courageLabel = "Brave";
-} else if (courageLevel >= 5) {
-  courageLabel = "Trying";
-} else {
-  courageLabel = "Nervous";
-}`,
-    choices: [
-      'courageLabel is "Fearless".',
-      'courageLabel is "Brave".',
-      'courageLabel is "Trying".',
-      'courageLabel is "Nervous".',
-    ],
-    correctIndex: 1,
-  },
-
-  // ---------------------------
-  // LEVEL 4 SLICE (Honors DSA)
-  // &&, ||, ! in story traps
-  // ---------------------------
-
-  {
-    scenario:
-      "You reach the Laser Gate. It only deactivates if you have the passcode AND are wearing safety goggles. hasPasscode = true, wearingGoggles = false.",
-    code: `if (hasPasscode && wearingGoggles) {
-  lasersOn = false;
-} else {
-  lasersOn = true;
-}`,
-    choices: [
-      "lasersOn is false.",
-      "lasersOn is true.",
-      "lasersOn is unchanged.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "You want to sneak past a sleepy guard. The path is safe if noiseLevel is 0 OR guardAsleep is true. noiseLevel = 4, guardAsleep = true.",
-    code: `if (noiseLevel == 0 || guardAsleep) {
-  pathSafe = true;
-} else {
-  pathSafe = false;
-}`,
-    choices: [
-      "pathSafe is true.",
-      "pathSafe is false.",
-      "pathSafe is unchanged.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "The Code Vault opens only if you are a member AND your keycard is valid. isMember = true, keycardValid = false.",
-    code: `if (isMember && keycardValid) {
-  vaultStatus = "open";
-} else {
-  vaultStatus = "closed";
-}`,
-    choices: [
-      'vaultStatus is "open".',
-      'vaultStatus is "closed".',
-      "vaultStatus is unchanged.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "A door will unlock if you solve the logic puzzle OR you have a master key. solvedPuzzle = false, hasMasterKey = false.",
-    code: `if (solvedPuzzle || hasMasterKey) {
-  doorUnlocked = true;
-} else {
-  doorUnlocked = false;
-}`,
-    choices: [
-      "doorUnlocked is true.",
-      "doorUnlocked is false.",
-      "doorUnlocked is unchanged.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "The alarm system triggers if NOT isDisarmed. isDisarmed = false.",
-    code: `if (!isDisarmed) {
-  alarmTriggered = true;
-} else {
-  alarmTriggered = false;
-}`,
-    choices: [
-      "alarmTriggered is true.",
-      "alarmTriggered is false.",
-      "alarmTriggered stays whatever it was.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "The alarm system triggers if NOT isDisarmed. isDisarmed = true.",
-    code: `if (!isDisarmed) {
-  alarmTriggered = true;
-} else {
-  alarmTriggered = false;
-}`,
-    choices: [
-      "alarmTriggered is true.",
-      "alarmTriggered is false.",
-      "alarmTriggered stays whatever it was.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "A bridge appears only if hasCrystal AND hasRune. hasCrystal = true, hasRune = true.",
-    code: `if (hasCrystal && hasRune) {
-  bridgeVisible = true;
-} else {
-  bridgeVisible = false;
-}`,
-    choices: [
-      "bridgeVisible is true.",
-      "bridgeVisible is false.",
-      "bridgeVisible is unchanged.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "The hint orb glows if your confusionLevel > 5 OR you have no hints left. confusionLevel = 2, hintsRemaining = 0.",
-    code: `if (confusionLevel > 5 || hintsRemaining == 0) {
-  orbGlowing = true;
-} else {
-  orbGlowing = false;
-}`,
-    choices: [
-      "orbGlowing is true.",
-      "orbGlowing is false.",
-      "orbGlowing is unchanged.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "The trap floor opens if weightOnTile > 50 AND isTripped is true. weightOnTile = 80, isTripped = false.",
-    code: `if (weightOnTile > 50 && isTripped) {
-  floorOpen = true;
-} else {
-  floorOpen = false;
-}`,
-    choices: [
-      "floorOpen is true.",
-      "floorOpen is false.",
-      "floorOpen is unchanged.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "A secret library door opens if you enter the code OR the librarian likes you. codeCorrect = false, librarianFriendly = true.",
-    code: `if (codeCorrect || librarianFriendly) {
-  libraryDoor = "open";
-} else {
-  libraryDoor = "closed";
-}`,
-    choices: [
-      'libraryDoor is "open".',
-      'libraryDoor is "closed".',
-      "libraryDoor is unchanged.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "The elevator moves if NOT (overloaded OR powerOut). overloaded = false, powerOut = true.",
-    code: `if (!(overloaded || powerOut)) {
-  elevatorMoving = true;
-} else {
-  elevatorMoving = false;
-}`,
-    choices: [
-      "elevatorMoving is true.",
-      "elevatorMoving is false.",
-      "elevatorMoving is unchanged.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "The elevator moves if NOT (overloaded OR powerOut). overloaded = false, powerOut = false.",
-    code: `if (!(overloaded || powerOut)) {
-  elevatorMoving = true;
-} else {
-  elevatorMoving = false;
-}`,
-    choices: [
-      "elevatorMoving is true.",
-      "elevatorMoving is false.",
-      "elevatorMoving is unchanged.",
-    ],
-    correctIndex: 0,
-  },
-
-  // ---------------------------
-  // LEVEL 5 SLICE (College-ish)
-  // Nested / combined story logic
-  // ---------------------------
-
-  {
-    scenario:
-      "You reach the Core Door. First it checks if you’re wearing the correct badge. Only then does it check if your clearanceLevel > 3. wearingBadge = true, clearanceLevel = 2.",
-    code: `if (wearingBadge) {
-  if (clearanceLevel > 3) {
-    coreDoor = "open";
-  }
-}`,
-    choices: [
-      'coreDoor becomes "open".',
-      'coreDoor stays whatever it was (probably closed).',
-      'coreDoor becomes "error".',
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "In another hallway, the code first checks if wearingBadge is true, then checks clearanceLevel > 3. wearingBadge = true, clearanceLevel = 5.",
-    code: `if (wearingBadge) {
-  if (clearanceLevel > 3) {
-    coreDoor = "open";
-  }
-}`,
-    choices: [
-      'coreDoor becomes "open".',
-      'coreDoor stays whatever it was.',
-      'coreDoor becomes "denied".',
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "A logic gate decides whether to show the 'Secret Ending'. It appears only if (allRoomsCleared AND coinsCollected >= 50). allRoomsCleared = true, coinsCollected = 40.",
-    code: `if (allRoomsCleared && coinsCollected >= 50) {
-  ending = "Secret Ending";
-} else {
-  ending = "Normal Ending";
-}`,
-    choices: [
-      'ending is "Secret Ending".',
-      'ending is "Normal Ending".',
-      "ending doesn't change.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "A filter decides whether to show you the 'Pro Tip' tutorial. It shows only if NOT (alreadyPro || skipTutorial). alreadyPro = false, skipTutorial = false.",
-    code: `if (!(alreadyPro || skipTutorial)) {
-  showProTip = true;
-} else {
-  showProTip = false;
-}`,
-    choices: [
-      "showProTip is true.",
-      "showProTip is false.",
-      "showProTip is unchanged.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "You stand before the final puzzle console. It grants 'Perfect Clear' only if mistakes == 0 AND timeRemaining > 0. mistakes = 1, timeRemaining = 120.",
-    code: `if (mistakes == 0 && timeRemaining > 0) {
-  result = "Perfect Clear";
-} else {
-  result = "Clear";
-}`,
-    choices: [
-      'result is "Perfect Clear".',
-      'result is "Clear".',
-      "result is unchanged.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "A strange orb reacts only when (magicLevel > 5 OR debugMode is true) AND NOT cursed. magicLevel = 3, debugMode = true, cursed = false.",
-    code: `if ((magicLevel > 5 || debugMode) && !cursed) {
-  orbState = "Awake";
-} else {
-  orbState = "Dormant";
-}`,
-    choices: [
-      'orbState is "Awake".',
-      'orbState is "Dormant".',
-      "orbState is unchanged.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "The orb reacts only when (magicLevel > 5 OR debugMode is true) AND NOT cursed. magicLevel = 3, debugMode = false, cursed = true.",
-    code: `if ((magicLevel > 5 || debugMode) && !cursed) {
-  orbState = "Awake";
-} else {
-  orbState = "Dormant";
-}`,
-    choices: [
-      'orbState is "Awake".',
-      'orbState is "Dormant".',
-      "orbState is unchanged.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "A gate’s logic says: if (hasBlueKey && hasRedKey) OR masterOverride is true, then open. hasBlueKey = true, hasRedKey = false, masterOverride = true.",
-    code: `if ((hasBlueKey && hasRedKey) || masterOverride) {
-  gate = "open";
-} else {
-  gate = "closed";
-}`,
-    choices: [
-      'gate is "open".',
-      'gate is "closed".',
-      "gate is unchanged.",
-    ],
-    correctIndex: 0,
-  },
-  {
-    scenario:
-      "The same gate logic runs, but this time hasBlueKey = true, hasRedKey = false, masterOverride = false.",
-    code: `if ((hasBlueKey && hasRedKey) || masterOverride) {
-  gate = "open";
-} else {
-  gate = "closed";
-}`,
-    choices: [
-      'gate is "open".',
-      'gate is "closed".',
-      "gate is unchanged.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "For the final hallway, an AI checks if (goodDeeds >= 5 AND badJokes < 3). goodDeeds = 5, badJokes = 3.",
-    code: `if (goodDeeds >= 5 && badJokes < 3) {
-  hallwayMood = "Cheerful";
-} else {
-  hallwayMood = "Slightly Judgy";
-}`,
-    choices: [
-      'hallwayMood is "Cheerful".',
-      'hallwayMood is "Slightly Judgy".',
-      "hallwayMood is unchanged.",
-    ],
-    correctIndex: 1,
-  },
-  {
-    scenario:
-      "The same AI logic: goodDeeds = 5, badJokes = 2.",
-    code: `if (goodDeeds >= 5 && badJokes < 3) {
-  hallwayMood = "Cheerful";
-} else {
-  hallwayMood = "Slightly Judgy";
-}`,
-    choices: [
-      'hallwayMood is "Cheerful".',
-      'hallwayMood is "Slightly Judgy".',
-      "hallwayMood is unchanged.",
-    ],
-    correctIndex: 0,
-  }
-];
-
-// ----- State -----
-
-let currentQuestionIndex = 0;
-let questionOrder = [];
-let currentScore = 0;
-let currentPlayerName = "";
-let hasAnsweredCurrent = false;
-let gameFinished = false;
-let scoreSavedForThisGame = false;
-let livesLeft = MAX_LIVES;
-let selectedLevel = 1;
-let pointsPerQuestion = 1;
-
-// checkpoint state
-let checkpointIndex = 0;
+let playerName = "";
+let currentLevel = 1;
+let currentStory = null;
+let currentNodeId = null;
+let pendingNextNode = null;
+let stepsTaken = 0;
+let score = 0;
+let lives = MAX_LIVES;
+let checkpointNode = null;
 let checkpointScore = 0;
+let checkpointSteps = 0;
+let scoreSaved = false;
 
-// ----- DOM helper -----
+let gameAreaEl;
+let scenarioTextEl;
+let resultTextEl;
+let codeSnippetEl;
+let choiceButtonsEl;
+let nextQuestionBtnEl;
+let levelInfoEl;
+let questionCounterEl;
+let scoreDisplayEl;
+let livesDisplayEl;
+let checkpointDisplayEl;
+let gameOverEl;
+let gameOverTitleEl;
+let gameOverMessageEl;
+let finalPlayerNameEl;
+let finalLevelEl;
+let finalScoreEl;
+let continueCheckpointBtnEl;
+let saveScoreBtnEl;
+let playAgainBtnEl;
+let leaderboardListEl;
+let startGameBtnEl;
+let levelSelectEl;
+let openLeaderboardBtnEl;
+let nameModalEl;
+let modalNameInputEl;
+let modalMessageEl;
+let modalStartBtnEl;
 
-function $(id) {
-  return document.getElementById(id);
-}
+const updateScoreboard = () => {
+  scoreDisplayEl.textContent = score;
+  livesDisplayEl.textContent = "❤".repeat(lives);
+  questionCounterEl.textContent = `${stepsTaken} / ${currentStory.maxSteps}`;
+  checkpointDisplayEl.textContent = checkpointNode
+    ? currentStory.nodes[checkpointNode].checkpoint || "Checkpoint reached"
+    : "None yet";
+};
 
-// ----- Leaderboard helpers -----
+const renderNode = (nodeId) => {
+  const node = currentStory.nodes[nodeId];
+  currentNodeId = nodeId;
+  pendingNextNode = null;
+  scenarioTextEl.textContent = node.scenario;
+  codeSnippetEl.textContent = node.code;
+  resultTextEl.textContent = "";
+  nextQuestionBtnEl.disabled = true;
+  choiceButtonsEl.innerHTML = "";
 
-function loadLeaderboard() {
-  try {
-    const stored = localStorage.getItem(LEADERBOARD_KEY);
-    if (!stored) return [];
-    const parsed = JSON.parse(stored);
-    if (!Array.isArray(parsed)) return [];
-    return parsed;
-  } catch (e) {
-    console.error("Error loading leaderboard", e);
-    return [];
+  levelInfoEl.textContent = `${LEVEL_CONFIG[currentLevel].label} – ${nodeId
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (letter) => letter.toUpperCase())}`;
+
+  node.choices.forEach((choice) => {
+    const button = document.createElement("button");
+    button.className = "btn btn-outline";
+    button.textContent = choice.label;
+    button.addEventListener("click", () => handleChoice(choice, node));
+    choiceButtonsEl.appendChild(button);
+  });
+
+  updateScoreboard();
+};
+
+const handleChoice = (choice, node) => {
+  if (pendingNextNode || gameOverEl.hidden === false) {
+    return;
   }
-}
 
-function saveLeaderboard(entries) {
-  try {
-    localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(entries));
-  } catch (e) {
-    console.error("Error saving leaderboard", e);
+  const multiplier = LEVEL_CONFIG[currentLevel].multiplier;
+  score += choice.points * multiplier;
+  if (choice.livesChange) {
+    lives = Math.max(0, Math.min(MAX_LIVES, lives + choice.livesChange));
   }
-}
 
-function addScoreToLeaderboard(name, score) {
+  if (node.checkpoint) {
+    checkpointNode = currentNodeId;
+    checkpointScore = score;
+    checkpointSteps = stepsTaken;
+  }
+
+  resultTextEl.textContent = choice.outcome;
+  pendingNextNode = choice.next;
+  nextQuestionBtnEl.disabled = false;
+
+  updateScoreboard();
+
+  if (lives <= 0) {
+    endGame("Out of lives! Try again from your last checkpoint.");
+  }
+
+  if (!choice.next) {
+    endGame(node.ending || "Story complete!");
+  }
+};
+
+const goToNextNode = () => {
+  if (!pendingNextNode || lives <= 0) {
+    return;
+  }
+
+  stepsTaken += 1;
+  renderNode(pendingNextNode);
+};
+
+const setModalMessage = (text, tone = "") => {
+  modalMessageEl.textContent = text;
+  modalMessageEl.className = `form-note ${tone}`.trim();
+};
+
+const openNameModal = () => {
+  nameModalEl.classList.remove("hidden");
+  modalNameInputEl.focus();
+};
+
+const closeNameModal = () => {
+  nameModalEl.classList.add("hidden");
+};
+
+const startEscape = () => {
+  if (!playerName) {
+    openNameModal();
+    return;
+  }
+
+  currentLevel = parseInt(levelSelectEl.value, 10);
+  currentStory = STORY_LEVELS[currentLevel];
+  currentNodeId = currentStory.start;
+  pendingNextNode = null;
+  stepsTaken = 1;
+  score = 0;
+  lives = MAX_LIVES;
+  checkpointNode = null;
+  checkpointScore = 0;
+  checkpointSteps = 0;
+  scoreSaved = false;
+
+  gameAreaEl.hidden = false;
+  gameOverEl.hidden = true;
+  continueCheckpointBtnEl.hidden = true;
+  saveScoreBtnEl.disabled = false;
+  renderNode(currentNodeId);
+};
+
+const startGame = () => {
+  const nameValue = modalNameInputEl.value.trim();
+  if (!nameValue) {
+    setModalMessage("Please enter your name to start.", "warning");
+    return;
+  }
+  playerName = nameValue;
+  setModalMessage("");
+  closeNameModal();
+  startEscape();
+};
+
+const endGame = (message) => {
+  gameAreaEl.hidden = true;
+  gameOverEl.hidden = false;
+  gameOverMessageEl.textContent = message;
+  gameOverTitleEl.textContent = message.includes("complete")
+    ? "Story Complete"
+    : "Game Over";
+  finalPlayerNameEl.textContent = playerName;
+  finalLevelEl.textContent = LEVEL_CONFIG[currentLevel].label;
+  finalScoreEl.textContent = score;
+  continueCheckpointBtnEl.hidden = !checkpointNode;
+  saveScore();
+};
+
+const continueFromCheckpoint = () => {
+  if (!checkpointNode) {
+    return;
+  }
+
+  score = checkpointScore;
+  lives = MAX_LIVES;
+  stepsTaken = checkpointSteps;
+  gameAreaEl.hidden = false;
+  gameOverEl.hidden = true;
+  renderNode(checkpointNode);
+};
+
+const loadLeaderboard = () => {
+  const stored = localStorage.getItem(LEADERBOARD_KEY);
+  return stored ? JSON.parse(stored) : [];
+};
+
+const saveLeaderboard = (entries) => {
+  localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(entries));
+};
+
+const updateLeaderboardUI = () => {
+  const entries = loadLeaderboard();
+  leaderboardListEl.innerHTML = "";
+
+  if (entries.length === 0) {
+    const empty = document.createElement("li");
+    empty.textContent = "No scores yet. Be the first!";
+    leaderboardListEl.appendChild(empty);
+    return;
+  }
+
+  entries
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10)
+    .forEach((entry) => {
+      const item = document.createElement("li");
+      item.textContent = `${entry.name} — ${entry.level} — ${entry.score} pts`;
+      leaderboardListEl.appendChild(item);
+    });
+};
+
+const saveScore = () => {
+  if (scoreSaved || !playerName) {
+    return;
+  }
   const entries = loadLeaderboard();
   entries.push({
-    name: name || "Anonymous",
+    name: playerName,
+    level: LEVEL_CONFIG[currentLevel].label,
     score,
-    timestamp: Date.now(),
+    date: new Date().toISOString(),
   });
+  saveLeaderboard(entries);
+  updateLeaderboardUI();
+  saveScoreBtnEl.disabled = true;
+  scoreSaved = true;
+};
 
-  entries.sort((a, b) => {
-    if (b.score !== a.score) return b.score - a.score;
-    return b.timestamp - a.timestamp;
-  });
+const initGame = () => {
+  gameAreaEl = document.getElementById("gameArea");
+  scenarioTextEl = document.getElementById("scenarioText");
+  resultTextEl = document.getElementById("resultText");
+  codeSnippetEl = document.getElementById("codeSnippet");
+  choiceButtonsEl = document.getElementById("choiceButtons");
+  nextQuestionBtnEl = document.getElementById("nextQuestionBtn");
+  levelInfoEl = document.getElementById("levelInfo");
+  questionCounterEl = document.getElementById("questionCounter");
+  scoreDisplayEl = document.getElementById("scoreDisplay");
+  livesDisplayEl = document.getElementById("livesDisplay");
+  checkpointDisplayEl = document.getElementById("checkpointDisplay");
+  gameOverEl = document.getElementById("gameOver");
+  gameOverTitleEl = document.getElementById("gameOverTitle");
+  gameOverMessageEl = document.getElementById("gameOverMessage");
+  finalPlayerNameEl = document.getElementById("finalPlayerName");
+  finalLevelEl = document.getElementById("finalLevel");
+  finalScoreEl = document.getElementById("finalScore");
+  continueCheckpointBtnEl = document.getElementById("continueCheckpointBtn");
+  saveScoreBtnEl = document.getElementById("saveScoreBtn");
+  playAgainBtnEl = document.getElementById("playAgainBtn");
+  leaderboardListEl = document.getElementById("leaderboardList");
+  startGameBtnEl = document.getElementById("startGameBtn");
+  levelSelectEl = document.getElementById("levelSelect");
+  openLeaderboardBtnEl = document.getElementById("openLeaderboardBtn");
+  nameModalEl = document.getElementById("escapeNameModal");
+  modalNameInputEl = document.getElementById("escapeModalName");
+  modalMessageEl = document.getElementById("escapeModalMessage");
+  modalStartBtnEl = document.getElementById("escapeModalStart");
 
-  const trimmed = entries.slice(0, 10);
-  saveLeaderboard(trimmed);
-  renderLeaderboard(trimmed);
-}
-
-function renderLeaderboard(entries = loadLeaderboard()) {
-  const list = $("leaderboardList");
-  if (!list) return;
-  list.innerHTML = "";
-
-  if (!entries.length) {
-    const li = document.createElement("li");
-    li.textContent = "No escape attempts recorded yet.";
-    list.appendChild(li);
+  if (
+    !gameAreaEl ||
+    !scenarioTextEl ||
+    !resultTextEl ||
+    !codeSnippetEl ||
+    !choiceButtonsEl ||
+    !nextQuestionBtnEl ||
+    !levelInfoEl ||
+    !questionCounterEl ||
+    !scoreDisplayEl ||
+    !livesDisplayEl ||
+    !checkpointDisplayEl ||
+    !gameOverEl ||
+    !gameOverTitleEl ||
+    !gameOverMessageEl ||
+    !finalPlayerNameEl ||
+    !finalLevelEl ||
+    !finalScoreEl ||
+    !continueCheckpointBtnEl ||
+    !saveScoreBtnEl ||
+    !playAgainBtnEl ||
+    !leaderboardListEl ||
+    !startGameBtnEl ||
+    !levelSelectEl ||
+    !openLeaderboardBtnEl ||
+    !nameModalEl ||
+    !modalNameInputEl ||
+    !modalMessageEl ||
+    !modalStartBtnEl
+  ) {
     return;
   }
 
-  entries.forEach((entry) => {
-    const li = document.createElement("li");
-    const nameSpan = document.createElement("span");
-    nameSpan.textContent = ` ${entry.name} — `;
-    const scoreSpan = document.createElement("span");
-    scoreSpan.textContent = `${entry.score} pts`;
-    scoreSpan.style.color = "#bfdbfe";
+  updateLeaderboardUI();
 
-    li.appendChild(nameSpan);
-    li.appendChild(scoreSpan);
-    list.appendChild(li);
+  startGameBtnEl.addEventListener("click", startEscape);
+  nextQuestionBtnEl.addEventListener("click", goToNextNode);
+  continueCheckpointBtnEl.addEventListener("click", continueFromCheckpoint);
+  saveScoreBtnEl.addEventListener("click", saveScore);
+  playAgainBtnEl.addEventListener("click", startEscape);
+  modalStartBtnEl.addEventListener("click", startGame);
+  openLeaderboardBtnEl.addEventListener("click", () => {
+    leaderboardListEl.scrollIntoView({ behavior: "smooth" });
   });
-}
+  openNameModal();
+};
 
-// ----- Helpers -----
-
-function renderLives() {
-  const el = $("livesDisplay");
-  if (!el) return;
-  el.textContent = "❤".repeat(livesLeft);
-}
-
-function updateCheckpointDisplay() {
-  const el = $("checkpointDisplay");
-  if (!el) return;
-
-  if (checkpointIndex === 0) {
-    el.textContent = "None yet";
-  } else {
-    const roomNumber = Math.floor(checkpointIndex / 5) + 1;
-    el.textContent = `Room ${roomNumber}`;
-  }
-}
-
-function updateQuestionAndRoomDisplay() {
-  const totalQuestions = questionOrder.length;
-  const questionNumber = currentQuestionIndex + 1;
-  const roomNumber = Math.floor(currentQuestionIndex / 5) + 1;
-  const totalRooms = Math.ceil(totalQuestions / 5);
-
-  $("questionCounter").textContent = `${questionNumber} / ${totalQuestions}`;
-  $("levelInfo").textContent = `Level ${selectedLevel} – Room ${roomNumber} of ${totalRooms}`;
-}
-
-// Extract things like "coins = 150" or "hasMap = true"
-function extractAssignmentsFromScenario(scenarioText) {
-  const assignments = [];
-  const regex = /([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*([^\s,.]+)/g;
-  let match;
-  while ((match = regex.exec(scenarioText)) !== null) {
-    const name = match[1];
-    const value = match[2];
-    assignments.push(`${name} = ${value}`);
-  }
-  return assignments;
-}
-
-// Fisher–Yates shuffle
-function shuffleArray(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
-function generateQuestionOrderForLevel() {
-  const total = IF_ELSE_QUESTIONS.length;
-  if (total === 0) return [];
-
-  const level = Math.min(Math.max(selectedLevel, 1), 5);
-  const sliceSize = Math.floor(total / 5) || 1;
-  const startIndex = sliceSize * (level - 1);
-  const endIndex = level === 5 ? total : startIndex + sliceSize;
-
-  const levelIndices = [];
-  for (let i = startIndex; i < endIndex && i < total; i++) {
-    levelIndices.push(i);
-  }
-
-  const groups = 4;
-  const totalLevelQuestions = levelIndices.length;
-  const baseGroupSize = Math.max(1, Math.floor(totalLevelQuestions / groups));
-  const ordered = [];
-
-  for (let g = 0; g < groups; g++) {
-    const gStart = g * baseGroupSize;
-    if (gStart >= totalLevelQuestions) break;
-    const gEnd =
-      g === groups - 1
-        ? totalLevelQuestions
-        : Math.min(totalLevelQuestions, gStart + baseGroupSize);
-
-    const groupSlice = levelIndices.slice(gStart, gEnd);
-    shuffleArray(groupSlice);
-    ordered.push(...groupSlice);
-  }
-
-  return ordered.slice(0, Math.min(QUESTIONS_PER_GAME, ordered.length));
-}
-
-// ----- Game flow -----
-
-function resetGame() {
-  currentQuestionIndex = 0;
-  currentScore = 0;
-  hasAnsweredCurrent = false;
-  gameFinished = false;
-  scoreSavedForThisGame = false;
-  livesLeft = MAX_LIVES;
-
-  checkpointIndex = 0;
-  checkpointScore = 0;
-
-  questionOrder = generateQuestionOrderForLevel();
-
-  $("scoreDisplay").textContent = "0";
-  renderLives();
-  updateCheckpointDisplay();
-  updateQuestionAndRoomDisplay();
-
-  $("gameOver").hidden = true;
-  $("gameArea").hidden = false;
-  $("nextQuestionBtn").disabled = true;
-}
-
-function startGame() {
-  const nameInput = $("playerName");
-  const levelSelect = $("levelSelect");
-
-  const enteredName = nameInput.value.trim();
-  if (!enteredName) {
-    alert("Please enter your name to start your escape.");
-    nameInput.focus();
-    return;
-  }
-
-  const levelValue = parseInt(levelSelect.value, 10) || 1;
-  selectedLevel = Math.min(Math.max(levelValue, 1), 5);
-  pointsPerQuestion = selectedLevel; // L1=1, L2=2, ...
-
-  currentPlayerName = enteredName;
-  resetGame();
-  loadQuestion();
-}
-
-function loadQuestion() {
-  const totalQuestions = questionOrder.length;
-  if (currentQuestionIndex >= totalQuestions) {
-    showEndScreen("escape");
-    return;
-  }
-
-  const qIndex = questionOrder[currentQuestionIndex];
-  const q = IF_ELSE_QUESTIONS[qIndex];
-
-  if (!q) {
-    showEndScreen("escape");
-    return;
-  }
-
-  $("scenarioText").textContent = q.scenario;
-
-  const assignments = extractAssignmentsFromScenario(q.scenario);
-  let codeToShow = q.code;
-  if (assignments.length > 0) {
-    const headerLines = ["// Current values:", ...assignments];
-    codeToShow = headerLines.join("\n") + "\n\n" + q.code;
-  }
-
-  $("codeSnippet").textContent = codeToShow;
-
-  const container = $("choiceButtons");
-  container.innerHTML = "";
-  q.choices.forEach((choiceText, index) => {
-    const btn = document.createElement("button");
-    btn.className = "btn btn-choice";
-    btn.dataset.index = index.toString();
-    btn.textContent = choiceText;
-    btn.addEventListener("click", onChoiceClick);
-    container.appendChild(btn);
-  });
-
-  hasAnsweredCurrent = false;
-  $("nextQuestionBtn").disabled = true;
-  updateQuestionAndRoomDisplay();
-}
-
-function onChoiceClick(event) {
-  if (hasAnsweredCurrent || gameFinished) return;
-
-  const button = event.currentTarget;
-  const chosenIndex = parseInt(button.dataset.index || "0", 10);
-
-  const qIndex = questionOrder[currentQuestionIndex];
-  const q = IF_ELSE_QUESTIONS[qIndex];
-  const correctIndex = q.correctIndex;
-
-  hasAnsweredCurrent = true;
-
-  const buttons = $("choiceButtons").querySelectorAll("button");
-  buttons.forEach((btn, index) => {
-    btn.disabled = true;
-
-    if (index === correctIndex) {
-      btn.style.borderColor = "#22c55e";
-      btn.style.boxShadow = "0 0 0 1px rgba(34,197,94,0.7)";
-    }
-
-    if (index === chosenIndex && index !== correctIndex) {
-      btn.style.borderColor = "#f97373";
-      btn.style.boxShadow = "0 0 0 1px rgba(248,113,113,0.7)";
-    }
-  });
-
-  if (chosenIndex === correctIndex) {
-    currentScore += pointsPerQuestion;
-    $("scoreDisplay").textContent = String(currentScore);
-  } else {
-    livesLeft -= 1;
-    renderLives();
-    if (livesLeft <= 0) {
-      showEndScreen("trap");
-      return;
-    }
-  }
-
-  const questionNumber = currentQuestionIndex + 1;
-  if (livesLeft > 0 && questionNumber % 5 === 0) {
-    checkpointIndex = currentQuestionIndex + 1;
-    checkpointScore = currentScore;
-    updateCheckpointDisplay();
-  }
-
-  $("nextQuestionBtn").disabled = false;
-}
-
-function goToNextQuestion() {
-  if (!hasAnsweredCurrent || gameFinished) return;
-
-  currentQuestionIndex += 1;
-  if (currentQuestionIndex >= questionOrder.length) {
-    showEndScreen("escape");
-  } else {
-    loadQuestion();
-  }
-}
-
-function showEndScreen(mode) {
-  gameFinished = true;
-  $("gameArea").hidden = true;
-  $("gameOver").hidden = false;
-
-  $("finalPlayerName").textContent = currentPlayerName || "Anonymous";
-  $("finalScore").textContent = String(currentScore);
-  $("finalLevel").textContent = `Level ${selectedLevel}`;
-
-  const title = $("gameOverTitle");
-  const msg = $("gameOverMessage");
-  const continueBtn = $("continueCheckpointBtn");
-  const saveBtn = $("saveScoreBtn");
-
-  if (mode === "escape") {
-    title.textContent = "You Escaped!";
-    msg.textContent = "You solved all the logic puzzles in this level.";
-    continueBtn.hidden = true;
-    saveBtn.disabled = false;
-  } else {
-    title.textContent = "You Were Caught!";
-    if (checkpointIndex > 0) {
-      msg.textContent =
-        "You hit a trap, but your last checkpoint is still intact. Continue from that checkpoint or restart the entire level.";
-      continueBtn.hidden = false;
-    } else {
-      msg.textContent =
-        "You hit a trap before reaching any checkpoint. Try the escape again from the start of the level.";
-      continueBtn.hidden = true;
-    }
-    saveBtn.disabled = false;
-  }
-
-  scoreSavedForThisGame = false;
-}
-
-function continueFromCheckpoint() {
-  if (checkpointIndex === 0) return;
-
-  livesLeft = MAX_LIVES;
-  currentScore = checkpointScore;
-  currentQuestionIndex = checkpointIndex;
-  gameFinished = false;
-  hasAnsweredCurrent = false;
-
-  $("scoreDisplay").textContent = String(currentScore);
-  renderLives();
-  updateCheckpointDisplay();
-  updateQuestionAndRoomDisplay();
-
-  $("gameOver").hidden = true;
-  $("gameArea").hidden = false;
-  $("nextQuestionBtn").disabled = true;
-
-  loadQuestion();
-}
-
-function restartLevel() {
-  resetGame();
-  loadQuestion();
-}
-
-function saveCurrentScore() {
-  if (!gameFinished) return;
-  if (scoreSavedForThisGame) {
-    alert("This score is already saved.");
-    return;
-  }
-  addScoreToLeaderboard(currentPlayerName, currentScore);
-  scoreSavedForThisGame = true;
-  alert("Score saved to leaderboard!");
-}
-
-function scrollToLeaderboard() {
-  const card = $("leaderboardCard");
-  if (!card) return;
-  card.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-// ----- Init -----
-
-document.addEventListener("DOMContentLoaded", () => {
-  renderLeaderboard();
-
-  const startBtn = $("startGameBtn");
-  const nextBtn = $("nextQuestionBtn");
-  const saveBtn = $("saveScoreBtn");
-  const playAgainBtn = $("playAgainBtn");
-  const openLeaderboardBtn = $("openLeaderboardBtn");
-  const continueCheckpointBtn = $("continueCheckpointBtn");
-
-  if (startBtn) startBtn.addEventListener("click", startGame);
-  if (nextBtn) nextBtn.addEventListener("click", goToNextQuestion);
-  if (saveBtn) saveBtn.addEventListener("click", saveCurrentScore);
-  if (playAgainBtn) playAgainBtn.addEventListener("click", restartLevel);
-  if (openLeaderboardBtn)
-    openLeaderboardBtn.addEventListener("click", scrollToLeaderboard);
-  if (continueCheckpointBtn)
-    continueCheckpointBtn.addEventListener("click", continueFromCheckpoint);
-});
+window.addEventListener("DOMContentLoaded", initGame);
