@@ -141,8 +141,12 @@ const focusNextInput = (inputs, index) => {
 
 const handleBoxInput = (input, inputs, index, validator) => {
   const nextValue = input.value.slice(-1);
+  if (nextValue === "") {
+    input.value = "";
+    return;
+  }
   if (!validator(nextValue)) {
-    input.value = "0";
+    input.value = "";
     return;
   }
   input.value = nextValue;
@@ -175,14 +179,14 @@ const toggleAnswerGroups = () => {
 
 const resetBinaryInputs = () => {
   binaryInputs.forEach((input) => {
-    input.value = "0";
+    input.value = "";
     input.disabled = false;
   });
 };
 
 const resetDecimalInputs = () => {
   decimalInputs.forEach((input) => {
-    input.value = "0";
+    input.value = "";
     input.disabled = false;
   });
 };
@@ -227,13 +231,16 @@ const normalizeAnswer = (value) => value.trim().toLowerCase();
 
 const normalizeDecimal = (value) => {
   const stripped = value.replace(/^0+(?=\d)/, "");
-  return stripped === "" ? "0" : stripped;
+  return stripped === "" ? "" : stripped;
 };
 
 const readBinaryAnswer = () => binaryInputs.map((input) => input.value).join("");
 
 const readDecimalAnswer = () => {
   const joined = decimalInputs.map((input) => input.value).join("");
+  if (!joined.trim()) {
+    return "";
+  }
   return normalizeDecimal(joined);
 };
 
