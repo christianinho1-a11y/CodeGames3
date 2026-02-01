@@ -127,7 +127,7 @@ const updateScoreboard = () => {
   progressEl.textContent = `${currentIndex + 1} / ${ROUND_LENGTH}`;
 };
 
-const updateDifficultyUI = () => {
+const updateHelpNumbersVisibility = () => {
   easyBtnEl.classList.toggle("active", currentDifficulty === "easy");
   hardBtnEl.classList.toggle("active", currentDifficulty === "hard");
   const showBits =
@@ -189,6 +189,7 @@ const renderProblem = () => {
   waitingForNext = false;
   setMessage("");
   updateScoreboard();
+  updateHelpNumbersVisibility();
   const firstInput =
     currentMode === "binaryToDecimal" ? decimalInputs[0] : binaryInputs[0];
   if (firstInput) {
@@ -304,7 +305,7 @@ const startRound = () => {
   scoreSaved = false;
   setStartMessage("");
   setSummary("");
-  updateDifficultyUI();
+  updateHelpNumbersVisibility();
   renderProblem();
 };
 
@@ -368,21 +369,21 @@ const initGame = () => {
   resetBinaryInputs();
   resetDecimalInputs();
   toggleAnswerGroups();
-  updateDifficultyUI();
+  updateHelpNumbersVisibility();
 
   easyBtnEl.addEventListener("click", () => {
     currentDifficulty = "easy";
-    updateDifficultyUI();
+    updateHelpNumbersVisibility();
   });
 
   hardBtnEl.addEventListener("click", () => {
     currentDifficulty = "hard";
-    updateDifficultyUI();
+    updateHelpNumbersVisibility();
   });
 
   modeSelectEl.addEventListener("change", () => {
     currentMode = modeSelectEl.value;
-    updateDifficultyUI();
+    updateHelpNumbersVisibility();
   });
 
   binaryInputs.forEach((input) => {
