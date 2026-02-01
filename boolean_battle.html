@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Boolean Battle</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="boolean_battle.js"></script>
+</head>
+<body class="cs-body">
+  <a href="cs_games.html" class="back-link">← Back to CS Games</a>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// Boolean Battle</h1>
+        <p class="page-subtitle">Quick-fire boolean logic and truth tables.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title">Logic Arena</h2>
+        <p class="card-subtitle">
+          Decide whether each expression is <strong>true</strong> or
+          <strong>false</strong>. Build streaks, earn points, and avoid strikes.
+        </p>
+      </header>
+
+      <section class="sub-card">
+        <div class="sub-card-header">
+          <div>
+            <h3 class="sub-card-title">Current Match</h3>
+            <p class="sub-card-meta">Answer 25 puzzles to win the round.</p>
+          </div>
+          <div class="boolean-scoreboard">
+            <p class="sub-card-meta">
+              Level: <span id="booleanLevelLabel">Level 1 – Intro CS</span>
+            </p>
+            <p class="sub-card-meta">
+              Score: <span id="booleanScore">0</span>
+            </p>
+            <p class="sub-card-meta">
+              Streak: <span id="booleanStreak">0</span>
+            </p>
+            <p class="sub-card-meta">
+              Progress: <span id="booleanProgress">1 / 25</span>
+            </p>
+            <p class="sub-card-meta">
+              Strikes: <span id="booleanStrikes">0</span> / 3
+            </p>
+          </div>
+        </div>
+
+        <div class="form-row boolean-level-row">
+          <label for="booleanLevelSelect" class="sr-only">Select level</label>
+          <label for="booleanPlayerName" class="sr-only">Player name</label>
+          <input
+            id="booleanPlayerName"
+            type="text"
+            class="input"
+            placeholder="Your name"
+          />
+          <select id="booleanLevelSelect" class="input" style="max-width: 220px;">
+            <option value="1">Level 1 – Intro CS (1x points)</option>
+            <option value="2">Level 2 – AP CSP (2x points)</option>
+            <option value="3">Level 3 – AP CSA (3x points)</option>
+            <option value="4">Level 4 – Honors DSA (4x points)</option>
+            <option value="5">Level 5 – College CS (5x points)</option>
+          </select>
+          <button id="booleanStartBtn" class="btn">Start Round</button>
+        </div>
+        <p id="booleanStartMessage" class="form-note"></p>
+
+        <div class="boolean-expression">
+          <p class="boolean-context" id="booleanContext">Context loading…</p>
+          <pre class="code-block" id="booleanExpression">// expression loading…</pre>
+        </div>
+
+        <div class="button-row">
+          <button class="btn" id="booleanTrueBtn">True</button>
+          <button class="btn btn-outline" id="booleanFalseBtn">False</button>
+        </div>
+        <p class="boolean-message" id="booleanMessage"></p>
+      </section>
+
+      <section class="sub-card sub-card-highlight">
+        <h3 class="sub-card-title">Round Controls</h3>
+        <div class="button-row">
+          <button id="booleanNextBtn" class="btn btn-outline" disabled>
+            Next Puzzle
+          </button>
+          <button id="booleanRestartBtn" class="btn">Restart Round</button>
+          <button id="booleanBackBtn" class="btn btn-outline">← Back to CS Games</button>
+        </div>
+        <p class="boolean-summary" id="booleanSummary"></p>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="booleanLeaderboard" class="leaderboard-list"></ol>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
