@@ -427,6 +427,10 @@ body.cs-body {
   font-size: 0.9rem;
 }
 
+.boolean-level-row {
+  margin-top: 0.75rem;
+}
+
 .boolean-message,
 .boolean-summary {
   margin: 0.65rem 0 0;
@@ -590,6 +594,10 @@ body.cs-body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 1.25rem;
+}
+
+.game-grid + .game-grid {
+  margin-top: 1.5rem;
 }
 
 .game-grid + .game-grid {

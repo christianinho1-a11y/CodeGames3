@@ -31,9 +31,12 @@
         <div class="sub-card-header">
           <div>
             <h3 class="sub-card-title">Current Match</h3>
-            <p class="sub-card-meta">Answer 10 puzzles to win the round.</p>
+            <p class="sub-card-meta">Answer 25 puzzles to win the round.</p>
           </div>
           <div class="boolean-scoreboard">
+            <p class="sub-card-meta">
+              Level: <span id="booleanLevelLabel">Level 1 – Intro CS</span>
+            </p>
             <p class="sub-card-meta">
               Score: <span id="booleanScore">0</span>
             </p>
@@ -41,12 +44,24 @@
               Streak: <span id="booleanStreak">0</span>
             </p>
             <p class="sub-card-meta">
-              Progress: <span id="booleanProgress">1 / 10</span>
+              Progress: <span id="booleanProgress">1 / 25</span>
             </p>
             <p class="sub-card-meta">
               Strikes: <span id="booleanStrikes">0</span> / 3
             </p>
           </div>
+        </div>
+
+        <div class="form-row boolean-level-row">
+          <label for="booleanLevelSelect" class="sr-only">Select level</label>
+          <select id="booleanLevelSelect" class="input" style="max-width: 220px;">
+            <option value="1">Level 1 – Intro CS (1x points)</option>
+            <option value="2">Level 2 – AP CSP (2x points)</option>
+            <option value="3">Level 3 – AP CSA (3x points)</option>
+            <option value="4">Level 4 – Honors DSA (4x points)</option>
+            <option value="5">Level 5 – College CS (5x points)</option>
+          </select>
+          <button id="booleanStartBtn" class="btn">Start Round</button>
         </div>
 
         <div class="boolean-expression">
