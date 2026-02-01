@@ -105,6 +105,22 @@ let summaryEl;
 
 const normalizeGuess = (value) => value.trim().toLowerCase();
 
+const findMatchingAnswerIndex = (guess) => {
+  const guessTokens = guess.split(/\s+/).filter(Boolean);
+
+  return normalizedAnswers.findIndex((answer, index) => {
+    if (revealedAnswers[index]) {
+      return false;
+    }
+
+    if (answer.includes(guess) || guess.includes(answer)) {
+      return true;
+    }
+
+    return guessTokens.some((token) => token.length > 1 && answer.includes(token));
+  });
+};
+
 const pickNewCategory = () => {
   if (TENABLE_CATEGORIES.length === 1) {
     currentCategoryIndex = 0;
@@ -213,7 +229,7 @@ const handleGuess = () => {
     return;
   }
 
-  const answerIndex = normalizedAnswers.indexOf(guess);
+  const answerIndex = findMatchingAnswerIndex(guess);
   if (answerIndex === -1) {
     handleIncorrectGuess();
   } else if (revealedAnswers[answerIndex]) {
