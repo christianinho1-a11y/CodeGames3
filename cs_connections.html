@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CS Connections</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="connections_data.js"></script>
+  <script defer src="cs_connections.js"></script>
+</head>
+<body class="cs-body">
+  <a href="cs_games.html" class="back-link">← Back to CS Games</a>
+
+  <div class="modal" id="connectionsNameModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Your score will appear on the leaderboard.</p>
+      <div class="form-row">
+        <label for="connectionsPlayerName" class="sr-only">Player name</label>
+        <input
+          id="connectionsPlayerName"
+          type="text"
+          class="input"
+          placeholder="Your name"
+        />
+        <button id="connectionsStartBtn" class="btn">Start Game</button>
+      </div>
+      <p id="connectionsNameMessage" class="form-note"></p>
+    </div>
+  </div>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// CS Connections</h1>
+        <p class="page-subtitle">Group the CS terms into their correct categories.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title">Connections Puzzle</h2>
+        <p class="card-subtitle">Find 4 groups of 4. You only get 4 strikes.</p>
+      </header>
+
+      <section class="sub-card">
+        <div class="sub-card-header">
+          <div>
+            <h3 class="sub-card-title">Current Puzzle</h3>
+            <p class="sub-card-meta">Select 4 tiles that belong together.</p>
+          </div>
+          <div class="connections-scoreboard">
+            <p class="sub-card-meta">Strikes: <span id="connectionsStrikes">0</span> / 4</p>
+            <p class="sub-card-meta">Solved: <span id="connectionsSolved">0</span> / 4</p>
+            <p class="sub-card-meta">Time: <span id="connectionsTimer">0:00</span></p>
+          </div>
+        </div>
+
+        <div id="connectionsSolvedGroups" class="connections-solved"></div>
+        <div id="connectionsGrid" class="connections-grid"></div>
+
+        <div class="button-row">
+          <button id="connectionsSubmit" class="btn" disabled>Submit Group</button>
+          <button id="connectionsShuffle" class="btn btn-outline">Shuffle</button>
+          <button id="connectionsClear" class="btn btn-outline">Clear Selection</button>
+        </div>
+        <p id="connectionsMessage" class="connections-message"></p>
+      </section>
+
+      <section class="sub-card sub-card-highlight" id="connectionsEndCard" hidden>
+        <h3 id="connectionsEndTitle" class="sub-card-title">Puzzle Complete</h3>
+        <p id="connectionsEndMessage" class="card-subtitle"></p>
+        <div class="button-row">
+          <button id="connectionsNewPuzzle" class="btn">New Puzzle</button>
+          <button id="connectionsBackBtn" class="btn btn-outline">← Back to CS Games</button>
+        </div>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores from saved puzzles.</p>
+        </header>
+        <ol id="connectionsLeaderboard" class="leaderboard-list"></ol>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
