@@ -454,9 +454,21 @@ body.cs-body {
 
 .connections-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
   gap: 0.65rem;
   margin-top: 0.75rem;
+}
+
+@media (max-width: 900px) {
+  .connections-grid {
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+  }
+}
+
+@media (max-width: 540px) {
+  .connections-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .connections-tile {
@@ -813,6 +825,10 @@ body.cs-body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 1.25rem;
+}
+
+.game-grid + .game-grid {
+  margin-top: 1.5rem;
 }
 
 .game-grid + .game-grid {
