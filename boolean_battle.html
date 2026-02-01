@@ -10,6 +10,19 @@
 <body class="cs-body">
   <a href="cs_games.html" class="back-link">← Back to CS Games</a>
 
+  <div class="modal" id="booleanNameModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Your score will appear on the leaderboard.</p>
+      <div class="form-row">
+        <label for="booleanModalName" class="sr-only">Player name</label>
+        <input id="booleanModalName" class="input" type="text" placeholder="Your name" />
+        <button id="booleanModalStart" class="btn">Start Round</button>
+      </div>
+      <p id="booleanModalMessage" class="form-note"></p>
+    </div>
+  </div>
+
   <main class="page-wrap">
     <header class="page-header">
       <div>
@@ -54,13 +67,6 @@
 
         <div class="form-row boolean-level-row">
           <label for="booleanLevelSelect" class="sr-only">Select level</label>
-          <label for="booleanPlayerName" class="sr-only">Player name</label>
-          <input
-            id="booleanPlayerName"
-            type="text"
-            class="input"
-            placeholder="Your name"
-          />
           <select id="booleanLevelSelect" class="input" style="max-width: 220px;">
             <option value="1">Level 1 – Intro CS (1x points)</option>
             <option value="2">Level 2 – AP CSP (2x points)</option>
@@ -70,7 +76,6 @@
           </select>
           <button id="booleanStartBtn" class="btn">Start Round</button>
         </div>
-        <p id="booleanStartMessage" class="form-note"></p>
 
         <div class="boolean-expression">
           <p class="boolean-context" id="booleanContext">Context loading…</p>

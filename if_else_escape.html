@@ -9,6 +9,19 @@
 <body class="cs-body">
   <a href="cs_games.html" class="back-link">← Back to CS Games</a>
 
+  <div class="modal" id="escapeNameModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Your score will appear on the leaderboard.</p>
+      <div class="form-row">
+        <label for="escapeModalName" class="sr-only">Player name</label>
+        <input id="escapeModalName" class="input" type="text" placeholder="Your name" />
+        <button id="escapeModalStart" class="btn">Start Escape</button>
+      </div>
+      <p id="escapeModalMessage" class="form-note"></p>
+    </div>
+  </div>
+
   <main class="page-wrap">
     <!-- Top title + concept tag -->
     <header class="page-header">
@@ -42,14 +55,6 @@
         <div class="sub-card">
           <h3 class="sub-card-title">Start Run</h3>
           <div class="form-row">
-            <label for="playerName" class="sr-only">Player name</label>
-            <input
-              type="text"
-              id="playerName"
-              class="input"
-              placeholder="Your name"
-            />
-
             <label for="levelSelect" class="sr-only">Level</label>
             <select id="levelSelect" class="input" style="max-width: 220px;">
               <option value="1">Level 1 – Intro CS (1x points)</option>
@@ -61,7 +66,6 @@
 
             <button id="startGameBtn" class="btn">Start Escape</button>
           </div>
-          <p id="startMessage" class="form-note"></p>
         </div>
 
         <!-- Question / play area -->

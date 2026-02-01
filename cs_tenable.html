@@ -10,6 +10,19 @@
 <body class="cs-body">
   <a href="cs_games.html" class="back-link">← Back to CS Games</a>
 
+  <div class="modal" id="tenableNameModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Your score will appear on the leaderboard.</p>
+      <div class="form-row">
+        <label for="tenableModalName" class="sr-only">Player name</label>
+        <input id="tenableModalName" class="input" type="text" placeholder="Your name" />
+        <button id="tenableModalStart" class="btn">Start Round</button>
+      </div>
+      <p id="tenableModalMessage" class="form-note"></p>
+    </div>
+  </div>
+
   <main class="page-wrap">
     <header class="page-header">
       <div>
@@ -44,16 +57,8 @@
           </div>
         </div>
         <div class="form-row">
-          <label for="tenablePlayerName" class="sr-only">Player name</label>
-          <input
-            id="tenablePlayerName"
-            type="text"
-            class="input"
-            placeholder="Your name"
-          />
           <button id="tenableStartBtn" class="btn">Start Round</button>
         </div>
-        <p id="tenableStartMessage" class="form-note"></p>
         <div id="tenableAnswerBoard" class="tenable-grid"></div>
       </section>
 

@@ -105,9 +105,11 @@ let nextBtnEl;
 let backBtnEl;
 let messageEl;
 let summaryEl;
-let playerNameEl;
 let startBtnEl;
-let startMessageEl;
+let nameModalEl;
+let modalNameInputEl;
+let modalMessageEl;
+let modalStartBtnEl;
 let leaderboardEl;
 
 const normalizeGuess = (value) => value.trim().toLowerCase();
@@ -160,9 +162,9 @@ const setSummary = (text, tone = "") => {
   summaryEl.className = `tenable-summary ${tone}`.trim();
 };
 
-const setStartMessage = (text, tone = "") => {
-  startMessageEl.textContent = text;
-  startMessageEl.className = `form-note ${tone}`.trim();
+const setModalMessage = (text, tone = "") => {
+  modalMessageEl.textContent = text;
+  modalMessageEl.className = `form-note ${tone}`.trim();
 };
 
 const loadLeaderboard = () => {
@@ -302,9 +304,18 @@ const handleGuess = () => {
   guessInputEl.focus();
 };
 
+const openNameModal = () => {
+  nameModalEl.classList.remove("hidden");
+  modalNameInputEl.focus();
+};
+
+const closeNameModal = () => {
+  nameModalEl.classList.add("hidden");
+};
+
 const startNewRound = () => {
   if (!playerName) {
-    setStartMessage("Enter your name before starting.", "warning");
+    openNameModal();
     return;
   }
 
@@ -319,7 +330,7 @@ const startNewRound = () => {
   setRoundState(false);
   setMessage("");
   setSummary("");
-  setStartMessage("");
+  setModalMessage("");
 
   categoryTitleEl.textContent = currentCategory.title;
   updateScoreboard();
@@ -327,6 +338,18 @@ const startNewRound = () => {
 
   guessInputEl.value = "";
   guessInputEl.focus();
+};
+
+const startGame = () => {
+  const nameValue = modalNameInputEl.value.trim();
+  if (!nameValue) {
+    setModalMessage("Please enter your name to start.", "warning");
+    return;
+  }
+  playerName = nameValue;
+  setModalMessage("");
+  closeNameModal();
+  startNewRound();
 };
 
 const initGame = () => {
@@ -343,9 +366,11 @@ const initGame = () => {
   backBtnEl = document.getElementById("tenableBackBtn");
   messageEl = document.getElementById("tenableMessage");
   summaryEl = document.getElementById("tenableSummary");
-  playerNameEl = document.getElementById("tenablePlayerName");
   startBtnEl = document.getElementById("tenableStartBtn");
-  startMessageEl = document.getElementById("tenableStartMessage");
+  nameModalEl = document.getElementById("tenableNameModal");
+  modalNameInputEl = document.getElementById("tenableModalName");
+  modalMessageEl = document.getElementById("tenableModalMessage");
+  modalStartBtnEl = document.getElementById("tenableModalStart");
   leaderboardEl = document.getElementById("tenableLeaderboard");
 
   if (
@@ -362,9 +387,11 @@ const initGame = () => {
     !backBtnEl ||
     !messageEl ||
     !summaryEl ||
-    !playerNameEl ||
     !startBtnEl ||
-    !startMessageEl ||
+    !nameModalEl ||
+    !modalNameInputEl ||
+    !modalMessageEl ||
+    !modalStartBtnEl ||
     !leaderboardEl
   ) {
     return;
@@ -389,15 +416,8 @@ const initGame = () => {
     endRound("Remaining answers revealed.");
   });
 
-  startBtnEl.addEventListener("click", () => {
-    const nameValue = playerNameEl.value.trim();
-    if (!nameValue) {
-      setStartMessage("Enter your name before starting.", "warning");
-      return;
-    }
-    playerName = nameValue;
-    startNewRound();
-  });
+  startBtnEl.addEventListener("click", startNewRound);
+  modalStartBtnEl.addEventListener("click", startGame);
 
   nextBtnEl.addEventListener("click", startNewRound);
 
@@ -407,6 +427,7 @@ const initGame = () => {
 
   answerBoardEl.innerHTML = "";
   updateScoreboard();
+  openNameModal();
 };
 
 window.addEventListener("DOMContentLoaded", initGame);

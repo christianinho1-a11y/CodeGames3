@@ -41,8 +41,10 @@ let messageEl;
 let newBtnEl;
 let backBtnEl;
 let startBtnEl;
-let playerNameEl;
-let startMessageEl;
+let nameModalEl;
+let modalNameInputEl;
+let modalMessageEl;
+let modalStartBtnEl;
 let leaderboardEl;
 
 const tileGrid = [];
@@ -61,9 +63,9 @@ const setMessage = (text, tone = "") => {
   messageEl.className = `wordle-message ${tone}`.trim();
 };
 
-const setStartMessage = (text, tone = "") => {
-  startMessageEl.textContent = text;
-  startMessageEl.className = `form-note ${tone}`.trim();
+const setModalMessage = (text, tone = "") => {
+  modalMessageEl.textContent = text;
+  modalMessageEl.className = `form-note ${tone}`.trim();
 };
 
 const loadLeaderboard = () => {
@@ -297,14 +299,21 @@ const handleKeyPress = (key) => {
   }
 };
 
-const resetGame = () => {
-  const nameValue = playerNameEl.value.trim();
-  if (!nameValue) {
-    setStartMessage("Enter your name before starting.", "warning");
+const openNameModal = () => {
+  nameModalEl.classList.remove("hidden");
+  modalNameInputEl.focus();
+};
+
+const closeNameModal = () => {
+  nameModalEl.classList.add("hidden");
+};
+
+const startRound = () => {
+  if (!playerName) {
+    openNameModal();
     return;
   }
 
-  playerName = nameValue;
   currentWord = pickWord();
   currentRow = 0;
   currentCol = 0;
@@ -315,7 +324,18 @@ const resetGame = () => {
   buildGrid();
   buildKeyboard();
   setMessage("");
-  setStartMessage("");
+};
+
+const startGame = () => {
+  const nameValue = modalNameInputEl.value.trim();
+  if (!nameValue) {
+    setModalMessage("Please enter your name to start.", "warning");
+    return;
+  }
+  playerName = nameValue;
+  setModalMessage("");
+  closeNameModal();
+  startRound();
 };
 
 const initWordle = () => {
@@ -325,8 +345,10 @@ const initWordle = () => {
   newBtnEl = document.getElementById("wordleNewBtn");
   backBtnEl = document.getElementById("wordleBackBtn");
   startBtnEl = document.getElementById("wordleStartBtn");
-  playerNameEl = document.getElementById("wordlePlayerName");
-  startMessageEl = document.getElementById("wordleStartMessage");
+  nameModalEl = document.getElementById("wordleNameModal");
+  modalNameInputEl = document.getElementById("wordleModalName");
+  modalMessageEl = document.getElementById("wordleModalMessage");
+  modalStartBtnEl = document.getElementById("wordleModalStart");
   leaderboardEl = document.getElementById("wordleLeaderboard");
 
   if (
@@ -336,19 +358,22 @@ const initWordle = () => {
     !newBtnEl ||
     !backBtnEl ||
     !startBtnEl ||
-    !playerNameEl ||
-    !startMessageEl ||
+    !nameModalEl ||
+    !modalNameInputEl ||
+    !modalMessageEl ||
+    !modalStartBtnEl ||
     !leaderboardEl
   ) {
     return;
   }
 
   updateLeaderboardUI();
-  newBtnEl.addEventListener("click", resetGame);
-  startBtnEl.addEventListener("click", resetGame);
+  newBtnEl.addEventListener("click", startRound);
+  startBtnEl.addEventListener("click", startRound);
   backBtnEl.addEventListener("click", () => {
     window.location.href = "cs_games.html";
   });
+  modalStartBtnEl.addEventListener("click", startGame);
 
   window.addEventListener("keydown", (event) => {
     const key = event.key.toUpperCase();
@@ -365,6 +390,7 @@ const initWordle = () => {
 
   buildGrid();
   buildKeyboard();
+  openNameModal();
 };
 
 window.addEventListener("DOMContentLoaded", initWordle);

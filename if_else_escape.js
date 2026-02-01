@@ -952,10 +952,12 @@ let saveScoreBtnEl;
 let playAgainBtnEl;
 let leaderboardListEl;
 let startGameBtnEl;
-let playerNameInputEl;
 let levelSelectEl;
 let openLeaderboardBtnEl;
-let startMessageEl;
+let nameModalEl;
+let modalNameInputEl;
+let modalMessageEl;
+let modalStartBtnEl;
 
 const updateScoreboard = () => {
   scoreDisplayEl.textContent = score;
@@ -1032,17 +1034,26 @@ const goToNextNode = () => {
   renderNode(pendingNextNode);
 };
 
-const startGame = () => {
-  const nameValue = playerNameInputEl.value.trim();
-  if (!nameValue) {
-    startMessageEl.textContent = "Enter your name before starting.";
-    startMessageEl.className = "form-note warning";
+const setModalMessage = (text, tone = "") => {
+  modalMessageEl.textContent = text;
+  modalMessageEl.className = `form-note ${tone}`.trim();
+};
+
+const openNameModal = () => {
+  nameModalEl.classList.remove("hidden");
+  modalNameInputEl.focus();
+};
+
+const closeNameModal = () => {
+  nameModalEl.classList.add("hidden");
+};
+
+const startEscape = () => {
+  if (!playerName) {
+    openNameModal();
     return;
   }
 
-  playerName = nameValue;
-  startMessageEl.textContent = "";
-  startMessageEl.className = "form-note";
   currentLevel = parseInt(levelSelectEl.value, 10);
   currentStory = STORY_LEVELS[currentLevel];
   currentNodeId = currentStory.start;
@@ -1060,6 +1071,18 @@ const startGame = () => {
   continueCheckpointBtnEl.hidden = true;
   saveScoreBtnEl.disabled = false;
   renderNode(currentNodeId);
+};
+
+const startGame = () => {
+  const nameValue = modalNameInputEl.value.trim();
+  if (!nameValue) {
+    setModalMessage("Please enter your name to start.", "warning");
+    return;
+  }
+  playerName = nameValue;
+  setModalMessage("");
+  closeNameModal();
+  startEscape();
 };
 
 const endGame = (message) => {
@@ -1159,10 +1182,12 @@ const initGame = () => {
   playAgainBtnEl = document.getElementById("playAgainBtn");
   leaderboardListEl = document.getElementById("leaderboardList");
   startGameBtnEl = document.getElementById("startGameBtn");
-  playerNameInputEl = document.getElementById("playerName");
   levelSelectEl = document.getElementById("levelSelect");
   openLeaderboardBtnEl = document.getElementById("openLeaderboardBtn");
-  startMessageEl = document.getElementById("startMessage");
+  nameModalEl = document.getElementById("escapeNameModal");
+  modalNameInputEl = document.getElementById("escapeModalName");
+  modalMessageEl = document.getElementById("escapeModalMessage");
+  modalStartBtnEl = document.getElementById("escapeModalStart");
 
   if (
     !gameAreaEl ||
@@ -1187,24 +1212,28 @@ const initGame = () => {
     !playAgainBtnEl ||
     !leaderboardListEl ||
     !startGameBtnEl ||
-    !playerNameInputEl ||
     !levelSelectEl ||
     !openLeaderboardBtnEl ||
-    !startMessageEl
+    !nameModalEl ||
+    !modalNameInputEl ||
+    !modalMessageEl ||
+    !modalStartBtnEl
   ) {
     return;
   }
 
   updateLeaderboardUI();
 
-  startGameBtnEl.addEventListener("click", startGame);
+  startGameBtnEl.addEventListener("click", startEscape);
   nextQuestionBtnEl.addEventListener("click", goToNextNode);
   continueCheckpointBtnEl.addEventListener("click", continueFromCheckpoint);
   saveScoreBtnEl.addEventListener("click", saveScore);
-  playAgainBtnEl.addEventListener("click", startGame);
+  playAgainBtnEl.addEventListener("click", startEscape);
+  modalStartBtnEl.addEventListener("click", startGame);
   openLeaderboardBtnEl.addEventListener("click", () => {
     leaderboardListEl.scrollIntoView({ behavior: "smooth" });
   });
+  openNameModal();
 };
 
 window.addEventListener("DOMContentLoaded", initGame);

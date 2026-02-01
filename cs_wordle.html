@@ -10,6 +10,19 @@
 <body class="cs-body">
   <a href="cs_games.html" class="back-link">← Back to CS Games</a>
 
+  <div class="modal" id="wordleNameModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Your score will appear on the leaderboard.</p>
+      <div class="form-row">
+        <label for="wordleModalName" class="sr-only">Player name</label>
+        <input id="wordleModalName" class="input" type="text" placeholder="Your name" />
+        <button id="wordleModalStart" class="btn">Start Round</button>
+      </div>
+      <p id="wordleModalMessage" class="form-note"></p>
+    </div>
+  </div>
+
   <main class="page-wrap">
     <header class="page-header">
       <div>
@@ -29,16 +42,8 @@
       <section class="sub-card">
         <h3 class="sub-card-title">Answer Board</h3>
         <div class="form-row">
-          <label for="wordlePlayerName" class="sr-only">Player name</label>
-          <input
-            id="wordlePlayerName"
-            type="text"
-            class="input"
-            placeholder="Your name"
-          />
           <button id="wordleStartBtn" class="btn">Start Round</button>
         </div>
-        <p id="wordleStartMessage" class="form-note"></p>
         <div id="wordleGrid" class="wordle-grid" aria-label="CS Wordle grid"></div>
         <p id="wordleMessage" class="wordle-message"></p>
       </section>

@@ -334,7 +334,10 @@ let contextEl;
 let expressionEl;
 let messageEl;
 let summaryEl;
-let startMessageEl;
+let nameModalEl;
+let modalNameInputEl;
+let modalMessageEl;
+let modalStartBtnEl;
 let trueBtnEl;
 let falseBtnEl;
 let nextBtnEl;
@@ -342,7 +345,6 @@ let restartBtnEl;
 let backBtnEl;
 let levelSelectEl;
 let startBtnEl;
-let playerNameEl;
 let leaderboardEl;
 
 const shuffle = (array) => {
@@ -372,9 +374,9 @@ const setSummary = (text, tone = "") => {
   summaryEl.className = `boolean-summary ${tone}`.trim();
 };
 
-const setStartMessage = (text, tone = "") => {
-  startMessageEl.textContent = text;
-  startMessageEl.className = `form-note ${tone}`.trim();
+const setModalMessage = (text, tone = "") => {
+  modalMessageEl.textContent = text;
+  modalMessageEl.className = `form-note ${tone}`.trim();
 };
 
 const loadLeaderboard = () => {
@@ -490,14 +492,21 @@ const handleNext = () => {
 const getQuestionsForLevel = (level) =>
   BOOLEAN_QUESTIONS.filter((question) => question.level === level);
 
+const openNameModal = () => {
+  nameModalEl.classList.remove("hidden");
+  modalNameInputEl.focus();
+};
+
+const closeNameModal = () => {
+  nameModalEl.classList.add("hidden");
+};
+
 const startRound = () => {
-  const nameValue = playerNameEl.value.trim();
-  if (!nameValue) {
-    setStartMessage("Enter your name before starting.", "warning");
+  if (!playerName) {
+    openNameModal();
     return;
   }
 
-  playerName = nameValue;
   currentLevel = parseInt(levelSelectEl.value, 10);
   const questions = getQuestionsForLevel(currentLevel);
   roundQuestions = shuffle(questions).slice(0, ROUND_LENGTH);
@@ -506,9 +515,21 @@ const startRound = () => {
   strikes = 0;
   currentIndex = 0;
   scoreSaved = false;
-  setStartMessage("");
   setSummary("");
+  setModalMessage("");
   renderQuestion();
+};
+
+const startGame = () => {
+  const nameValue = modalNameInputEl.value.trim();
+  if (!nameValue) {
+    setModalMessage("Please enter your name to start.", "warning");
+    return;
+  }
+  playerName = nameValue;
+  setModalMessage("");
+  closeNameModal();
+  startRound();
 };
 
 const initGame = () => {
@@ -521,7 +542,10 @@ const initGame = () => {
   expressionEl = document.getElementById("booleanExpression");
   messageEl = document.getElementById("booleanMessage");
   summaryEl = document.getElementById("booleanSummary");
-  startMessageEl = document.getElementById("booleanStartMessage");
+  nameModalEl = document.getElementById("booleanNameModal");
+  modalNameInputEl = document.getElementById("booleanModalName");
+  modalMessageEl = document.getElementById("booleanModalMessage");
+  modalStartBtnEl = document.getElementById("booleanModalStart");
   trueBtnEl = document.getElementById("booleanTrueBtn");
   falseBtnEl = document.getElementById("booleanFalseBtn");
   nextBtnEl = document.getElementById("booleanNextBtn");
@@ -529,7 +553,6 @@ const initGame = () => {
   backBtnEl = document.getElementById("booleanBackBtn");
   levelSelectEl = document.getElementById("booleanLevelSelect");
   startBtnEl = document.getElementById("booleanStartBtn");
-  playerNameEl = document.getElementById("booleanPlayerName");
   leaderboardEl = document.getElementById("booleanLeaderboard");
 
   if (
@@ -542,7 +565,10 @@ const initGame = () => {
     !expressionEl ||
     !messageEl ||
     !summaryEl ||
-    !startMessageEl ||
+    !nameModalEl ||
+    !modalNameInputEl ||
+    !modalMessageEl ||
+    !modalStartBtnEl ||
     !trueBtnEl ||
     !falseBtnEl ||
     !nextBtnEl ||
@@ -550,7 +576,6 @@ const initGame = () => {
     !backBtnEl ||
     !levelSelectEl ||
     !startBtnEl ||
-    !playerNameEl ||
     !leaderboardEl
   ) {
     return;
@@ -567,11 +592,13 @@ const initGame = () => {
   nextBtnEl.addEventListener("click", handleNext);
   restartBtnEl.addEventListener("click", startRound);
   startBtnEl.addEventListener("click", startRound);
+  modalStartBtnEl.addEventListener("click", startGame);
   backBtnEl.addEventListener("click", () => {
     window.location.href = "cs_games.html";
   });
 
   updateScoreboard();
+  openNameModal();
 };
 
 window.addEventListener("DOMContentLoaded", initGame);

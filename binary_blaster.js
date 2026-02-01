@@ -41,7 +41,10 @@ let strikesEl;
 let promptEl;
 let messageEl;
 let summaryEl;
-let startMessageEl;
+let nameModalEl;
+let modalNameInputEl;
+let modalMessageEl;
+let modalStartBtnEl;
 let nextBtnEl;
 let restartBtnEl;
 let backBtnEl;
@@ -68,9 +71,9 @@ const setSummary = (text, tone = "") => {
   summaryEl.className = `binary-summary ${tone}`.trim();
 };
 
-const setStartMessage = (text, tone = "") => {
-  startMessageEl.textContent = text;
-  startMessageEl.className = `form-note ${tone}`.trim();
+const setModalMessage = (text, tone = "") => {
+  modalMessageEl.textContent = text;
+  modalMessageEl.className = `form-note ${tone}`.trim();
 };
 
 const loadLeaderboard = () => {
@@ -287,14 +290,21 @@ const handleNext = () => {
   renderProblem();
 };
 
+const openNameModal = () => {
+  nameModalEl.classList.remove("hidden");
+  modalNameInputEl.focus();
+};
+
+const closeNameModal = () => {
+  nameModalEl.classList.add("hidden");
+};
+
 const startRound = () => {
-  const nameValue = playerNameEl.value.trim();
-  if (!nameValue) {
-    setStartMessage("Enter your name before starting.", "warning");
+  if (!playerName) {
+    openNameModal();
     return;
   }
 
-  playerName = nameValue;
   currentMode = modeSelectEl.value;
   currentDifficulty = hardBtnEl.classList.contains("active") ? "hard" : "easy";
   roundProblems = buildProblems();
@@ -303,10 +313,22 @@ const startRound = () => {
   strikes = 0;
   currentIndex = 0;
   scoreSaved = false;
-  setStartMessage("");
+  setModalMessage("");
   setSummary("");
   updateHelpNumbersVisibility();
   renderProblem();
+};
+
+const startGame = () => {
+  const nameValue = modalNameInputEl.value.trim();
+  if (!nameValue) {
+    setModalMessage("Please enter your name to start.", "warning");
+    return;
+  }
+  playerName = nameValue;
+  setModalMessage("");
+  closeNameModal();
+  startRound();
 };
 
 const initGame = () => {
@@ -318,13 +340,15 @@ const initGame = () => {
   promptEl = document.getElementById("binaryPrompt");
   messageEl = document.getElementById("binaryMessage");
   summaryEl = document.getElementById("binarySummary");
-  startMessageEl = document.getElementById("binaryStartMessage");
+  nameModalEl = document.getElementById("binaryNameModal");
+  modalNameInputEl = document.getElementById("binaryModalName");
+  modalMessageEl = document.getElementById("binaryModalMessage");
+  modalStartBtnEl = document.getElementById("binaryModalStart");
   nextBtnEl = document.getElementById("binaryNextBtn");
   restartBtnEl = document.getElementById("binaryRestartBtn");
   backBtnEl = document.getElementById("binaryBackBtn");
   submitBtnEl = document.getElementById("binarySubmitBtn");
   startBtnEl = document.getElementById("binaryStartBtn");
-  playerNameEl = document.getElementById("binaryPlayerName");
   modeSelectEl = document.getElementById("binaryModeSelect");
   leaderboardEl = document.getElementById("binaryLeaderboard");
   binaryGroupEl = document.getElementById("binaryAnswerBinary");
@@ -344,13 +368,15 @@ const initGame = () => {
     !promptEl ||
     !messageEl ||
     !summaryEl ||
-    !startMessageEl ||
+    !nameModalEl ||
+    !modalNameInputEl ||
+    !modalMessageEl ||
+    !modalStartBtnEl ||
     !nextBtnEl ||
     !restartBtnEl ||
     !backBtnEl ||
     !submitBtnEl ||
     !startBtnEl ||
-    !playerNameEl ||
     !modeSelectEl ||
     !leaderboardEl ||
     !binaryGroupEl ||
@@ -370,6 +396,7 @@ const initGame = () => {
   resetDecimalInputs();
   toggleAnswerGroups();
   updateHelpNumbersVisibility();
+  openNameModal();
 
   easyBtnEl.addEventListener("click", () => {
     currentDifficulty = "easy";
@@ -385,6 +412,8 @@ const initGame = () => {
     currentMode = modeSelectEl.value;
     updateHelpNumbersVisibility();
   });
+
+  modalStartBtnEl.addEventListener("click", startGame);
 
   binaryInputs.forEach((input) => {
     input.addEventListener("input", () => {

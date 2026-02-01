@@ -10,6 +10,19 @@
 <body class="cs-body">
   <a href="cs_games.html" class="back-link">← Back to CS Games</a>
 
+  <div class="modal" id="binaryNameModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Your score will appear on the leaderboard.</p>
+      <div class="form-row">
+        <label for="binaryModalName" class="sr-only">Player name</label>
+        <input id="binaryModalName" class="input" type="text" placeholder="Your name" />
+        <button id="binaryModalStart" class="btn">Start Game</button>
+      </div>
+      <p id="binaryModalMessage" class="form-note"></p>
+    </div>
+  </div>
+
   <main class="page-wrap">
     <header class="page-header">
       <div>
@@ -53,13 +66,6 @@
         </div>
 
         <div class="form-row binary-controls">
-          <label for="binaryPlayerName" class="sr-only">Player name</label>
-          <input
-            id="binaryPlayerName"
-            type="text"
-            class="input"
-            placeholder="Your name"
-          />
           <label for="binaryModeSelect" class="sr-only">Select mode</label>
           <select id="binaryModeSelect" class="input" style="max-width: 220px;">
             <option value="binaryToDecimal">Binary → Decimal</option>
@@ -71,7 +77,6 @@
           </div>
           <button id="binaryStartBtn" class="btn">Start Round</button>
         </div>
-        <p id="binaryStartMessage" class="form-note"></p>
 
         <div class="binary-problem">
           <p class="binary-prompt" id="binaryPrompt">Problem loading…</p>
