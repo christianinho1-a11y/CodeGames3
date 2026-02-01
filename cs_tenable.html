@@ -8,7 +8,20 @@
   <script defer src="cs_tenable.js"></script>
 </head>
 <body class="cs-body">
-  <a href="cs_games.html" class="back-link">← Back to CS Games</a>
+  <a href="cs_games.html" class="back-link" id="tenableBackLink">← Back to CS Games</a>
+
+  <div class="modal" id="tenableNameModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Your score will appear on the leaderboard.</p>
+      <div class="form-row">
+        <label for="tenableModalName" class="sr-only">Player name</label>
+        <input id="tenableModalName" class="input" type="text" placeholder="Your name" />
+        <button id="tenableModalStart" class="btn">Start Round</button>
+      </div>
+      <p id="tenableModalMessage" class="form-note"></p>
+    </div>
+  </div>
 
   <main class="page-wrap">
     <header class="page-header">
@@ -27,6 +40,20 @@
       </header>
 
       <section class="sub-card">
+        <h3 class="sub-card-title">Topic</h3>
+        <div class="form-row">
+          <label for="tenableTopic" class="sr-only">Topic</label>
+          <select id="tenableTopic" class="input">
+            <option value="all">All Topics</option>
+            <option value="cs">Computer Science</option>
+            <option value="it">Information Technology</option>
+            <option value="cyber">Cybersecurity</option>
+          </select>
+        </div>
+        <p class="card-subtitle small">Filter categories by topic.</p>
+      </section>
+
+      <section class="sub-card">
         <div class="sub-card-header">
           <div>
             <h3 class="sub-card-title">Answer Board</h3>
@@ -42,6 +69,9 @@
               <span id="tenableMaxStrikes">3</span>
             </p>
           </div>
+        </div>
+        <div class="form-row">
+          <button id="tenableStartBtn" class="btn">Start Round</button>
         </div>
         <div id="tenableAnswerBoard" class="tenable-grid"></div>
       </section>
@@ -70,6 +100,14 @@
           <button id="tenableNextBtn" class="btn">Next Category</button>
           <button id="tenableBackBtn" class="btn btn-outline">← Back to CS Games</button>
         </div>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="tenableLeaderboard" class="leaderboard-list"></ol>
       </section>
     </section>
   </main>
