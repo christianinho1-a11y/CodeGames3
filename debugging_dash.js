@@ -1,7 +1,7 @@
 const LEADERBOARD_KEY = "debugging_dash_leaderboard";
 
 const BUG_SNIPPETS = {
-  easy: [
+  level1: [
     {
       code: `let score = 10;\nif (score > 10) {\n  print("Level up");\n}`,
       bugs: [
@@ -13,8 +13,19 @@ const BUG_SNIPPETS = {
         "Missing semicolon after score",
       ],
     },
+    {
+      code: `const name = "Jordan";\nif (name === "Jordan") {\n  alert("Welcome");\n}`,
+      bugs: [
+        { id: "alert", label: "alert() should be console.log()" },
+      ],
+      options: [
+        "alert() should be console.log()",
+        "Variable should be called userName",
+        "Missing closing brace",
+      ],
+    },
   ],
-  medium: [
+  level2: [
     {
       code: `const names = ["Ava", "Kai"];\nif (names.length = 2) {\n  message = "Team ready";\n}`,
       bugs: [
@@ -28,10 +39,47 @@ const BUG_SNIPPETS = {
         "names.length should be 3",
       ],
     },
-  ],
-  hard: [
     {
-      code: `let points = 0;\nfor (let i = 0; i <= 5; i++) {\n  points = points + i;\n}\nif (points = 10 && i === 5) {\n  announce("Ready");\n}`,
+      code: `let total = 0;\nif (total < 5) {\n  total = total + 5;\n}\nconsole.log(total)`,
+      bugs: [
+        { id: "semicolon", label: "Missing semicolon after console.log" },
+      ],
+      options: [
+        "Missing semicolon after console.log",
+        "total should start at 1",
+        "Condition should be total > 5",
+      ],
+    },
+  ],
+  level3: [
+    {
+      code: `let score = 88;\nlet passed = false;\nif (score >= 70) {\n  passed == true;\n}`,
+      bugs: [
+        { id: "equals", label: "Uses == instead of = to set passed" },
+        { id: "unused", label: "passed never updates" },
+      ],
+      options: [
+        "Uses == instead of = to set passed",
+        "passed never updates",
+        "Score should be a string",
+        "Missing loop",
+      ],
+    },
+    {
+      code: `const grades = [90, 85, 92];\nif (grades.length === 3) {\n  avg = (grades[0] + grades[1] + grades[2]) / 3;\n}`,
+      bugs: [
+        { id: "avg", label: "avg is assigned without let/const" },
+      ],
+      options: [
+        "avg is assigned without let/const",
+        "Array should be empty",
+        "Use grades.length === 2",
+      ],
+    },
+  ],
+  level4: [
+    {
+      code: `let points = 0;\nfor (let i = 0; i < 5; i++) {\n  points = points + i;\n}\nif (points = 10 && i === 5) {\n  announce("Ready");\n}`,
       bugs: [
         { id: "scope", label: "i is out of scope in the if statement" },
         { id: "assign", label: "Uses = instead of === for points" },
@@ -45,12 +93,30 @@ const BUG_SNIPPETS = {
       ],
     },
   ],
+  level5: [
+    {
+      code: `const scores = [12, 18, 25];\nlet bonus = 0;\nif (scores.length === 3 && bonus = 5) {\n  total = scores[0] + scores[1] + scores[2] + bonus;\n}`,
+      bugs: [
+        { id: "assign", label: "Uses = instead of === for bonus" },
+        { id: "total", label: "total is assigned without let/const" },
+        { id: "bonus", label: "bonus should be set before the if statement" },
+      ],
+      options: [
+        "Uses = instead of === for bonus",
+        "total is assigned without let/const",
+        "bonus should be set before the if statement",
+        "scores should be a string",
+      ],
+    },
+  ],
 };
 
 const TIMER_LIMITS = {
-  easy: 45,
-  medium: 40,
-  hard: 35,
+  level1: 50,
+  level2: 45,
+  level3: 40,
+  level4: 35,
+  level5: 30,
 };
 
 let playerName = "";

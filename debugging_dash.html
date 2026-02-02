@@ -5,6 +5,7 @@
   <title>Debugging Dash</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="style.css" />
+  <script defer src="cs_language.js"></script>
   <script defer src="debugging_dash.js"></script>
 </head>
 <body class="cs-body">
@@ -37,15 +38,26 @@
         <p class="card-subtitle">
           Read the snippet, then pick every bug description that applies.
         </p>
+        <div class="form-row">
+          <span class="sub-card-meta" data-language-label>Language: JavaScript</span>
+          <label for="debugLanguageSelect" class="sr-only">Practice language</label>
+          <select id="debugLanguageSelect" class="input" data-language-select style="max-width: 220px;">
+            <option value="javascript">JavaScript</option>
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+          </select>
+        </div>
       </header>
 
       <section class="sub-card">
         <div class="form-row">
           <label for="debugDifficulty" class="sr-only">Difficulty</label>
           <select id="debugDifficulty" class="input" style="max-width: 220px;">
-            <option value="easy">Easy (1 bug)</option>
-            <option value="medium">Medium (2 bugs)</option>
-            <option value="hard">Hard (3 bugs)</option>
+            <option value="level1">Level 1 (1 bug)</option>
+            <option value="level2">Level 2 (1-2 bugs)</option>
+            <option value="level3">Level 3 (2 bugs)</option>
+            <option value="level4">Level 4 (2-3 bugs)</option>
+            <option value="level5">Level 5 (3 bugs)</option>
           </select>
           <button id="debugStartBtn" class="btn">Start Round</button>
         </div>

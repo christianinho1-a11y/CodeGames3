@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Computer Science Games</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Computer Science Games</title>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="cs_language.js"></script>
+  </head>
 <body class="cs-body">
   <a href="index.html" class="back-link">← Back to Subjects</a>
 
@@ -29,6 +30,15 @@
           Use these games to reinforce what you’re teaching in Intro to CS or
           AP CSP: decision-making, boolean logic, and vocabulary.
         </p>
+        <div class="form-row" style="margin-top: 0.75rem;">
+          <span class="sub-card-meta" data-language-label>Language: JavaScript</span>
+          <label for="csLanguageSelect" class="sr-only">Practice language</label>
+          <select id="csLanguageSelect" class="input" data-language-select style="max-width: 220px;">
+            <option value="javascript">JavaScript</option>
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+          </select>
+        </div>
       </div>
       <ul class="hub-keypoints">
         <li>Great as bell ringers or exit tickets.</li>
