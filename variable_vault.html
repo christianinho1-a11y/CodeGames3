@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Variable Vault</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="cs_language.js"></script>
+  <script defer src="variable_vault.js"></script>
+</head>
+<body class="cs-body">
+  <a href="cs_games.html" class="back-link">← Back to CS Games</a>
+
+  <div class="modal" id="vaultNameModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Your score will appear on the leaderboard.</p>
+      <div class="form-row">
+        <label for="vaultModalName" class="sr-only">Player name</label>
+        <input id="vaultModalName" class="input" type="text" placeholder="Your name" />
+        <button id="vaultModalStart" class="btn">Start Vault</button>
+      </div>
+      <p id="vaultModalMessage" class="form-note"></p>
+    </div>
+  </div>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// Variable Vault</h1>
+        <p class="page-subtitle">Match scenarios to the best variable choice.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title">Scenario Vault</h2>
+        <p class="card-subtitle">
+          Each prompt needs the right variable name, data type, and example.
+        </p>
+        <div class="form-row">
+          <span class="sub-card-meta" data-language-label>Language: Python</span>
+          <label for="vaultLanguageSelect" class="sr-only">Practice language</label>
+          <select id="vaultLanguageSelect" class="input" data-language-select style="max-width: 220px;">
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+          </select>
+        </div>
+      </header>
+
+      <section class="sub-card">
+        <div class="vault-scoreboard">
+          <p class="sub-card-meta">Score: <span id="vaultScore">0</span></p>
+          <p class="sub-card-meta">Round: <span id="vaultRound">1</span> / 6</p>
+        </div>
+
+        <div class="scenario-card">
+          <h3 class="sub-card-title" id="vaultScenario">Scenario</h3>
+          <p class="card-subtitle" id="vaultPrompt">Prompt text</p>
+        </div>
+
+        <div id="vaultChoices" class="choice-grid"></div>
+
+        <div class="button-row">
+          <button id="vaultNext" class="btn btn-outline" disabled>Next Scenario</button>
+        </div>
+        <p id="vaultMessage" class="form-note"></p>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="vaultLeaderboard" class="leaderboard-list"></ol>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>OS Quick Tasks</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="os_quick_tasks.js"></script>
+</head>
+<body class="cs-body">
+  <a href="it_games.html" class="back-link">← Back to IT Games</a>
+
+  <div class="modal" id="osModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Complete tasks and save your score.</p>
+      <div class="form-row">
+        <label for="osName" class="sr-only">Player name</label>
+        <input id="osName" class="input" type="text" placeholder="Your name" />
+        <button id="osStart" class="btn">Start Tasks</button>
+      </div>
+      <p id="osModalMessage" class="form-note"></p>
+    </div>
+  </div>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// OS Quick Tasks</h1>
+        <p class="page-subtitle">Click through common desktop tasks.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title">Task Desk</h2>
+        <p class="card-subtitle">Pick the correct action steps to finish each task.</p>
+      </header>
+
+      <section class="sub-card">
+        <div class="form-row">
+          <p class="sub-card-meta">Score: <span id="osScore">0</span></p>
+          <p class="sub-card-meta">Task: <span id="osRound">1</span> / 5</p>
+        </div>
+
+        <div class="scenario-card">
+          <h3 class="sub-card-title" id="osTaskTitle">Task</h3>
+          <p class="card-subtitle" id="osTaskPrompt">Prompt</p>
+          <p class="sub-card-meta" id="osStepHint">Step 1 of 2</p>
+        </div>
+
+        <div id="osActions" class="choice-grid"></div>
+        <p id="osMessage" class="form-note"></p>
+        <button id="osNext" class="btn btn-outline" disabled>Next Task</button>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="osLeaderboard" class="leaderboard-list"></ol>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
