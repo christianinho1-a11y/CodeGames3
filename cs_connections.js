@@ -2,6 +2,8 @@ const CONNECTIONS_STORAGE_KEY = "cs_connections_leaderboard";
 const CONNECTIONS_PUZZLE_COUNT = 4;
 const MAX_STRIKES = 4;
 const DAILY_KEY_PREFIX = "cs_connections_daily";
+const DAILY_MODE = "daily";
+const PRACTICE_MODE = "practice";
 
 let playerName = "";
 let puzzleGroups = [];
@@ -13,10 +15,12 @@ let timerInterval;
 let startTime;
 let puzzleId = 0;
 let currentTopic = "all";
+let playMode = PRACTICE_MODE;
 
 const elements = {};
 
 const validTopic = (topic) => ["all", "cs", "it", "cyber", "essentials"].includes(topic);
+const validMode = (mode) => [DAILY_MODE, PRACTICE_MODE].includes(mode);
 const topicLabels = {
   all: "All Topics",
   cs: "Computer Science",
@@ -29,6 +33,12 @@ const getTopicFromQuery = () => {
   const params = new URLSearchParams(window.location.search);
   const topic = params.get("topic");
   return validTopic(topic) ? topic : "all";
+};
+
+const getModeFromQuery = () => {
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get("mode");
+  return validMode(mode) ? mode : PRACTICE_MODE;
 };
 
 const getBackLinkFromQuery = () => {
@@ -59,11 +69,17 @@ const getDailyKey = () => {
 };
 
 const hasPlayedToday = () => {
+  if (playMode !== DAILY_MODE) {
+    return false;
+  }
   const key = getDailyKey();
   return key ? localStorage.getItem(key) === "done" : false;
 };
 
 const markPlayedToday = () => {
+  if (playMode !== DAILY_MODE) {
+    return;
+  }
   const key = getDailyKey();
   if (key) {
     localStorage.setItem(key, "done");
@@ -74,6 +90,29 @@ const shuffle = (array) => {
   const copy = [...array];
   for (let i = copy.length - 1; i > 0; i -= 1) {
     const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+};
+
+const seededRandom = (seed) => {
+  let value = seed % 2147483647;
+  if (value <= 0) value += 2147483646;
+  return () => {
+    value = (value * 16807) % 2147483647;
+    return (value - 1) / 2147483646;
+  };
+};
+
+const shuffleWithSeed = (array, seedString) => {
+  let seed = 0;
+  for (let i = 0; i < seedString.length; i += 1) {
+    seed = (seed * 31 + seedString.charCodeAt(i)) % 2147483647;
+  }
+  const rand = seededRandom(seed);
+  const copy = [...array];
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(rand() * (i + 1));
     [copy[i], copy[j]] = [copy[j], copy[i]];
   }
   return copy;
@@ -295,14 +334,17 @@ const buildPuzzle = () => {
     return;
   }
 
-  const shuffled = shuffle(pool);
+  const seedKey = `${currentTopic}-${getTodayKey()}-connections`;
+  const shuffled = playMode === DAILY_MODE ? shuffleWithSeed(pool, seedKey) : shuffle(pool);
   puzzleGroups = shuffled.slice(0, 4);
-  puzzleId = Math.floor(Math.random() * 9000) + 1000;
-  tiles = shuffle(
-    puzzleGroups.flatMap((group) =>
-      group.words.map((word) => ({ word, difficulty: group.difficulty }))
-    )
+  puzzleId = playMode === DAILY_MODE
+    ? Math.abs(seedKey.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)) % 9000 + 1000
+    : Math.floor(Math.random() * 9000) + 1000;
+  const tileSeed = `${seedKey}-tiles`;
+  const tilePool = puzzleGroups.flatMap((group) =>
+    group.words.map((word) => ({ word, difficulty: group.difficulty }))
   );
+  tiles = playMode === DAILY_MODE ? shuffleWithSeed(tilePool, tileSeed) : shuffle(tilePool);
   solvedGroups = [];
   strikes = 0;
   selected.clear();
@@ -373,9 +415,14 @@ const initGame = () => {
   elements.backLink.href = getBackLinkFromQuery();
   const backLabel = getBackLabel(elements.backLink.href);
   elements.backLink.textContent = `← Back to ${backLabel}`;
+  playMode = getModeFromQuery();
   const initialTopic = getTopicFromQuery();
   elements.topicSelect.value = initialTopic;
   currentTopic = initialTopic;
+  if (playMode === DAILY_MODE) {
+    elements.topicSelect.disabled = true;
+    elements.newPuzzle.disabled = true;
+  }
 
   updateLeaderboardUI();
   openNameModal();

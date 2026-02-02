@@ -407,6 +407,8 @@ const TENABLE_CATEGORIES = [
 const MAX_STRIKES = 3;
 const LEADERBOARD_KEY = "cs_tenable_leaderboard";
 const DAILY_KEY_PREFIX = "cs_tenable_daily";
+const DAILY_MODE = "daily";
+const PRACTICE_MODE = "practice";
 
 let currentCategoryIndex = -1;
 let currentCategory = null;
@@ -418,6 +420,7 @@ let roundOver = false;
 let playerName = "";
 let scoreSaved = false;
 let currentTopic = "all";
+let playMode = PRACTICE_MODE;
 
 let categoryTitleEl;
 let answerBoardEl;
@@ -443,6 +446,7 @@ let leaderboardEl;
 
 const normalizeGuess = (value) => value.trim().toLowerCase();
 const validTopic = (topic) => ["all", "cs", "it", "cyber", "essentials"].includes(topic);
+const validMode = (mode) => [DAILY_MODE, PRACTICE_MODE].includes(mode);
 const topicLabels = {
   all: "All Topics",
   cs: "Computer Science",
@@ -455,6 +459,12 @@ const getTopicFromQuery = () => {
   const params = new URLSearchParams(window.location.search);
   const topic = params.get("topic");
   return validTopic(topic) ? topic : "all";
+};
+
+const getModeFromQuery = () => {
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get("mode");
+  return validMode(mode) ? mode : PRACTICE_MODE;
 };
 
 const getBackLinkFromQuery = () => {
@@ -485,11 +495,17 @@ const getDailyKey = () => {
 };
 
 const hasPlayedToday = () => {
+  if (playMode !== DAILY_MODE) {
+    return false;
+  }
   const key = getDailyKey();
   return key ? localStorage.getItem(key) === "done" : false;
 };
 
 const markPlayedToday = () => {
+  if (playMode !== DAILY_MODE) {
+    return;
+  }
   const key = getDailyKey();
   if (key) {
     localStorage.setItem(key, "done");
@@ -523,6 +539,15 @@ const pickNewCategory = () => {
   const pool = getCategoryPool();
   if (!pool.length) {
     return null;
+  }
+  if (playMode === DAILY_MODE) {
+    const seedKey = `${currentTopic}-${getTodayKey()}-tenable`;
+    let hash = 0;
+    for (let i = 0; i < seedKey.length; i += 1) {
+      hash = (hash * 31 + seedKey.charCodeAt(i)) % 2147483647;
+    }
+    currentCategoryIndex = hash % pool.length;
+    return pool[currentCategoryIndex];
   }
   if (pool.length === 1) {
     currentCategoryIndex = 0;
@@ -818,10 +843,15 @@ const initGame = () => {
   backLinkEl.href = getBackLinkFromQuery();
   const backLabel = getBackLabel(backLinkEl.href);
   backLinkEl.textContent = `← Back to ${backLabel}`;
+  playMode = getModeFromQuery();
   const initialTopic = getTopicFromQuery();
   topicSelectEl.value = initialTopic;
   currentTopic = initialTopic;
   currentCategoryIndex = -1;
+  if (playMode === DAILY_MODE) {
+    topicSelectEl.disabled = true;
+    nextBtnEl.disabled = true;
+  }
 
   updateLeaderboardUI();
 

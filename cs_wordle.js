@@ -176,6 +176,8 @@ const MAX_ROWS = 6;
 const WORD_LENGTH = 5;
 const LEADERBOARD_KEY = "cs_wordle_leaderboard";
 const DAILY_KEY_PREFIX = "cs_wordle_daily";
+const DAILY_MODE = "daily";
+const PRACTICE_MODE = "practice";
 
 let currentWord = "";
 let currentRow = 0;
@@ -186,6 +188,7 @@ let playerName = "";
 let scoreSaved = false;
 let currentTopic = "all";
 let activeWords = [];
+let playMode = PRACTICE_MODE;
 
 let gridEl;
 let keyboardEl;
@@ -213,6 +216,7 @@ const keyboardRows = [
 
 const normalize = (value) => value.trim().toLowerCase();
 const validTopic = (topic) => ["all", "cs", "it", "cyber", "essentials"].includes(topic);
+const validMode = (mode) => [DAILY_MODE, PRACTICE_MODE].includes(mode);
 
 const topicLabels = {
   all: "All Topics",
@@ -226,6 +230,12 @@ const getTopicFromQuery = () => {
   const params = new URLSearchParams(window.location.search);
   const topic = params.get("topic");
   return validTopic(topic) ? topic : "all";
+};
+
+const getModeFromQuery = () => {
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get("mode");
+  return validMode(mode) ? mode : PRACTICE_MODE;
 };
 
 const getBackLinkFromQuery = () => {
@@ -256,11 +266,17 @@ const getDailyKey = () => {
 };
 
 const hasPlayedToday = () => {
+  if (playMode !== DAILY_MODE) {
+    return false;
+  }
   const key = getDailyKey();
   return key ? localStorage.getItem(key) === "done" : false;
 };
 
 const markPlayedToday = () => {
+  if (playMode !== DAILY_MODE) {
+    return;
+  }
   const key = getDailyKey();
   if (key) {
     localStorage.setItem(key, "done");
@@ -339,6 +355,15 @@ const getActiveWords = () => {
 const pickWord = () => {
   if (!activeWords.length) {
     return "";
+  }
+  if (playMode === DAILY_MODE) {
+    const seed = `${currentTopic}-${getTodayKey()}`;
+    let hash = 0;
+    for (let i = 0; i < seed.length; i += 1) {
+      hash = (hash * 31 + seed.charCodeAt(i)) % 2147483647;
+    }
+    const nextIndex = hash % activeWords.length;
+    return activeWords[nextIndex];
   }
   const nextIndex = Math.floor(Math.random() * activeWords.length);
   return activeWords[nextIndex];
@@ -572,7 +597,8 @@ const startGame = () => {
 
 const updateTopicUI = () => {
   const label = topicLabels[currentTopic] || "All Topics";
-  statusTitleEl.textContent = `Wordle — ${label}`;
+  const modeLabel = playMode === DAILY_MODE ? "Daily" : "Practice";
+  statusTitleEl.textContent = `Wordle — ${label} (${modeLabel})`;
 };
 
 const applyTopic = (topic, resetRound = false) => {
@@ -622,9 +648,14 @@ const initWordle = () => {
   backLinkEl.href = getBackLinkFromQuery();
   const backLabel = getBackLabel(backLinkEl.href);
   backLinkEl.textContent = `← Back to ${backLabel}`;
+  playMode = getModeFromQuery();
   const initialTopic = getTopicFromQuery();
   topicSelectEl.value = initialTopic;
   applyTopic(initialTopic);
+  if (playMode === DAILY_MODE) {
+    topicSelectEl.disabled = true;
+    newBtnEl.disabled = true;
+  }
 
   updateLeaderboardUI();
   newBtnEl.addEventListener("click", startRound);
