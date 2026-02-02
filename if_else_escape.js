@@ -1,949 +1,497 @@
-const MAX_LIVES = 3;
-const LEADERBOARD_KEY = "if_else_escape_leaderboard";
-
-const LEVEL_CONFIG = {
-  1: { label: "Level 1 – Intro CS", multiplier: 1 },
-  2: { label: "Level 2 – AP CSP", multiplier: 2 },
-  3: { label: "Level 3 – AP CSA", multiplier: 3 },
-  4: { label: "Level 4 – Honors DSA", multiplier: 4 },
-  5: { label: "Level 5 – College CS", multiplier: 5 },
-};
-
-const STORY_LEVELS = {
+const LEVELS = {
   1: {
     id: 1,
-    name: "Intro to CS",
-    startSceneId: "bus-stop",
+    label: "Level 1 – Intro CS",
+    startSceneId: "intro-position",
     scenes: {
-      "bus-stop": {
-        id: "bus-stop",
+      "intro-position": {
+        id: "intro-position",
         storyText:
-          "Your school day begins at the bus stop. The bus is running late, and you need to decide what to do so you still make first period.",
-        options: [
+          "You made the varsity basketball team. The coach asks what position you want to try first.",
+        codeSnippet: `// Choose your position\nif (position === "PG") {\n  outcome = "You run the offense and call the plays.";\n} else {\n  outcome = "You explore a new role and learn the system.";\n}`,
+        inputs: [
           {
-            id: "wait-bus",
-            displayText: "if (busArrived) { boardBus(); } else { checkAnnouncements(); }",
-            nextSceneId: "announcement",
-            isCorrect: true,
-            outcomeText: "You check the announcements while you wait and see the updated arrival time.",
-          },
-          {
-            id: "walk-school",
-            displayText: "if (busArrived) { boardBus(); } else { startWalking(); }",
-            nextSceneId: "late-hall",
-            isCorrect: false,
-            outcomeText: "You start walking, but the bell rings before you reach campus.",
-            isFailure: true,
+            name: "position",
+            label: "Choose your position",
+            type: "select",
+            options: ["PG", "SG", "SF", "PF", "C", "Other"],
           },
         ],
+        evaluate: (inputs) => {
+          const isPointGuard = inputs.position === "PG";
+          return {
+            outcomeText: isPointGuard
+              ? "You run the offense and teammates look to you for direction."
+              : "You explore a new role and learn how the team flows together.",
+            nextSceneId: "intro-effort",
+            updates: {
+              position: inputs.position,
+              leadershipScore: isPointGuard ? 2 : 1,
+            },
+          };
+        },
       },
-      announcement: {
-        id: "announcement",
+      "intro-effort": {
+        id: "intro-effort",
         storyText:
-          "You get a message that first period is doing a short warm-up. You can enter quietly or check in with the teacher first.",
-        options: [
+          "Practice starts tomorrow. Your effort level will shape how fast you improve.",
+        codeSnippet: `// Practice effort\nif (effortLevel >= 5) {\n  outcome = "You keep up with drills and gain confidence.";\n} else {\n  outcome = "You struggle to keep pace and need a reset.";\n}`,
+        inputs: [
           {
-            id: "enter-quietly",
-            displayText: "if (hasPass) { enterQuietly(); } else { askTeacher(); }",
-            nextSceneId: "warmup",
-            isCorrect: false,
-            outcomeText: "Without a pass, the teacher stops you at the door.",
-            isFailure: true,
-          },
-          {
-            id: "check-in",
-            displayText: "if (hasPass) { enterQuietly(); } else { askTeacher(); }",
-            nextSceneId: "warmup",
-            isCorrect: true,
-            outcomeText: "You check in and get the warm-up instructions.",
+            name: "effortLevel",
+            label: "Effort level (1-10)",
+            type: "number",
+            min: 1,
+            max: 10,
+            step: 1,
           },
         ],
-      },
-      warmup: {
-        id: "warmup",
-        storyText:
-          "You reach the warm-up challenge. The prompt says: submit if your answer is complete, otherwise ask a partner.",
         isCheckpoint: true,
-        checkpointLabel: "Warm-up complete",
-        options: [
+        checkpointLabel: "Practice routine set",
+        evaluate: (inputs) => {
+          const effortLevel = Number(inputs.effortLevel);
+          const focused = effortLevel >= 5;
+          return {
+            outcomeText: focused
+              ? "You keep up with drills and earn praise for steady effort."
+              : "You fall behind in drills and decide to restart with a new plan.",
+            nextSceneId: focused ? "intro-big-game" : null,
+            isFailure: !focused,
+            updates: {
+              effortLevel,
+              setbacks: focused ? 0 : 1,
+            },
+          };
+        },
+      },
+      "intro-big-game": {
+        id: "intro-big-game",
+        storyText:
+          "Your first game arrives. How many hours of extra practice do you put in this week?",
+        codeSnippet: `// Game-day readiness\nif (practiceHours >= 5) {\n  outcome = "You feel ready and lead a strong start.";\n} else if (practiceHours >= 2) {\n  outcome = "You play steady minutes and build momentum.";\n} else {\n  outcome = "You feel nervous and sit out late in the game.";\n}`,
+        inputs: [
           {
-            id: "submit",
-            displayText: "if (answerComplete) { submit(); } else { askPartner(); }",
-            nextSceneId: "team-up",
-            isCorrect: true,
-            outcomeText: "Your answer is complete, and you submit before the timer ends.",
-          },
-          {
-            id: "ask-partner",
-            displayText: "if (answerComplete) { submit(); } else { askPartner(); }",
-            nextSceneId: "team-up",
-            isCorrect: false,
-            outcomeText: "You ask a partner even though your answer is ready, slowing things down.",
+            name: "practiceHours",
+            label: "Extra practice hours this week",
+            type: "number",
+            min: 0,
+            max: 10,
+            step: 1,
           },
         ],
-      },
-      "team-up": {
-        id: "team-up",
-        storyText:
-          "Your teacher assigns a pair activity. You can lead, or you can listen for your partner's plan first.",
-        options: [
-          {
-            id: "lead",
-            displayText: "if (partnerReady) { sharePlan(); } else { askQuestions(); }",
-            nextSceneId: "code-lab",
-            isCorrect: false,
-            outcomeText: "You start explaining before your partner is ready.",
-          },
-          {
-            id: "listen",
-            displayText: "if (partnerReady) { sharePlan(); } else { askQuestions(); }",
-            nextSceneId: "code-lab",
-            isCorrect: true,
-            outcomeText: "You ask a few questions and align on the plan.",
-          },
-          {
-            id: "solo",
-            displayText: "if (partnerReady) { sharePlan(); } else { askQuestions(); }",
-            nextSceneId: "off-track",
-            isCorrect: false,
-            outcomeText: "You rush ahead solo and miss the assigned task.",
-            isFailure: true,
-          },
-        ],
-      },
-      "code-lab": {
-        id: "code-lab",
-        storyText:
-          "In the lab, you must decide if your code is ready for the demo.",
-        options: [
-          {
-            id: "run-tests",
-            displayText: "if (testsGreen && demoReady) { present(); } else { fixBug(); }",
-            nextSceneId: "class-demo",
-            isCorrect: true,
-            outcomeText: "Your tests are green, and you confidently present.",
-          },
-          {
-            id: "present-early",
-            displayText: "if (testsGreen && demoReady) { present(); } else { fixBug(); }",
-            nextSceneId: "bug-hunt",
-            isCorrect: false,
-            outcomeText: "A small bug appears on the projector.",
-          },
-        ],
-      },
-      "bug-hunt": {
-        id: "bug-hunt",
-        storyText:
-          "The bug is small but visible. Decide how to respond in front of the class.",
-        options: [
-          {
-            id: "acknowledge",
-            displayText: "if (stayCalm) { explainFix(); } else { stopDemo(); }",
-            nextSceneId: "class-demo",
-            isCorrect: true,
-            outcomeText: "You explain the fix and earn respect.",
-          },
-          {
-            id: "panic",
-            displayText: "if (stayCalm) { explainFix(); } else { stopDemo(); }",
-            nextSceneId: "off-track",
-            isCorrect: false,
-            outcomeText: "You stop mid-demo and need to restart later.",
-            isFailure: true,
-          },
-        ],
-      },
-      "class-demo": {
-        id: "class-demo",
-        storyText:
-          "The class demo ends with applause. You can celebrate with your partner or write a quick reflection.",
+        evaluate: (inputs) => {
+          const practiceHours = Number(inputs.practiceHours);
+          let outcomeText = "You play steady minutes and build momentum.";
+          let updates = { practiceHours, gamesWon: 1 };
+          if (practiceHours >= 5) {
+            outcomeText = "You feel ready, lead a strong start, and notch a big win.";
+            updates = { practiceHours, gamesWon: 2, leadershipScore: 2 };
+          } else if (practiceHours < 2) {
+            outcomeText = "You feel nervous and sit out late in the game, but learn from it.";
+            updates = { practiceHours, setbacks: 1 };
+          }
+          return {
+            outcomeText,
+            nextSceneId: null,
+            updates,
+          };
+        },
         isEnding: true,
-        options: [
-          {
-            id: "celebrate",
-            displayText: "if (teamProud) { highFive(); } else { reflect(); }",
-            nextSceneId: null,
-            isCorrect: true,
-            outcomeText: "You celebrate the win and wrap up the day.",
-          },
-          {
-            id: "reflect",
-            displayText: "if (teamProud) { highFive(); } else { reflect(); }",
-            nextSceneId: null,
-            isCorrect: true,
-            outcomeText: "You jot down notes to improve next time.",
-          },
-        ],
-      },
-      "late-hall": {
-        id: "late-hall",
-        storyText:
-          "You arrive after the bell and have to restart the morning plan.",
-        isEnding: true,
-        isFailure: true,
-        options: [
-          {
-            id: "retry-morning",
-            displayText: "if (tryAgain) { resetDay(); } else { resetDay(); }",
-            nextSceneId: null,
-            isCorrect: false,
-            outcomeText: "You head back to the start of the day.",
-          },
-        ],
-      },
-      "off-track": {
-        id: "off-track",
-        storyText:
-          "You went off track and need to regroup before trying again.",
-        isEnding: true,
-        isFailure: true,
-        options: [
-          {
-            id: "regroup",
-            displayText: "if (regroup) { reset(); } else { reset(); }",
-            nextSceneId: null,
-            isCorrect: false,
-            outcomeText: "You reset and try again.",
-          },
-        ],
       },
     },
   },
   2: {
     id: 2,
-    name: "AP CSP",
-    startSceneId: "club-briefing",
+    label: "Level 2 – AP CSP",
+    startSceneId: "csp-roles",
     scenes: {
-      "club-briefing": {
-        id: "club-briefing",
+      "csp-roles": {
+        id: "csp-roles",
         storyText:
-          "Your CS club is prepping a community tech night. You need to assign roles quickly so the team stays organized.",
-        options: [
+          "Your CS club is planning a community showcase. You need to choose your focus for the event.",
+        codeSnippet: `// Choose your focus\nif (focus === "teamwork") {\n  outcome = "You coordinate volunteers and keep everyone aligned.";\n} else {\n  outcome = "You focus on polishing the demo experience.";\n}`,
+        inputs: [
           {
-            id: "assign-roles",
-            displayText: "if (volunteersReady) { assignRoles(); } else { listTasks(); }",
-            nextSceneId: "planning-board",
-            isCorrect: true,
-            outcomeText: "You list tasks and people choose roles confidently.",
-          },
-          {
-            id: "wait-roles",
-            displayText: "if (volunteersReady) { assignRoles(); } else { listTasks(); }",
-            nextSceneId: "missed-start",
-            isCorrect: false,
-            outcomeText: "The team waits too long and setup time disappears.",
-            isFailure: true,
+            name: "focus",
+            label: "Event focus",
+            type: "select",
+            options: ["teamwork", "demo", "logistics"],
           },
         ],
+        evaluate: (inputs) => {
+          const focus = inputs.focus;
+          const teamwork = focus === "teamwork";
+          return {
+            outcomeText: teamwork
+              ? "You coordinate volunteers and keep everyone aligned."
+              : "You focus on polishing the demo experience.",
+            nextSceneId: "csp-practice",
+            updates: {
+              focus,
+              leadershipScore: teamwork ? 2 : 1,
+            },
+          };
+        },
       },
-      "planning-board": {
-        id: "planning-board",
+      "csp-practice": {
+        id: "csp-practice",
         storyText:
-          "You update the planning board. You should post updates only if they are confirmed and approved.",
-        options: [
+          "The team plans a practice run. Decide how many hours the group rehearses and whether backup devices are ready.",
+        codeSnippet: `// Practice readiness\nif (practiceHours >= 3 && backupDevicesReady) {\n  outcome = "You run a smooth rehearsal and feel ready.";\n} else {\n  outcome = "The rehearsal is shaky and you regroup.";\n}`,
+        inputs: [
           {
-            id: "post-confirmed",
-            displayText: "if (updateConfirmed && mentorApproved) { postUpdate(); } else { holdUpdate(); }",
-            nextSceneId: "practice-run",
-            isCorrect: true,
-            outcomeText: "You post accurate updates and keep everyone aligned.",
+            name: "practiceHours",
+            label: "Group practice hours",
+            type: "number",
+            min: 0,
+            max: 6,
+            step: 1,
           },
           {
-            id: "post-early",
-            displayText: "if (updateConfirmed && mentorApproved) { postUpdate(); } else { holdUpdate(); }",
-            nextSceneId: "confusion",
-            isCorrect: false,
-            outcomeText: "A rushed update confuses the volunteers.",
-          },
-          {
-            id: "hold",
-            displayText: "if (updateConfirmed && mentorApproved) { postUpdate(); } else { holdUpdate(); }",
-            nextSceneId: "practice-run",
-            isCorrect: false,
-            outcomeText: "You hold the update but forget to share it later.",
+            name: "backupDevicesReady",
+            label: "Backup devices ready",
+            type: "toggle",
           },
         ],
-      },
-      "practice-run": {
-        id: "practice-run",
-        storyText:
-          "The team runs a practice demo. You should proceed if devices are charged and the Wi-Fi is stable.",
         isCheckpoint: true,
-        checkpointLabel: "Practice demo success",
-        options: [
+        checkpointLabel: "Practice run complete",
+        evaluate: (inputs) => {
+          const practiceHours = Number(inputs.practiceHours);
+          const backupDevicesReady = Boolean(inputs.backupDevicesReady);
+          const ready = practiceHours >= 3 && backupDevicesReady;
+          return {
+            outcomeText: ready
+              ? "You run a smooth rehearsal and feel ready for the crowd."
+              : "The rehearsal is shaky and you decide to regroup.",
+            nextSceneId: ready ? "csp-showcase" : null,
+            isFailure: !ready,
+            updates: {
+              practiceHours,
+              setbacks: ready ? 0 : 1,
+            },
+          };
+        },
+      },
+      "csp-showcase": {
+        id: "csp-showcase",
+        storyText:
+          "Showcase night! Choose the size of the greeting team and whether you prepared a quick FAQ sheet.",
+        codeSnippet: `// Crowd response\nif (greeters >= 2 || faqReady) {\n  outcome = "Guests feel welcomed and stations stay busy.";\n} else {\n  outcome = "Lines build up and you have to improvise.";\n}`,
+        inputs: [
           {
-            id: "go-live",
-            displayText: "if (devicesCharged && wifiStable) { startDemo(); } else { troubleshoot(); }",
-            nextSceneId: "community-night",
-            isCorrect: true,
-            outcomeText: "The demo runs smoothly and confidence goes up.",
+            name: "greeters",
+            label: "Number of greeters",
+            type: "number",
+            min: 0,
+            max: 5,
+            step: 1,
           },
           {
-            id: "troubleshoot",
-            displayText: "if (devicesCharged && wifiStable) { startDemo(); } else { troubleshoot(); }",
-            nextSceneId: "community-night",
-            isCorrect: false,
-            outcomeText: "You troubleshoot even though everything is ready, slowing momentum.",
+            name: "faqReady",
+            label: "FAQ sheet prepared",
+            type: "toggle",
           },
         ],
-      },
-      "community-night": {
-        id: "community-night",
-        storyText:
-          "Guests arrive. You need to greet them only if the stations are staffed or you have a backup plan.",
-        options: [
-          {
-            id: "greet",
-            displayText: "if (stationsStaffed || backupPlanReady) { greetGuests(); } else { regroupTeam(); }",
-            nextSceneId: "wrap-up",
-            isCorrect: true,
-            outcomeText: "You greet guests and keep the line moving.",
-          },
-          {
-            id: "regroup",
-            displayText: "if (stationsStaffed || backupPlanReady) { greetGuests(); } else { regroupTeam(); }",
-            nextSceneId: "missed-start",
-            isCorrect: false,
-            outcomeText: "You regroup too long and the crowd thins out.",
-            isFailure: true,
-          },
-        ],
-      },
-      "confusion": {
-        id: "confusion",
-        storyText:
-          "The volunteers are unsure where to go. You need to reset the plan.",
-        options: [
-          {
-            id: "clarify",
-            displayText: "if (planClear && rolesSet) { continue(); } else { clarify(); }",
-            nextSceneId: "practice-run",
-            isCorrect: true,
-            outcomeText: "You clarify roles and get back on track.",
-          },
-          {
-            id: "push-ahead",
-            displayText: "if (planClear && rolesSet) { continue(); } else { clarify(); }",
-            nextSceneId: "missed-start",
-            isCorrect: false,
-            outcomeText: "You push ahead without clarity and lose time.",
-            isFailure: true,
-          },
-        ],
-      },
-      "wrap-up": {
-        id: "wrap-up",
-        storyText:
-          "The event ends. You can celebrate the teamwork or collect quick feedback.",
+        evaluate: (inputs) => {
+          const greeters = Number(inputs.greeters);
+          const faqReady = Boolean(inputs.faqReady);
+          const strongWelcome = greeters >= 2 || faqReady;
+          return {
+            outcomeText: strongWelcome
+              ? "Guests feel welcomed and stations stay busy all night."
+              : "Lines build up and you learn to adapt on the fly.",
+            nextSceneId: null,
+            updates: {
+              gamesWon: strongWelcome ? 2 : 1,
+              leadershipScore: strongWelcome ? 2 : 1,
+            },
+          };
+        },
         isEnding: true,
-        options: [
-          {
-            id: "celebrate",
-            displayText: "if (feedbackNeeded) { collectNotes(); } else { celebrate(); }",
-            nextSceneId: null,
-            isCorrect: true,
-            outcomeText: "You celebrate and thank the team.",
-          },
-          {
-            id: "feedback",
-            displayText: "if (feedbackNeeded) { collectNotes(); } else { celebrate(); }",
-            nextSceneId: null,
-            isCorrect: true,
-            outcomeText: "You gather feedback for next time.",
-          },
-        ],
-      },
-      "missed-start": {
-        id: "missed-start",
-        storyText:
-          "You miss the opening window and need to retry the event setup.",
-        isEnding: true,
-        isFailure: true,
-        options: [
-          {
-            id: "restart",
-            displayText: "if (retry) { resetPlan(); } else { resetPlan(); }",
-            nextSceneId: null,
-            isCorrect: false,
-            outcomeText: "You reset to try again.",
-          },
-        ],
       },
     },
   },
   3: {
     id: 3,
-    name: "AP CSA",
-    startSceneId: "team-brief",
+    label: "Level 3 – AP CSA",
+    startSceneId: "csa-brief",
     scenes: {
-      "team-brief": {
-        id: "team-brief",
+      "csa-brief": {
+        id: "csa-brief",
         storyText:
-          "Your robotics team enters a tournament. You need to choose the right strategy before the first round starts.",
-        options: [
+          "Your robotics team is preparing for a qualifier. You decide how to split time between driving practice and sensor checks.",
+        codeSnippet: `// Prep balance\nif (drivePractice >= 4 && sensorsCalibrated) {\n  outcome = "You enter qualifiers confident and stable.";\n} else if (drivePractice >= 2) {\n  outcome = "You feel okay, but worry about sensors.";\n} else {\n  outcome = "The team needs more prep and rethinks the plan.";\n}`,
+        inputs: [
           {
-            id: "balanced",
-            displayText: "if (batteryFull && sensorsReady) { runBalanced(); } else { runSafe(); }",
-            nextSceneId: "first-round",
-            isCorrect: true,
-            outcomeText: "You choose a balanced route and keep options open.",
+            name: "drivePractice",
+            label: "Drive practice hours",
+            type: "number",
+            min: 0,
+            max: 6,
+            step: 1,
           },
           {
-            id: "aggressive",
-            displayText: "if (batteryFull && sensorsReady) { runBalanced(); } else { runSafe(); }",
-            nextSceneId: "stall",
-            isCorrect: false,
-            outcomeText: "You push too hard and the robot stalls early.",
-            livesChange: -1,
-          },
-          {
-            id: "safe",
-            displayText: "if (batteryFull && sensorsReady) { runBalanced(); } else { runSafe(); }",
-            nextSceneId: "first-round",
-            isCorrect: false,
-            outcomeText: "You play it safe but fall behind in points.",
+            name: "sensorsCalibrated",
+            label: "Sensors calibrated",
+            type: "toggle",
           },
         ],
+        evaluate: (inputs) => {
+          const drivePractice = Number(inputs.drivePractice);
+          const sensorsCalibrated = Boolean(inputs.sensorsCalibrated);
+          if (drivePractice >= 4 && sensorsCalibrated) {
+            return {
+              outcomeText: "You enter qualifiers confident and stable.",
+              nextSceneId: "csa-qualifier",
+              updates: { leadershipScore: 2, drivePractice },
+            };
+          }
+          if (drivePractice >= 2) {
+            return {
+              outcomeText: "You feel okay, but worry about sensors.",
+              nextSceneId: "csa-qualifier",
+              updates: { leadershipScore: 1, drivePractice },
+            };
+          }
+          return {
+            outcomeText: "The team needs more prep and rethinks the plan.",
+            nextSceneId: null,
+            isFailure: true,
+            updates: { setbacks: 1, drivePractice },
+          };
+        },
       },
-      "first-round": {
-        id: "first-round",
+      "csa-qualifier": {
+        id: "csa-qualifier",
         storyText:
-          "Your bot reaches a fork. You should take the scoring lane only if the path is clear or you have a backup route.",
-        options: [
+          "Qualifiers begin. Decide whether to attempt the bonus route based on alignment and time remaining.",
+        codeSnippet: `// Bonus route\nif (aligned && timeRemaining >= 30) {\n  outcome = "You take the bonus route and score big.";\n} else {\n  outcome = "You secure steady points and finish the run.";\n}`,
+        inputs: [
           {
-            id: "scoring-lane",
-            displayText: "if (laneClear || backupRouteReady) { takeLane(); } else { reroute(); }",
-            nextSceneId: "checkpoint-round",
-            isCorrect: true,
-            outcomeText: "You score quick points and stay on schedule.",
+            name: "aligned",
+            label: "Robot aligned",
+            type: "toggle",
           },
           {
-            id: "reroute",
-            displayText: "if (laneClear || backupRouteReady) { takeLane(); } else { reroute(); }",
-            nextSceneId: "checkpoint-round",
-            isCorrect: false,
-            outcomeText: "You reroute even though the lane is clear, losing time.",
-          },
-          {
-            id: "wait",
-            displayText: "if (laneClear || backupRouteReady) { takeLane(); } else { reroute(); }",
-            nextSceneId: "stall",
-            isCorrect: false,
-            outcomeText: "Waiting too long costs you the round.",
-            livesChange: -1,
+            name: "timeRemaining",
+            label: "Time remaining (seconds)",
+            type: "number",
+            min: 0,
+            max: 60,
+            step: 5,
           },
         ],
-      },
-      "checkpoint-round": {
-        id: "checkpoint-round",
-        storyText:
-          "Round one is complete. The team debates whether to change the code or keep the successful run.",
         isCheckpoint: true,
-        checkpointLabel: "Round 1 cleared",
-        options: [
+        checkpointLabel: "Qualifier round finished",
+        evaluate: (inputs) => {
+          const aligned = Boolean(inputs.aligned);
+          const timeRemaining = Number(inputs.timeRemaining);
+          const bonus = aligned && timeRemaining >= 30;
+          return {
+            outcomeText: bonus
+              ? "You take the bonus route and score big."
+              : "You secure steady points and finish the run.",
+            nextSceneId: "csa-finals",
+            updates: {
+              gamesWon: bonus ? 2 : 1,
+              leadershipScore: bonus ? 2 : 1,
+            },
+          };
+        },
+      },
+      "csa-finals": {
+        id: "csa-finals",
+        storyText:
+          "Finals prep: choose whether to redesign the intake system based on test results and time left in the pit.",
+        codeSnippet: `// Redesign decision\nif (testsPassed && pitTime >= 20) {\n  outcome = "You redesign and improve scoring speed.";\n} else if (testsPassed) {\n  outcome = "You keep the system and focus on driving.";\n} else {\n  outcome = "You troubleshoot and play it safe.";\n}`,
+        inputs: [
           {
-            id: "keep-code",
-            displayText: "if (testsPassed && robotStable) { keepCode(); } else { adjustCode(); }",
-            nextSceneId: "debug-session",
-            isCorrect: true,
-            outcomeText: "You keep the stable code and prep for round two.",
+            name: "testsPassed",
+            label: "Tests passed",
+            type: "toggle",
           },
           {
-            id: "adjust-code",
-            displayText: "if (testsPassed && robotStable) { keepCode(); } else { adjustCode(); }",
-            nextSceneId: "debug-session",
-            isCorrect: false,
-            outcomeText: "You change too much and need to debug quickly.",
+            name: "pitTime",
+            label: "Pit time left (minutes)",
+            type: "number",
+            min: 0,
+            max: 30,
+            step: 5,
           },
         ],
-      },
-      "debug-session": {
-        id: "debug-session",
-        storyText:
-          "The sensors report mixed data. You should only recalibrate if the data is noisy and you have time remaining.",
-        options: [
-          {
-            id: "recalibrate",
-            displayText: "if (dataNoisy && timeRemaining) { recalibrate(); } else { runSafe(); }",
-            nextSceneId: "final-round",
-            isCorrect: true,
-            outcomeText: "Quick recalibration steadies the bot.",
-          },
-          {
-            id: "run-safe",
-            displayText: "if (dataNoisy && timeRemaining) { recalibrate(); } else { runSafe(); }",
-            nextSceneId: "final-round",
-            isCorrect: false,
-            outcomeText: "You skip calibration and risk shaky sensors.",
-          },
-          {
-            id: "ignore",
-            displayText: "if (dataNoisy && timeRemaining) { recalibrate(); } else { runSafe(); }",
-            nextSceneId: "stall",
-            isCorrect: false,
-            outcomeText: "Ignoring the data causes a misread on the field.",
-            livesChange: -1,
-          },
-        ],
-      },
-      "final-round": {
-        id: "final-round",
-        storyText:
-          "Final round: you can attempt a bonus task if the robot is aligned and the timer is clear.",
-        options: [
-          {
-            id: "bonus",
-            displayText: "if (aligned && timerClear) { attemptBonus(); } else { securePoints(); }",
-            nextSceneId: "celebrate",
-            isCorrect: true,
-            outcomeText: "You land the bonus task and win the match.",
-          },
-          {
-            id: "secure",
-            displayText: "if (aligned && timerClear) { attemptBonus(); } else { securePoints(); }",
-            nextSceneId: "celebrate",
-            isCorrect: false,
-            outcomeText: "You secure safe points and still place well.",
-          },
-          {
-            id: "rush",
-            displayText: "if (aligned && timerClear) { attemptBonus(); } else { securePoints(); }",
-            nextSceneId: "stall",
-            isCorrect: false,
-            outcomeText: "Rushing the bonus knocks the robot off course.",
-            livesChange: -1,
-          },
-        ],
-      },
-      "celebrate": {
-        id: "celebrate",
-        storyText:
-          "The judges announce the results. You can celebrate or thank the team mentors.",
+        evaluate: (inputs) => {
+          const testsPassed = Boolean(inputs.testsPassed);
+          const pitTime = Number(inputs.pitTime);
+          let outcomeText = "You troubleshoot and play it safe.";
+          let updates = { setbacks: 1 };
+          if (testsPassed && pitTime >= 20) {
+            outcomeText = "You redesign and improve scoring speed.";
+            updates = { gamesWon: 2, leadershipScore: 2 };
+          } else if (testsPassed) {
+            outcomeText = "You keep the system and focus on driving.";
+            updates = { gamesWon: 1, leadershipScore: 1 };
+          }
+          return {
+            outcomeText,
+            nextSceneId: null,
+            updates,
+          };
+        },
         isEnding: true,
-        options: [
-          {
-            id: "celebrate",
-            displayText: "if (thankMentors) { thankMentors(); } else { celebrate(); }",
-            nextSceneId: null,
-            isCorrect: true,
-            outcomeText: "You celebrate the win together.",
-          },
-          {
-            id: "thank",
-            displayText: "if (thankMentors) { thankMentors(); } else { celebrate(); }",
-            nextSceneId: null,
-            isCorrect: true,
-            outcomeText: "You thank the mentors and take a team photo.",
-          },
-        ],
-      },
-      stall: {
-        id: "stall",
-        storyText:
-          "The robot stalls and the round ends early. You need to reset your plan.",
-        isEnding: true,
-        isFailure: true,
-        options: [
-          {
-            id: "reset",
-            displayText: "if (resetSystem) { retryRound(); } else { retryRound(); }",
-            nextSceneId: null,
-            isCorrect: false,
-            outcomeText: "You regroup and retry the round.",
-          },
-        ],
       },
     },
   },
   4: {
     id: 4,
-    name: "Honors DSA",
-    startSceneId: "hackathon-brief",
+    label: "Level 4 – College / Data Structures",
+    startSceneId: "college-brief",
     scenes: {
-      "hackathon-brief": {
-        id: "hackathon-brief",
+      "college-brief": {
+        id: "college-brief",
         storyText:
-          "Your team is building a campus navigation app. You need to pick the right data structure to track open rooms.",
-        options: [
+          "You are building a campus navigation app. Pick how to store open rooms based on search speed and update frequency.",
+        codeSnippet: `// Data structure choice\nif (needsFastLookup && updatesFrequent) {\n  outcome = "You choose a hash set for fast lookups.";\n} else if (needsFastLookup) {\n  outcome = "You choose a sorted list and batch updates.";\n} else {\n  outcome = "You choose a simple list and keep it lightweight.";\n}`,
+        inputs: [
           {
-            id: "use-set",
-            displayText: "if (needFastLookup && updatesFrequent) { useSet(); } else { useList(); }",
-            nextSceneId: "check-in",
-            isCorrect: true,
-            outcomeText: "You pick a set for fast lookups and updates.",
+            name: "needsFastLookup",
+            label: "Fast lookup needed",
+            type: "toggle",
           },
           {
-            id: "use-list",
-            displayText: "if (needFastLookup && updatesFrequent) { useSet(); } else { useList(); }",
-            nextSceneId: "slow-query",
-            isCorrect: false,
-            outcomeText: "The list works, but lookups feel sluggish.",
-          },
-          {
-            id: "use-stack",
-            displayText: "if (needFastLookup && updatesFrequent) { useSet(); } else { useList(); }",
-            nextSceneId: "slow-query",
-            isCorrect: false,
-            outcomeText: "A stack isn't ideal for fast membership checks.",
-            livesChange: -1,
+            name: "updatesFrequent",
+            label: "Updates are frequent",
+            type: "toggle",
           },
         ],
+        evaluate: (inputs) => {
+          const needsFastLookup = Boolean(inputs.needsFastLookup);
+          const updatesFrequent = Boolean(inputs.updatesFrequent);
+          let outcomeText = "You choose a simple list and keep it lightweight.";
+          let updates = { focus: "simplicity" };
+          if (needsFastLookup && updatesFrequent) {
+            outcomeText = "You choose a hash set for fast lookups.";
+            updates = { focus: "performance", leadershipScore: 2 };
+          } else if (needsFastLookup) {
+            outcomeText = "You choose a sorted list and batch updates.";
+            updates = { focus: "balance", leadershipScore: 1 };
+          }
+          return {
+            outcomeText,
+            nextSceneId: "college-load",
+            updates,
+          };
+        },
       },
-      "check-in": {
-        id: "check-in",
+      "college-load": {
+        id: "college-load",
         storyText:
-          "Mentors arrive. You should demo only if the build is stable and the tests are clean.",
-        options: [
+          "Load testing begins. Decide whether to scale now based on traffic and cache warmth.",
+        codeSnippet: `// Scaling decision\nif ((trafficHigh && cacheCold) || trafficHigh) {\n  outcome = "You scale up before performance drops.";\n} else {\n  outcome = "You monitor and wait for trends.";\n}`,
+        inputs: [
           {
-            id: "demo",
-            displayText: "if (buildStable && testsClean) { demo(); } else { patch(); }",
-            nextSceneId: "checkpoint-demo",
-            isCorrect: true,
-            outcomeText: "You deliver a clean demo and get positive feedback.",
+            name: "trafficHigh",
+            label: "Traffic is high",
+            type: "toggle",
           },
           {
-            id: "patch",
-            displayText: "if (buildStable && testsClean) { demo(); } else { patch(); }",
-            nextSceneId: "checkpoint-demo",
-            isCorrect: false,
-            outcomeText: "You patch a small issue, delaying the demo.",
+            name: "cacheCold",
+            label: "Cache is cold",
+            type: "toggle",
           },
         ],
-      },
-      "checkpoint-demo": {
-        id: "checkpoint-demo",
-        storyText:
-          "Checkpoint reached! The team wants to add a new feature before the final presentation.",
         isCheckpoint: true,
-        checkpointLabel: "Mentor demo complete",
-        options: [
+        checkpointLabel: "Load test cleared",
+        evaluate: (inputs) => {
+          const trafficHigh = Boolean(inputs.trafficHigh);
+          const cacheCold = Boolean(inputs.cacheCold);
+          const scale = (trafficHigh && cacheCold) || trafficHigh;
+          return {
+            outcomeText: scale
+              ? "You scale up before performance drops."
+              : "You monitor and wait for trends.",
+            nextSceneId: scale ? "college-pitch" : null,
+            isFailure: !scale,
+            updates: {
+              leadershipScore: scale ? 2 : 0,
+              setbacks: scale ? 0 : 1,
+            },
+          };
+        },
+      },
+      "college-pitch": {
+        id: "college-pitch",
+        storyText:
+          "Final presentation: decide whether to highlight complexity details based on audience readiness and slide clarity.",
+        codeSnippet: `// Presentation focus\nif (audienceReady && slidesClear) {\n  outcome = "You explain the complexity and win buy-in.";\n} else if (slidesClear) {\n  outcome = "You focus on the feature story and keep it clear.";\n} else {\n  outcome = "You simplify the pitch to avoid confusion.";\n}`,
+        inputs: [
           {
-            id: "feature-toggle",
-            displayText: "if (featureScoped && deadlineClear) { addFeature(); } else { polishCore(); }",
-            nextSceneId: "load-test",
-            isCorrect: true,
-            outcomeText: "You add the feature without breaking the core flow.",
+            name: "audienceReady",
+            label: "Audience ready for complexity",
+            type: "toggle",
           },
           {
-            id: "polish",
-            displayText: "if (featureScoped && deadlineClear) { addFeature(); } else { polishCore(); }",
-            nextSceneId: "load-test",
-            isCorrect: false,
-            outcomeText: "You polish the core and keep the app stable.",
-          },
-          {
-            id: "rush-feature",
-            displayText: "if (featureScoped && deadlineClear) { addFeature(); } else { polishCore(); }",
-            nextSceneId: "crash",
-            isCorrect: false,
-            outcomeText: "Rushing the feature introduces a crash.",
-            livesChange: -1,
+            name: "slidesClear",
+            label: "Slides are clear",
+            type: "toggle",
           },
         ],
-      },
-      "load-test": {
-        id: "load-test",
-        storyText:
-          "Load testing reveals spikes. You should scale only if traffic is high or the cache is cold.",
-        options: [
-          {
-            id: "scale",
-            displayText: "if (trafficHigh || cacheCold) { scaleUp(); } else { monitor(); }",
-            nextSceneId: "final-pitch",
-            isCorrect: true,
-            outcomeText: "You scale and the app stays responsive.",
-          },
-          {
-            id: "monitor",
-            displayText: "if (trafficHigh || cacheCold) { scaleUp(); } else { monitor(); }",
-            nextSceneId: "final-pitch",
-            isCorrect: false,
-            outcomeText: "You monitor while the spikes subside.",
-          },
-        ],
-      },
-      "final-pitch": {
-        id: "final-pitch",
-        storyText:
-          "Final pitch: you can highlight the data model if the story is clear and the demo is ready.",
-        options: [
-          {
-            id: "highlight",
-            displayText: "if (storyClear && demoReady) { highlightModel(); } else { stickToBasics(); }",
-            nextSceneId: "college-finish",
-            isCorrect: true,
-            outcomeText: "The judges love the clear explanation.",
-          },
-          {
-            id: "basics",
-            displayText: "if (storyClear && demoReady) { highlightModel(); } else { stickToBasics(); }",
-            nextSceneId: "college-finish",
-            isCorrect: false,
-            outcomeText: "You keep it simple and still score well.",
-          },
-        ],
-      },
-      "college-finish": {
-        id: "college-finish",
-        storyText:
-          "The hackathon ends and your team celebrates the finish.",
+        evaluate: (inputs) => {
+          const audienceReady = Boolean(inputs.audienceReady);
+          const slidesClear = Boolean(inputs.slidesClear);
+          let outcomeText = "You simplify the pitch to avoid confusion.";
+          let updates = { leadershipScore: 1 };
+          if (audienceReady && slidesClear) {
+            outcomeText = "You explain the complexity and win buy-in.";
+            updates = { leadershipScore: 2, gamesWon: 2 };
+          } else if (slidesClear) {
+            outcomeText = "You focus on the feature story and keep it clear.";
+            updates = { leadershipScore: 1, gamesWon: 1 };
+          }
+          return {
+            outcomeText,
+            nextSceneId: null,
+            updates,
+          };
+        },
         isEnding: true,
-        options: [
-          {
-            id: "celebrate",
-            displayText: "if (shareCredit) { thankTeam(); } else { celebrate(); }",
-            nextSceneId: null,
-            isCorrect: true,
-            outcomeText: "You celebrate and thank the team.",
-          },
-          {
-            id: "thank-team",
-            displayText: "if (shareCredit) { thankTeam(); } else { celebrate(); }",
-            nextSceneId: null,
-            isCorrect: true,
-            outcomeText: "You thank everyone and take a group photo.",
-          },
-        ],
-      },
-      "slow-query": {
-        id: "slow-query",
-        storyText:
-          "The app slows down and users drop off. You need to reset before the next demo.",
-        isEnding: true,
-        isFailure: true,
-        options: [
-          {
-            id: "reset",
-            displayText: "if (retry) { resetPlan(); } else { resetPlan(); }",
-            nextSceneId: null,
-            isCorrect: false,
-            outcomeText: "You reset the plan and try again.",
-          },
-        ],
-      },
-      crash: {
-        id: "crash",
-        storyText:
-          "The app crashes during the demo. You will need to restart from the last checkpoint.",
-        isEnding: true,
-        isFailure: true,
-        options: [
-          {
-            id: "retry",
-            displayText: "if (retry) { resetDemo(); } else { resetDemo(); }",
-            nextSceneId: null,
-            isCorrect: false,
-            outcomeText: "You reset and regroup.",
-          },
-        ],
-      },
-    },
-  },
-  5: {
-    id: 5,
-    name: "College CS",
-    startSceneId: "datastruct-brief",
-    scenes: {
-      "datastruct-brief": {
-        id: "datastruct-brief",
-        storyText:
-          "You are leading a study group on data structures. You need to choose the right structure for a real-time leaderboard.",
-        options: [
-          {
-            id: "priority-queue",
-            displayText: "if (needsFastTop && updatesConstant) { useHeap(); } else { useArray(); }",
-            nextSceneId: "lab-checkpoint",
-            isCorrect: true,
-            outcomeText: "A heap keeps the leaderboard responsive.",
-          },
-          {
-            id: "array",
-            displayText: "if (needsFastTop && updatesConstant) { useHeap(); } else { useArray(); }",
-            nextSceneId: "slow-query",
-            isCorrect: false,
-            outcomeText: "Sorting the array repeatedly slows the system.",
-            livesChange: -1,
-          },
-          {
-            id: "hashmap",
-            displayText: "if (needsFastTop && updatesConstant) { useHeap(); } else { useArray(); }",
-            nextSceneId: "lab-checkpoint",
-            isCorrect: false,
-            outcomeText: "A map helps lookup but not ranking.",
-          },
-        ],
-      },
-      "lab-checkpoint": {
-        id: "lab-checkpoint",
-        storyText:
-          "Checkpoint reached! The team wants to add a search feature for usernames.",
-        isCheckpoint: true,
-        checkpointLabel: "Leaderboard stable",
-        options: [
-          {
-            id: "add-index",
-            displayText: "if (needsFastSearch && namesUnique) { addIndex(); } else { scanList(); }",
-            nextSceneId: "perf-review",
-            isCorrect: true,
-            outcomeText: "An index speeds up lookups.",
-          },
-          {
-            id: "scan-list",
-            displayText: "if (needsFastSearch && namesUnique) { addIndex(); } else { scanList(); }",
-            nextSceneId: "perf-review",
-            isCorrect: false,
-            outcomeText: "Scanning works but isn't instant.",
-          },
-        ],
-      },
-      "perf-review": {
-        id: "perf-review",
-        storyText:
-          "During performance review, you should optimize only if latency spikes and memory is stable.",
-        options: [
-          {
-            id: "optimize",
-            displayText: "if (latencySpike && memoryStable) { optimize(); } else { monitor(); }",
-            nextSceneId: "final-defense",
-            isCorrect: true,
-            outcomeText: "You optimize and smooth the spikes.",
-          },
-          {
-            id: "monitor",
-            displayText: "if (latencySpike && memoryStable) { optimize(); } else { monitor(); }",
-            nextSceneId: "final-defense",
-            isCorrect: false,
-            outcomeText: "You monitor and document the behavior.",
-          },
-          {
-            id: "ignore",
-            displayText: "if (latencySpike && memoryStable) { optimize(); } else { monitor(); }",
-            nextSceneId: "soft-fail",
-            isCorrect: false,
-            outcomeText: "Ignoring spikes causes a slowdown.",
-            livesChange: -1,
-          },
-        ],
-      },
-      "final-defense": {
-        id: "final-defense",
-        storyText:
-          "Final defense: explain the algorithm choice. You should present the complexity if the audience is ready and the slides are clear.",
-        options: [
-          {
-            id: "present-complexity",
-            displayText: "if (audienceReady && slidesClear) { explainComplexity(); } else { focusOnUseCase(); }",
-            nextSceneId: "finish-line",
-            isCorrect: true,
-            outcomeText: "The committee appreciates the clear breakdown.",
-          },
-          {
-            id: "use-case",
-            displayText: "if (audienceReady && slidesClear) { explainComplexity(); } else { focusOnUseCase(); }",
-            nextSceneId: "finish-line",
-            isCorrect: false,
-            outcomeText: "You focus on use cases and still earn praise.",
-          },
-        ],
-      },
-      "finish-line": {
-        id: "finish-line",
-        storyText:
-          "The project is approved! You close the session on a high note.",
-        isEnding: true,
-        options: [
-          {
-            id: "wrap",
-            displayText: "if (shareCredit) { thankTeam(); } else { celebrate(); }",
-            nextSceneId: null,
-            isCorrect: true,
-            outcomeText: "You thank the team and close the session.",
-          },
-          {
-            id: "celebrate",
-            displayText: "if (shareCredit) { thankTeam(); } else { celebrate(); }",
-            nextSceneId: null,
-            isCorrect: true,
-            outcomeText: "You celebrate a job well done.",
-          },
-        ],
-      },
-      "soft-fail": {
-        id: "soft-fail",
-        storyText:
-          "The project slows down and you need to revisit the performance plan.",
-        isEnding: true,
-        isFailure: true,
-        options: [
-          {
-            id: "retry",
-            displayText: "if (retry) { resetPlan(); } else { resetPlan(); }",
-            nextSceneId: null,
-            isCorrect: false,
-            outcomeText: "You reset and try again.",
-          },
-        ],
-      },
-      "slow-query": {
-        id: "slow-query",
-        storyText:
-          "The leaderboard queries are too slow. You need to restart from the checkpoint.",
-        isEnding: true,
-        isFailure: true,
-        options: [
-          {
-            id: "retry",
-            displayText: "if (retry) { resetPlan(); } else { resetPlan(); }",
-            nextSceneId: null,
-            isCorrect: false,
-            outcomeText: "You reset and try again.",
-          },
-        ],
       },
     },
   },
 };
 
-let currentLevel = 1;
+let currentLevelId = 1;
 let currentSceneId = null;
-let currentCheckpoint = null;
-let checkpointScore = 0;
-let score = 0;
-let lives = MAX_LIVES;
-let stepCount = 0;
 let pendingNextSceneId = null;
+let currentCheckpoint = null;
+let checkpointState = null;
+let stepCount = 0;
 let playerName = "";
-let scoreSaved = false;
+let playerState = {};
 
 let levelSelectEl;
 let startBtnEl;
 let gameAreaEl;
 let levelInfoEl;
 let questionCounterEl;
-let scoreDisplayEl;
-let livesDisplayEl;
 let checkpointDisplayEl;
 let scenarioTextEl;
 let codeSnippetEl;
+let inputAreaEl;
+let runSceneBtnEl;
 let resultTextEl;
-let choiceButtonsEl;
 let nextBtnEl;
 let gameOverEl;
 let gameOverTitleEl;
 let gameOverMessageEl;
 let finalPlayerNameEl;
 let finalLevelEl;
-let finalScoreEl;
+let finalSummaryEl;
 let continueCheckpointBtnEl;
-let saveScoreBtnEl;
 let playAgainBtnEl;
-let leaderboardListEl;
 let nameModalEl;
 let modalNameInputEl;
 let modalMessageEl;
 let modalStartBtnEl;
-let openLeaderboardBtnEl;
 
 const escapeHtml = (text) =>
   text
@@ -956,55 +504,124 @@ const setModalMessage = (text, tone = "") => {
   modalMessageEl.className = `form-note ${tone}`.trim();
 };
 
-const updateLivesDisplay = () => {
-  livesDisplayEl.textContent = "❤".repeat(lives) + "♡".repeat(MAX_LIVES - lives);
+const getCurrentLevelData = () => LEVELS[currentLevelId];
+
+const applyUpdates = (updates) => {
+  if (!updates) {
+    return;
+  }
+  Object.entries(updates).forEach(([key, value]) => {
+    if (typeof value === "number" && typeof playerState[key] === "number") {
+      playerState[key] += value;
+    } else {
+      playerState[key] = value;
+    }
+  });
+};
+
+const buildSummary = () => {
+  const name = playerState.name || "Player";
+  const position = playerState.position || "flex";
+  const focus = playerState.focus || "growth";
+  const effortLevel = playerState.effortLevel || 0;
+  const wins = playerState.gamesWon || 0;
+  const setbacks = playerState.setbacks || 0;
+  const leadership = playerState.leadershipScore || 0;
+
+  const momentumLine = wins >= 2
+    ? "You stacked multiple wins and kept momentum high."
+    : wins === 1
+      ? "You secured a key win and learned from each moment."
+      : "You focused on learning moments more than wins.";
+
+  const effortLine = effortLevel >= 7
+    ? "Your effort level stayed high, and teammates noticed."
+    : effortLevel >= 4
+      ? "Your effort level stayed steady, even when things got tough."
+      : "You learned where to boost effort for next time.";
+
+  const leadershipLine = leadership >= 4
+    ? "Your leadership stood out and people looked to you for direction."
+    : leadership >= 2
+      ? "You showed leadership in key moments."
+      : "You supported the team and kept growing.";
+
+  const setbackLine = setbacks > 0
+    ? "You faced a setback or two, but regrouped with a plan."
+    : "You avoided major setbacks and stayed consistent.";
+
+  return `Season Summary:\nYou, ${name}, leaned into the ${position} role and focused on ${focus}. ${momentumLine} ${effortLine} ${leadershipLine} ${setbackLine}`;
 };
 
 const updateScoreboard = () => {
-  const levelConfig = LEVEL_CONFIG[currentLevel];
+  const levelConfig = LEVELS[currentLevelId];
   levelInfoEl.textContent = `${levelConfig.label} — Scene ${stepCount}`;
   questionCounterEl.textContent = `${stepCount}`;
-  scoreDisplayEl.textContent = score;
-  updateLivesDisplay();
-  checkpointDisplayEl.textContent =
-    currentCheckpoint?.label || "None yet";
+  checkpointDisplayEl.textContent = currentCheckpoint?.label || "None yet";
 };
 
-const loadLeaderboard = () => {
-  const stored = localStorage.getItem(LEADERBOARD_KEY);
-  return stored ? JSON.parse(stored) : [];
+const renderInputs = (scene) => {
+  inputAreaEl.innerHTML = "";
+  scene.inputs.forEach((input) => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "input-group";
+
+    const label = document.createElement("label");
+    label.className = "input-label";
+    label.textContent = input.label;
+
+    let control;
+    if (input.type === "select") {
+      control = document.createElement("select");
+      input.options.forEach((option) => {
+        const optionEl = document.createElement("option");
+        optionEl.value = option;
+        optionEl.textContent = option;
+        control.appendChild(optionEl);
+      });
+    } else if (input.type === "toggle") {
+      control = document.createElement("input");
+      control.type = "checkbox";
+      control.className = "toggle-input";
+    } else {
+      control = document.createElement("input");
+      control.type = input.type || "text";
+      if (input.min !== undefined) control.min = input.min;
+      if (input.max !== undefined) control.max = input.max;
+      if (input.step !== undefined) control.step = input.step;
+      if (input.placeholder) control.placeholder = input.placeholder;
+    }
+
+    control.classList.add("input");
+    control.name = input.name;
+    control.dataset.inputName = input.name;
+
+    wrapper.appendChild(label);
+    wrapper.appendChild(control);
+    inputAreaEl.appendChild(wrapper);
+  });
 };
 
-const saveLeaderboard = (entries) => {
-  localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(entries));
+const readInputs = () => {
+  const inputs = {};
+  const controls = inputAreaEl.querySelectorAll("[data-input-name]");
+  controls.forEach((control) => {
+    const name = control.dataset.inputName;
+    if (control.type === "checkbox") {
+      inputs[name] = control.checked;
+    } else {
+      inputs[name] = control.value;
+    }
+  });
+  return inputs;
 };
 
-const updateLeaderboardUI = () => {
-  const entries = loadLeaderboard();
-  leaderboardListEl.innerHTML = "";
-
-  if (!entries.length) {
-    const empty = document.createElement("li");
-    empty.textContent = "No scores yet. Be the first!";
-    leaderboardListEl.appendChild(empty);
-    return;
-  }
-
-  entries
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 10)
-    .forEach((entry) => {
-      const item = document.createElement("li");
-      item.textContent = `${entry.name} — ${entry.level} — ${entry.score} pts`;
-      leaderboardListEl.appendChild(item);
-    });
+const setInputsDisabled = (disabled) => {
+  const controls = inputAreaEl.querySelectorAll("[data-input-name]");
+  controls.forEach((control) => {
+    control.disabled = disabled;
+  });
 };
-
-const openNameModal = () => {
-  nameModalEl.classList.remove("hidden");
-};
-
-const getCurrentLevelData = () => STORY_LEVELS[currentLevel];
 
 const renderScene = (sceneId) => {
   const levelData = getCurrentLevelData();
@@ -1019,68 +636,45 @@ const renderScene = (sceneId) => {
   scenarioTextEl.textContent = scene.storyText;
   resultTextEl.textContent = "";
 
-  codeSnippetEl.textContent = scene.storyText
-    ? `// Scene Context\n${scene.storyText}`
-    : "// Scene Context";
+  codeSnippetEl.textContent = scene.codeSnippet || "// Scene code";
+  renderInputs(scene);
+  setInputsDisabled(false);
 
-  choiceButtonsEl.innerHTML = "";
-  scene.options.forEach((option) => {
-    const btn = document.createElement("button");
-    btn.className = "btn btn-outline";
-    btn.type = "button";
-    btn.innerHTML = escapeHtml(option.displayText);
-    btn.addEventListener("click", () => handleChoice(option));
-    choiceButtonsEl.appendChild(btn);
-  });
+  runSceneBtnEl.disabled = false;
+  nextBtnEl.disabled = true;
+  updateScoreboard();
+};
 
-  if (scene.isCheckpoint) {
+const handleRunScene = () => {
+  const levelData = getCurrentLevelData();
+  const scene = levelData.scenes[currentSceneId];
+  if (!scene) {
+    return;
+  }
+
+  const inputs = readInputs();
+  const outcome = scene.evaluate(inputs, playerState);
+  applyUpdates(outcome.updates);
+
+  resultTextEl.textContent = outcome.outcomeText || "You continue the story.";
+  pendingNextSceneId = outcome.nextSceneId || null;
+
+  if (scene.isCheckpoint && !outcome.isFailure) {
     currentCheckpoint = {
       sceneId: scene.id,
       label: scene.checkpointLabel || "Checkpoint reached",
     };
-    checkpointScore = score;
+    checkpointState = JSON.parse(JSON.stringify(playerState));
   }
 
-  updateScoreboard();
-  nextBtnEl.disabled = true;
-};
+  setInputsDisabled(true);
+  runSceneBtnEl.disabled = true;
 
-const handleChoice = (option) => {
-  if (pendingNextSceneId !== null) {
+  if (outcome.isFailure || !pendingNextSceneId) {
+    endRun(outcome.outcomeText, outcome.isFailure);
     return;
   }
 
-  const levelConfig = LEVEL_CONFIG[currentLevel];
-  const pointsDelta = (option.points || (option.isCorrect ? 2 : 0)) * levelConfig.multiplier;
-  score += pointsDelta;
-  lives += option.livesChange || 0;
-  if (lives < 0) {
-    lives = 0;
-  }
-
-  resultTextEl.textContent = option.outcomeText || "You move forward.";
-
-  const isFailure = option.isFailure;
-  const nextSceneId = option.nextSceneId;
-
-  if (lives <= 0) {
-    endRun("You ran out of lives.");
-    return;
-  }
-
-  if (!nextSceneId) {
-    const scene = getCurrentLevelData().scenes[currentSceneId];
-    const endingTitle = scene?.isFailure || isFailure ? "Try Again" : "Story Complete";
-    endRun(option.outcomeText || "Run complete!", endingTitle, scene?.isFailure || isFailure);
-    return;
-  }
-
-  if (isFailure) {
-    endRun(option.outcomeText || "That path didn’t work out.", "Try Again", true);
-    return;
-  }
-
-  pendingNextSceneId = nextSceneId;
   nextBtnEl.disabled = false;
   updateScoreboard();
 };
@@ -1092,32 +686,42 @@ const continueStory = () => {
   renderScene(pendingNextSceneId);
 };
 
-const endRun = (message, title = "Run Complete", isFailure = false) => {
+const endRun = (message, isFailure = false) => {
   gameAreaEl.hidden = true;
   gameOverEl.hidden = false;
-  gameOverTitleEl.textContent = title;
-  gameOverMessageEl.textContent = message;
+  gameOverTitleEl.textContent = isFailure ? "Try Again" : "Story Complete";
+  gameOverMessageEl.textContent = message || "Run complete!";
   finalPlayerNameEl.textContent = playerName;
-  finalLevelEl.textContent = LEVEL_CONFIG[currentLevel].label;
-  finalScoreEl.textContent = score;
+  finalLevelEl.textContent = getCurrentLevelData().label;
+  finalSummaryEl.textContent = buildSummary();
   continueCheckpointBtnEl.hidden = !currentCheckpoint;
-  saveScoreBtnEl.disabled = scoreSaved;
+};
 
-  if (isFailure) {
-    gameOverTitleEl.textContent = "Try Again";
-  }
+const resetPlayerState = () => {
+  playerState = {
+    name: playerName,
+    sport: "basketball",
+    position: "",
+    focus: "",
+    effortLevel: 0,
+    practiceHours: 0,
+    drivePractice: 0,
+    gamesWon: 0,
+    setbacks: 0,
+    injuries: 0,
+    leadershipScore: 0,
+  };
 };
 
 const startLevel = (levelId) => {
-  currentLevel = levelId;
+  currentLevelId = levelId;
   const levelData = getCurrentLevelData();
-  score = 0;
-  lives = MAX_LIVES;
   stepCount = 0;
   pendingNextSceneId = null;
-  scoreSaved = false;
   currentCheckpoint = null;
-  checkpointScore = 0;
+  checkpointState = null;
+
+  resetPlayerState();
 
   gameAreaEl.hidden = false;
   gameOverEl.hidden = true;
@@ -1126,34 +730,17 @@ const startLevel = (levelId) => {
 
 const restartFromCheckpoint = () => {
   if (!currentCheckpoint) {
-    startLevel(currentLevel);
+    startLevel(currentLevelId);
     return;
   }
-  score = checkpointScore;
-  lives = MAX_LIVES;
+  playerState = checkpointState
+    ? JSON.parse(JSON.stringify(checkpointState))
+    : playerState;
   stepCount = 0;
   pendingNextSceneId = null;
-  scoreSaved = false;
   gameAreaEl.hidden = false;
   gameOverEl.hidden = true;
   renderScene(currentCheckpoint.sceneId);
-};
-
-const saveScore = () => {
-  if (scoreSaved) {
-    return;
-  }
-  const entries = loadLeaderboard();
-  entries.push({
-    name: playerName,
-    level: LEVEL_CONFIG[currentLevel].label,
-    score,
-    date: new Date().toISOString(),
-  });
-  saveLeaderboard(entries);
-  updateLeaderboardUI();
-  scoreSaved = true;
-  saveScoreBtnEl.disabled = true;
 };
 
 const startGame = () => {
@@ -1177,29 +764,25 @@ const initGame = () => {
   gameAreaEl = document.getElementById("gameArea");
   levelInfoEl = document.getElementById("levelInfo");
   questionCounterEl = document.getElementById("questionCounter");
-  scoreDisplayEl = document.getElementById("scoreDisplay");
-  livesDisplayEl = document.getElementById("livesDisplay");
   checkpointDisplayEl = document.getElementById("checkpointDisplay");
   scenarioTextEl = document.getElementById("scenarioText");
   codeSnippetEl = document.getElementById("codeSnippet");
+  inputAreaEl = document.getElementById("inputArea");
+  runSceneBtnEl = document.getElementById("runSceneBtn");
   resultTextEl = document.getElementById("resultText");
-  choiceButtonsEl = document.getElementById("choiceButtons");
   nextBtnEl = document.getElementById("nextQuestionBtn");
   gameOverEl = document.getElementById("gameOver");
   gameOverTitleEl = document.getElementById("gameOverTitle");
   gameOverMessageEl = document.getElementById("gameOverMessage");
   finalPlayerNameEl = document.getElementById("finalPlayerName");
   finalLevelEl = document.getElementById("finalLevel");
-  finalScoreEl = document.getElementById("finalScore");
+  finalSummaryEl = document.getElementById("finalSummary");
   continueCheckpointBtnEl = document.getElementById("continueCheckpointBtn");
-  saveScoreBtnEl = document.getElementById("saveScoreBtn");
   playAgainBtnEl = document.getElementById("playAgainBtn");
-  leaderboardListEl = document.getElementById("leaderboardList");
   nameModalEl = document.getElementById("escapeNameModal");
   modalNameInputEl = document.getElementById("escapeModalName");
   modalMessageEl = document.getElementById("escapeModalMessage");
   modalStartBtnEl = document.getElementById("escapeModalStart");
-  openLeaderboardBtnEl = document.getElementById("openLeaderboardBtn");
 
   if (
     !levelSelectEl ||
@@ -1207,35 +790,30 @@ const initGame = () => {
     !gameAreaEl ||
     !levelInfoEl ||
     !questionCounterEl ||
-    !scoreDisplayEl ||
-    !livesDisplayEl ||
     !checkpointDisplayEl ||
     !scenarioTextEl ||
     !codeSnippetEl ||
+    !inputAreaEl ||
+    !runSceneBtnEl ||
     !resultTextEl ||
-    !choiceButtonsEl ||
     !nextBtnEl ||
     !gameOverEl ||
     !gameOverTitleEl ||
     !gameOverMessageEl ||
     !finalPlayerNameEl ||
     !finalLevelEl ||
-    !finalScoreEl ||
+    !finalSummaryEl ||
     !continueCheckpointBtnEl ||
-    !saveScoreBtnEl ||
     !playAgainBtnEl ||
-    !leaderboardListEl ||
     !nameModalEl ||
     !modalNameInputEl ||
     !modalMessageEl ||
-    !modalStartBtnEl ||
-    !openLeaderboardBtnEl
+    !modalStartBtnEl
   ) {
     return;
   }
 
-  updateLeaderboardUI();
-  openNameModal();
+  nameModalEl.classList.remove("hidden");
 
   startBtnEl.addEventListener("click", () => {
     startLevel(parseInt(levelSelectEl.value, 10));
@@ -1246,13 +824,10 @@ const initGame = () => {
       startGame();
     }
   });
+  runSceneBtnEl.addEventListener("click", handleRunScene);
   nextBtnEl.addEventListener("click", continueStory);
-  saveScoreBtnEl.addEventListener("click", saveScore);
-  playAgainBtnEl.addEventListener("click", () => startLevel(currentLevel));
+  playAgainBtnEl.addEventListener("click", () => startLevel(currentLevelId));
   continueCheckpointBtnEl.addEventListener("click", restartFromCheckpoint);
-  openLeaderboardBtnEl.addEventListener("click", () => {
-    leaderboardListEl.scrollIntoView({ behavior: "smooth" });
-  });
 };
 
 window.addEventListener("DOMContentLoaded", initGame);
