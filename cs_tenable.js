@@ -467,6 +467,12 @@ const getModeFromQuery = () => {
   return validMode(mode) ? mode : PRACTICE_MODE;
 };
 
+const getModeFromQuery = () => {
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get("mode");
+  return validMode(mode) ? mode : PRACTICE_MODE;
+};
+
 const getBackLinkFromQuery = () => {
   const params = new URLSearchParams(window.location.search);
   return params.get("from") || "cs_games.html";

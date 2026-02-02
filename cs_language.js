@@ -1,7 +1,6 @@
 const LANGUAGE_KEY = "cs_language_preference";
 
 const LANGUAGE_OPTIONS = [
-  { value: "javascript", label: "JavaScript" },
   { value: "python", label: "Python" },
   { value: "java", label: "Java" },
 ];
@@ -10,13 +9,13 @@ const getStoredLanguage = () => {
   const stored = localStorage.getItem(LANGUAGE_KEY);
   return LANGUAGE_OPTIONS.some((option) => option.value === stored)
     ? stored
-    : "javascript";
+    : "python";
 };
 
 const updateLabels = (languageValue) => {
   const label = LANGUAGE_OPTIONS.find((option) => option.value === languageValue)?.label;
   document.querySelectorAll("[data-language-label]").forEach((el) => {
-    el.textContent = label ? `Language: ${label}` : "Language: JavaScript";
+    el.textContent = label ? `Language: ${label}` : "Language: Python";
   });
 };
 
