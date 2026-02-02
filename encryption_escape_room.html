@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Encryption Escape Room</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="encryption_escape_room.js"></script>
+</head>
+<body class="cs-body">
+  <a href="cyber_games.html" class="back-link">← Back to Cyber Games</a>
+
+  <div class="modal" id="escapeRoomModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Unlock the room and save your score.</p>
+      <div class="form-row">
+        <label for="escapeRoomName" class="sr-only">Player name</label>
+        <input id="escapeRoomName" class="input" type="text" placeholder="Your name" />
+        <button id="escapeRoomStart" class="btn">Start Escape</button>
+      </div>
+      <p id="escapeRoomMessage" class="form-note"></p>
+    </div>
+  </div>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// Encryption Escape Room</h1>
+        <p class="page-subtitle">Decode ciphers to unlock each lock.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title">Cipher Locks</h2>
+        <p class="card-subtitle">Solve each cipher with as few attempts as possible.</p>
+      </header>
+
+      <section class="sub-card">
+        <div class="escape-scoreboard">
+          <p class="sub-card-meta">Lock: <span id="escapeLock">1</span> / 4</p>
+          <p class="sub-card-meta">Score: <span id="escapeScore">0</span></p>
+          <p class="sub-card-meta">Attempts: <span id="escapeAttempts">0</span></p>
+        </div>
+
+        <div class="scenario-card">
+          <h3 class="sub-card-title" id="escapeClue">Clue</h3>
+          <p class="card-subtitle" id="escapeStory">Story text</p>
+          <pre id="escapeCipher" class="code-block"></pre>
+        </div>
+
+        <div class="form-row">
+          <label for="escapeAnswer" class="sr-only">Decoded answer</label>
+          <input id="escapeAnswer" class="input" type="text" placeholder="Type the decoded message" />
+          <button id="escapeSubmit" class="btn">Unlock</button>
+        </div>
+        <p id="escapeHint" class="form-note"></p>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="escapeLeaderboard" class="leaderboard-list"></ol>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
