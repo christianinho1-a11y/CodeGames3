@@ -13,6 +13,10 @@ const LEADERBOARDS = [
   { key: "if_else_escape_leaderboard", label: "If / Else Escape" },
   { key: "it_port_match_leaderboard", label: "Port Match" },
   { key: "it_shortcut_shuffle_leaderboard", label: "Shortcut Shuffle" },
+  { key: "windows_hotkey_leaderboard", label: "Windows Hotkey Challenge" },
+  { key: "sheets_formula_leaderboard", label: "Sheets Formula Master" },
+  { key: "file_explorer_leaderboard", label: "File Explorer Quest" },
+  { key: "tech_tools_leaderboard", label: "Tech Tools Survival" },
 ];
 
 const adminEls = {};

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Windows Hotkey Challenge</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../style.css" />
+  <script defer src="windows_hotkey.js"></script>
+</head>
+<body class="cs-body">
+  <a href="../computer_essentials.html" class="back-link">← Back to Computer Essentials</a>
+
+  <div class="modal" id="hotkeyNameModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Your score will appear on the leaderboard.</p>
+      <div class="form-row">
+        <label for="hotkeyModalName" class="sr-only">Player name</label>
+        <input id="hotkeyModalName" class="input" type="text" placeholder="Your name" />
+        <button id="hotkeyModalStart" class="btn">Start Round</button>
+      </div>
+      <p id="hotkeyModalMessage" class="form-note"></p>
+    </div>
+  </div>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// Windows Hotkey Challenge</h1>
+        <p class="page-subtitle">Pick the correct shortcut before the timer runs out.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title">Shortcut Showdown</h2>
+        <p class="card-subtitle">Five levels of Windows hotkey speed practice.</p>
+      </header>
+
+      <section class="sub-card">
+        <div class="sub-card-header">
+          <div>
+            <h3 class="sub-card-title">Action</h3>
+            <p id="hotkeyPrompt" class="quiz-prompt">Select a level to begin.</p>
+          </div>
+          <div class="quiz-scoreboard">
+            <p class="sub-card-meta">Score: <span id="hotkeyScore">0</span></p>
+            <p class="sub-card-meta">Strikes: <span id="hotkeyStrikes">0</span> / 3</p>
+            <p class="sub-card-meta">Question: <span id="hotkeyProgress">0</span></p>
+            <p class="sub-card-meta">Timer: <span id="hotkeyTimer">0</span>s</p>
+            <p class="sub-card-meta">Level: <span id="hotkeyLevelLabel">-</span></p>
+          </div>
+        </div>
+        <div id="hotkeyOptions" class="quiz-options quiz-options-grid"></div>
+        <p id="hotkeyMessage" class="quiz-message"></p>
+      </section>
+
+      <section class="sub-card sub-card-highlight">
+        <h3 class="sub-card-title">Round Controls</h3>
+        <div class="form-row">
+          <label for="hotkeyLevel" class="sr-only">Choose level</label>
+          <select id="hotkeyLevel" class="input" style="max-width: 220px;">
+            <option value="level1">Level 1 - Basics</option>
+            <option value="level2">Level 2 - Window Management</option>
+            <option value="level3">Level 3 - System Tools</option>
+            <option value="level4">Level 4 - Power User</option>
+            <option value="level5">Level 5 - Speed Round</option>
+          </select>
+          <button id="hotkeyStartBtn" class="btn">Start Level</button>
+          <button id="hotkeyNextBtn" class="btn btn-outline" disabled>Next</button>
+        </div>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="hotkeyLeaderboard" class="leaderboard-list"></ol>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
