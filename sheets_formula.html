@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sheets Formula Sprint</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="sheets_formula.js"></script>
+</head>
+<body class="cs-body">
+  <a href="it_games.html" class="back-link">← Back to IT Games</a>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// Sheets Formula Sprint</h1>
+        <p class="page-subtitle">Pick the correct Google Sheets formula for the task.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title">Formula Challenge</h2>
+        <p class="card-subtitle">Five levels of difficulty for quick practice.</p>
+      </header>
+
+      <section class="sub-card">
+        <div class="sub-card-header">
+          <div>
+            <h3 class="sub-card-title">Task</h3>
+            <p id="formulaPrompt" class="quiz-prompt">Choose a level to begin.</p>
+          </div>
+          <div class="quiz-scoreboard">
+            <p class="sub-card-meta">Score: <span id="formulaScore">0</span></p>
+            <p class="sub-card-meta">Question: <span id="formulaProgress">0</span></p>
+            <p class="sub-card-meta">Level: <span id="formulaLevelLabel">-</span></p>
+          </div>
+        </div>
+        <div id="formulaOptions" class="quiz-options quiz-options-grid"></div>
+        <p id="formulaMessage" class="quiz-message"></p>
+      </section>
+
+      <section class="sub-card sub-card-highlight">
+        <h3 class="sub-card-title">Round Controls</h3>
+        <div class="form-row">
+          <label for="formulaLevel" class="sr-only">Choose level</label>
+          <select id="formulaLevel" class="input" style="max-width: 220px;">
+            <option value="level1">Level 1 - Basics</option>
+            <option value="level2">Level 2 - Everyday Tasks</option>
+            <option value="level3">Level 3 - Logic &amp; Counts</option>
+            <option value="level4">Level 4 - Lists &amp; Filters</option>
+            <option value="level5">Level 5 - Power User</option>
+          </select>
+          <button id="formulaStartBtn" class="btn">Start Level</button>
+          <button id="formulaNextBtn" class="btn btn-outline" disabled>Next</button>
+        </div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
