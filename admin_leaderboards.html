@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Leaderboard Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="admin_leaderboards.js"></script>
+</head>
+<body class="cs-body">
+  <a href="index.html" class="back-link">← Back to Home</a>
+
+  <div class="modal" id="adminLoginModal">
+    <div class="modal-card">
+      <h2 class="card-title">Admin Login</h2>
+      <p class="card-subtitle">Enter the admin password to manage leaderboards.</p>
+      <div class="form-row">
+        <label for="adminCode" class="sr-only">Admin password</label>
+        <input id="adminCode" class="input" type="password" placeholder="Admin password" />
+        <button id="adminLoginBtn" class="btn">Login</button>
+      </div>
+      <p id="adminLoginMessage" class="form-note"></p>
+    </div>
+  </div>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// Leaderboard Admin</h1>
+        <p class="page-subtitle">Remove single scores or clear entire leaderboards.</p>
+      </div>
+      <div class="button-row">
+        <button id="clearAllLeaderboards" class="btn btn-danger">Clear All Leaderboards</button>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <div id="leaderboardAdminList"></div>
+      <p id="adminActionMessage" class="form-note"></p>
+    </section>
+  </main>
+</body>
+</html>
