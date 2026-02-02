@@ -449,10 +449,7 @@ const handleSubmit = () => {
   }
 
   const normalized = normalize(guess);
-  if (!activeWords.includes(normalized)) {
-    setMessage("That word isn't in the current topic list yet.", "warning");
-    return;
-  }
+  
 
   const statuses = evaluateGuess(normalized);
   statuses.forEach((status, index) => {
