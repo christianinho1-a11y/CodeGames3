@@ -376,6 +376,40 @@ body.cs-body {
   font-size: 0.85rem;
 }
 
+/* ==== ADMIN LEADERBOARD ==== */
+
+.admin-leaderboard-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.6rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.admin-leaderboard-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid #1f2937;
+  background: rgba(15, 23, 42, 0.35);
+  font-size: 0.9rem;
+}
+
+.admin-leaderboard-item span {
+  color: var(--text-main);
+}
+
+.admin-leaderboard-empty {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
 /* ==== CS TENABLE ==== */
 
 .tenable-scoreboard {
