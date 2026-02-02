@@ -406,6 +406,7 @@ const TENABLE_CATEGORIES = [
 
 const MAX_STRIKES = 3;
 const LEADERBOARD_KEY = "cs_tenable_leaderboard";
+const DAILY_KEY_PREFIX = "cs_tenable_daily";
 
 let currentCategoryIndex = -1;
 let currentCategory = null;
@@ -472,6 +473,27 @@ const getBackLabel = (href) => {
     return "Cyber Games";
   }
   return "CS Games";
+};
+
+const getTodayKey = () => new Date().toISOString().split("T")[0];
+
+const getDailyKey = () => {
+  if (!playerName) {
+    return "";
+  }
+  return `${DAILY_KEY_PREFIX}_${currentTopic}_${playerName.toLowerCase()}_${getTodayKey()}`;
+};
+
+const hasPlayedToday = () => {
+  const key = getDailyKey();
+  return key ? localStorage.getItem(key) === "done" : false;
+};
+
+const markPlayedToday = () => {
+  const key = getDailyKey();
+  if (key) {
+    localStorage.setItem(key, "done");
+  }
 };
 
 const findMatchingAnswerIndex = (guess) => {
@@ -585,6 +607,7 @@ const saveScore = () => {
   saveLeaderboard(entries);
   updateLeaderboardUI();
   scoreSaved = true;
+  markPlayedToday();
 };
 
 const renderBoard = () => {
@@ -692,6 +715,13 @@ const startNewRound = () => {
     return;
   }
 
+  if (hasPlayedToday()) {
+    setMessage("Daily Tenable already completed for this topic. Come back tomorrow.", "warning");
+    setSummary("Daily puzzle complete. Try a new topic tomorrow.", "info");
+    setRoundState(true);
+    return;
+  }
+
   currentCategory = pickNewCategory();
   if (!currentCategory) {
     categoryTitleEl.textContent = "No categories available";
@@ -727,6 +757,10 @@ const startGame = () => {
     return;
   }
   playerName = nameValue;
+  if (hasPlayedToday()) {
+    setModalMessage("You already completed today's puzzle for this topic.", "warning");
+    return;
+  }
   setModalMessage("");
   closeNameModal();
   startNewRound();
