@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hardware Hustle</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="hardware_hustle.js"></script>
+</head>
+<body class="cs-body">
+  <a href="it_games.html" class="back-link">← Back to IT Games</a>
+
+  <div class="modal" id="hardwareModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Match components and save your score.</p>
+      <div class="form-row">
+        <label for="hardwareName" class="sr-only">Player name</label>
+        <input id="hardwareName" class="input" type="text" placeholder="Your name" />
+        <button id="hardwareStart" class="btn">Start Build</button>
+      </div>
+      <p id="hardwareModalMessage" class="form-note"></p>
+    </div>
+  </div>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// Hardware Hustle</h1>
+        <p class="page-subtitle">Match components to their correct slots.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title">Build Board</h2>
+        <p class="card-subtitle">Pick the right component for each slot.</p>
+      </header>
+
+      <section class="sub-card">
+        <div class="form-row">
+          <p class="sub-card-meta">Score: <span id="hardwareScore">0</span></p>
+          <p class="sub-card-meta">Round: <span id="hardwareRound">1</span> / 3</p>
+        </div>
+
+        <div id="hardwareSlots" class="slot-grid"></div>
+
+        <div class="button-row">
+          <button id="hardwareSubmit" class="btn">Check Build</button>
+          <button id="hardwareNext" class="btn btn-outline" disabled>Next Round</button>
+        </div>
+        <p id="hardwareMessage" class="form-note"></p>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="hardwareLeaderboard" class="leaderboard-list"></ol>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

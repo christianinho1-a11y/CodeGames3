@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Computer Science Games</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Computer Science Games</title>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="cs_language.js"></script>
+  </head>
 <body class="cs-body">
   <a href="index.html" class="back-link">← Back to Subjects</a>
 
@@ -29,6 +30,15 @@
           Use these games to reinforce what you’re teaching in Intro to CS or
           AP CSP: decision-making, boolean logic, and vocabulary.
         </p>
+        <div class="form-row" style="margin-top: 0.75rem;">
+          <span class="sub-card-meta" data-language-label>Language: JavaScript</span>
+          <label for="csLanguageSelect" class="sr-only">Practice language</label>
+          <select id="csLanguageSelect" class="input" data-language-select style="max-width: 220px;">
+            <option value="javascript">JavaScript</option>
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+          </select>
+        </div>
       </div>
       <ul class="hub-keypoints">
         <li>Great as bell ringers or exit tickets.</li>
@@ -81,50 +91,127 @@
         </p>
         <p class="game-card-meta">Mode: Single-player • Est. 5 minutes</p>
       </a>
+
+      <!-- Algorithm Assembly (NEW) -->
+      <a href="algorithm_assembly.html" class="card game-card">
+        <div class="game-card-header">
+          <h2 class="game-card-title">// Algorithm Assembly</h2>
+          <span class="game-tag">Sorting</span>
+        </div>
+        <p class="game-card-text">
+          Arrange shuffled steps to build Bubble Sort, Selection Sort, and
+          Insertion Sort correctly.
+        </p>
+        <p class="game-card-meta">Mode: Single-player • Est. 6 minutes</p>
+      </a>
+
+      <!-- Debugging Dash (NEW) -->
+      <a href="debugging_dash.html" class="card game-card">
+        <div class="game-card-header">
+          <h2 class="game-card-title">// Debugging Dash</h2>
+          <span class="game-tag">Debugging</span>
+        </div>
+        <p class="game-card-text">
+          Race the timer to spot the bugs hiding in short code snippets.
+        </p>
+        <p class="game-card-meta">Mode: Single-player • Est. 5 minutes</p>
+      </a>
+
+      <!-- Variable Vault (NEW) -->
+      <a href="variable_vault.html" class="card game-card">
+        <div class="game-card-header">
+          <h2 class="game-card-title">// Variable Vault</h2>
+          <span class="game-tag">Data Types</span>
+        </div>
+        <p class="game-card-text">
+          Choose the best variable name, type, and value for each scenario.
+        </p>
+        <p class="game-card-meta">Mode: Single-player • Est. 6 minutes</p>
+      </a>
     </section>
 
     <div class="games-section">
       <h2 class="section-title">Daily Games</h2>
-      <p class="section-subtitle">Daily-style challenges to replay each session.</p>
+      <p class="section-subtitle">One puzzle per day for each daily game.</p>
     </div>
 
     <section class="game-grid">
-      <!-- CS Tenable (ACTIVE) -->
-      <a href="cs_tenable.html?topic=cs&from=cs_games.html" class="card game-card">
+      <!-- CS Tenable (DAILY) -->
+      <a href="cs_tenable.html?topic=cs&mode=daily&from=cs_games.html" class="card game-card">
         <div class="game-card-header">
           <h2 class="game-card-title">// CS Tenable</h2>
-          <span class="game-tag">Top 10</span>
+          <span class="game-tag">Daily</span>
         </div>
         <p class="game-card-text">
           Guess the Top 10 answers in categories like data structures,
           programming languages, and careers before you reach three strikes.
         </p>
-        <p class="game-card-meta">Mode: Single-player • Est. 5 minutes</p>
+        <p class="game-card-meta">Mode: Daily • Est. 5 minutes</p>
       </a>
 
-      <!-- CS Wordle (ACTIVE) -->
-      <a href="cs_wordle.html?topic=cs&from=cs_games.html" class="card game-card">
+      <!-- CS Wordle (DAILY) -->
+      <a href="cs_wordle.html?topic=cs&mode=daily&from=cs_games.html" class="card game-card">
         <div class="game-card-header">
           <h2 class="game-card-title">// CS Wordle</h2>
-          <span class="game-tag">Vocabulary</span>
+          <span class="game-tag">Daily</span>
         </div>
         <p class="game-card-text">
           Guess a 5-letter computer science term in six tries, just like the
           original Wordle.
         </p>
-        <p class="game-card-meta">Mode: Single-player • Est. 5 minutes</p>
+        <p class="game-card-meta">Mode: Daily • Est. 5 minutes</p>
       </a>
 
-      <!-- CS Connections (ACTIVE) -->
-      <a href="cs_connections.html?topic=cs&from=cs_games.html" class="card game-card">
+      <!-- CS Connections (DAILY) -->
+      <a href="cs_connections.html?topic=cs&mode=daily&from=cs_games.html" class="card game-card">
         <div class="game-card-header">
           <h2 class="game-card-title">// CS Connections</h2>
-          <span class="game-tag">Categories</span>
+          <span class="game-tag">Daily</span>
         </div>
         <p class="game-card-text">
           Group CS terms into four related categories to clear the board.
         </p>
-        <p class="game-card-meta">Mode: Single-player • Est. 8 minutes</p>
+        <p class="game-card-meta">Mode: Daily • Est. 8 minutes</p>
+      </a>
+    </section>
+
+    <div class="games-section">
+      <h2 class="section-title">Practice Daily Games</h2>
+      <p class="section-subtitle">Unlimited practice with random puzzles.</p>
+    </div>
+
+    <section class="game-grid">
+      <a href="cs_tenable.html?topic=cs&mode=practice&from=cs_games.html" class="card game-card">
+        <div class="game-card-header">
+          <h2 class="game-card-title">// CS Tenable</h2>
+          <span class="game-tag">Practice</span>
+        </div>
+        <p class="game-card-text">
+          Practice Top 10 categories with unlimited rounds.
+        </p>
+        <p class="game-card-meta">Mode: Practice • Est. 5 minutes</p>
+      </a>
+
+      <a href="cs_wordle.html?topic=cs&mode=practice&from=cs_games.html" class="card game-card">
+        <div class="game-card-header">
+          <h2 class="game-card-title">// CS Wordle</h2>
+          <span class="game-tag">Practice</span>
+        </div>
+        <p class="game-card-text">
+          Practice random CS terms as often as you like.
+        </p>
+        <p class="game-card-meta">Mode: Practice • Est. 5 minutes</p>
+      </a>
+
+      <a href="cs_connections.html?topic=cs&mode=practice&from=cs_games.html" class="card game-card">
+        <div class="game-card-header">
+          <h2 class="game-card-title">// CS Connections</h2>
+          <span class="game-tag">Practice</span>
+        </div>
+        <p class="game-card-text">
+          Practice category grouping with fresh boards.
+        </p>
+        <p class="game-card-meta">Mode: Practice • Est. 8 minutes</p>
       </a>
     </section>
   </main>
