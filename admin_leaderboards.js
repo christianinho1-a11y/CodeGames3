@@ -183,6 +183,7 @@ const login = () => {
   }
   sessionStorage.setItem(SESSION_KEY, "true");
   adminEls.loginModal.classList.add("hidden");
+  adminEls.content.hidden = false;
   adminEls.loginMessage.textContent = "";
   adminEls.codeInput.value = "";
 };
@@ -204,6 +205,7 @@ const initAdmin = () => {
   adminEls.list = document.getElementById("leaderboardAdminList");
   adminEls.actionMessage = document.getElementById("adminActionMessage");
   adminEls.clearAllBtn = document.getElementById("clearAllLeaderboards");
+  adminEls.content = document.getElementById("adminContent");
 
   if (Object.values(adminEls).some((el) => !el)) {
     return;
@@ -214,6 +216,7 @@ const initAdmin = () => {
 
   if (sessionStorage.getItem(SESSION_KEY) === "true") {
     adminEls.loginModal.classList.add("hidden");
+    adminEls.content.hidden = false;
   }
 
   renderLeaderboards();
