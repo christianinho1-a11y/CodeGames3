@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tech Tools Survival</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../style.css" />
+  <script defer src="tech_tools.js"></script>
+</head>
+<body class="cs-body">
+  <a href="../computer_essentials.html" class="back-link">← Back to Computer Essentials</a>
+
+  <div class="modal" id="toolsNameModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Your score will appear on the leaderboard.</p>
+      <div class="form-row">
+        <label for="toolsModalName" class="sr-only">Player name</label>
+        <input id="toolsModalName" class="input" type="text" placeholder="Your name" />
+        <button id="toolsModalStart" class="btn">Start Round</button>
+      </div>
+      <p id="toolsModalMessage" class="form-note"></p>
+    </div>
+  </div>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// Tech Tools Survival</h1>
+        <p class="page-subtitle">Choose the right digital tool for each scenario.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title">Scenario Sprint</h2>
+        <p class="card-subtitle">Level up through five difficulty tiers.</p>
+      </header>
+
+      <section class="sub-card">
+        <div class="sub-card-header">
+          <div>
+            <h3 class="sub-card-title">Scenario</h3>
+            <p id="toolsPrompt" class="quiz-prompt">Select a level to begin.</p>
+          </div>
+          <div class="quiz-scoreboard">
+            <p class="sub-card-meta">Score: <span id="toolsScore">0</span></p>
+            <p class="sub-card-meta">Strikes: <span id="toolsStrikes">0</span> / 3</p>
+            <p class="sub-card-meta">Question: <span id="toolsProgress">0</span></p>
+            <p class="sub-card-meta">Timer: <span id="toolsTimer">0</span>s</p>
+            <p class="sub-card-meta">Level: <span id="toolsLevelLabel">-</span></p>
+          </div>
+        </div>
+        <div id="toolsOptions" class="quiz-options quiz-options-grid"></div>
+        <p id="toolsMessage" class="quiz-message"></p>
+      </section>
+
+      <section class="sub-card sub-card-highlight">
+        <h3 class="sub-card-title">Round Controls</h3>
+        <div class="form-row">
+          <label for="toolsLevel" class="sr-only">Choose level</label>
+          <select id="toolsLevel" class="input" style="max-width: 220px;">
+            <option value="level1">Level 1 - Easy</option>
+            <option value="level2">Level 2 - Medium</option>
+            <option value="level3">Level 3 - Hard</option>
+            <option value="level4">Level 4 - Expert</option>
+            <option value="level5">Level 5 - Speed Round</option>
+          </select>
+          <button id="toolsStartBtn" class="btn">Start Level</button>
+          <button id="toolsNextBtn" class="btn btn-outline" disabled>Next</button>
+        </div>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="toolsLeaderboard" class="leaderboard-list"></ol>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
