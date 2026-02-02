@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Algorithm Assembly</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="cs_language.js"></script>
+  <script defer src="algorithm_assembly.js"></script>
+</head>
+<body class="cs-body">
+  <a href="cs_games.html" class="back-link">← Back to CS Games</a>
+
+  <div class="modal" id="assemblyNameModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Your score will appear on the leaderboard.</p>
+      <div class="form-row">
+        <label for="assemblyModalName" class="sr-only">Player name</label>
+        <input id="assemblyModalName" class="input" type="text" placeholder="Your name" />
+        <button id="assemblyModalStart" class="btn">Start Assembly</button>
+      </div>
+      <p id="assemblyModalMessage" class="form-note"></p>
+    </div>
+  </div>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// Algorithm Assembly</h1>
+        <p class="page-subtitle">Build sorting algorithms step by step.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title">Assembly Bay</h2>
+        <p class="card-subtitle">
+          Arrange shuffled steps into the correct order for each algorithm. Earn
+          more points for fewer mistakes and faster completion.
+        </p>
+        <div class="form-row">
+          <span class="sub-card-meta" data-language-label>Language: JavaScript</span>
+          <label for="assemblyLanguageSelect" class="sr-only">Practice language</label>
+          <select id="assemblyLanguageSelect" class="input" data-language-select style="max-width: 220px;">
+            <option value="javascript">JavaScript</option>
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+          </select>
+        </div>
+      </header>
+
+      <section class="sub-card">
+        <div class="form-row">
+          <label for="assemblyDifficulty" class="sr-only">Difficulty</label>
+          <select id="assemblyDifficulty" class="input" style="max-width: 220px;">
+            <option value="easy">Easy (3 steps)</option>
+            <option value="medium">Medium (4 steps)</option>
+            <option value="hard">Hard (5 steps)</option>
+          </select>
+          <button id="assemblyShuffle" class="btn btn-outline">Shuffle Steps</button>
+          <button id="assemblyReset" class="btn">Reset Order</button>
+        </div>
+
+        <div class="assembly-info">
+          <p class="sub-card-meta" id="assemblyAlgorithm">Algorithm: —</p>
+          <p class="sub-card-meta" id="assemblyDescription">Description: —</p>
+        </div>
+
+        <div class="assembly-grid">
+          <div>
+            <h3 class="sub-card-title">Step Cards</h3>
+            <div id="assemblyCards" class="chip-grid"></div>
+          </div>
+          <div>
+            <h3 class="sub-card-title">Your Order</h3>
+            <ol id="assemblyOrder" class="assembly-order"></ol>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button id="assemblySubmit" class="btn">Submit Order</button>
+          <button id="assemblyNext" class="btn btn-outline" disabled>Next Algorithm</button>
+        </div>
+        <p id="assemblyMessage" class="form-note"></p>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="assemblyLeaderboard" class="leaderboard-list"></ol>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

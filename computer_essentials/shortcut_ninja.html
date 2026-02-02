@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shortcut Ninja</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../style.css" />
+  <script defer src="shortcut_ninja.js"></script>
+</head>
+<body class="cs-body">
+  <a href="../computer_essentials.html" class="back-link">← Back to Computer Essentials</a>
+
+  <div class="modal" id="ninjaModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Build a shortcut streak.</p>
+      <div class="form-row">
+        <label for="ninjaName" class="sr-only">Player name</label>
+        <input id="ninjaName" class="input" type="text" placeholder="Your name" />
+        <button id="ninjaStart" class="btn">Start Round</button>
+      </div>
+      <p id="ninjaModalMessage" class="form-note"></p>
+    </div>
+  </div>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// Shortcut Ninja</h1>
+        <p class="page-subtitle">Answer hotkey prompts before time runs out.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title">Hotkey Arena</h2>
+        <p class="card-subtitle">Pick the correct shortcut for each task.</p>
+      </header>
+
+      <section class="sub-card">
+        <div class="ninja-scoreboard">
+          <p class="sub-card-meta">Score: <span id="ninjaScore">0</span></p>
+          <p class="sub-card-meta">Streak: <span id="ninjaStreak">0</span></p>
+          <p class="sub-card-meta">Timer: <span id="ninjaTimer">20</span>s</p>
+        </div>
+
+        <div class="scenario-card">
+          <h3 class="sub-card-title" id="ninjaPromptTitle">Prompt</h3>
+          <p class="card-subtitle" id="ninjaPrompt">Prompt text</p>
+        </div>
+
+        <div id="ninjaChoices" class="choice-grid"></div>
+        <p id="ninjaMessage" class="form-note"></p>
+        <button id="ninjaNext" class="btn btn-outline" disabled>Next Prompt</button>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="ninjaLeaderboard" class="leaderboard-list"></ol>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

@@ -5,6 +5,7 @@
   <title>Binary Blaster</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="style.css" />
+  <script defer src="cs_language.js"></script>
   <script defer src="binary_blaster.js"></script>
 </head>
 <body class="cs-body">
@@ -38,6 +39,15 @@
           Choose a mode and solve 10 conversions. Earn points, keep your streak,
           and avoid strikes.
         </p>
+        <div class="form-row">
+          <span class="sub-card-meta" data-language-label>Language: JavaScript</span>
+          <label for="binaryLanguageSelect" class="sr-only">Practice language</label>
+          <select id="binaryLanguageSelect" class="input" data-language-select style="max-width: 220px;">
+            <option value="javascript">JavaScript</option>
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+          </select>
+        </div>
       </header>
 
       <section class="sub-card">

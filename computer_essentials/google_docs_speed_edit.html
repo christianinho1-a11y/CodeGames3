@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Google Docs Speed Edit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../style.css" />
+  <script defer src="google_docs_speed_edit.js"></script>
+</head>
+<body class="cs-body">
+  <a href="../computer_essentials.html" class="back-link">← Back to Computer Essentials</a>
+
+  <div class="modal" id="docsModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Complete tasks quickly to earn points.</p>
+      <div class="form-row">
+        <label for="docsName" class="sr-only">Player name</label>
+        <input id="docsName" class="input" type="text" placeholder="Your name" />
+        <button id="docsStart" class="btn">Start Editing</button>
+      </div>
+      <p id="docsModalMessage" class="form-note"></p>
+    </div>
+  </div>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// Google Docs Speed Edit</h1>
+        <p class="page-subtitle">Complete formatting tasks before the timer ends.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title">Doc Sprint</h2>
+        <p class="card-subtitle">Use the toolbar buttons to satisfy the checklist.</p>
+      </header>
+
+      <section class="sub-card">
+        <div class="docs-scoreboard">
+          <p class="sub-card-meta">Score: <span id="docsScore">0</span></p>
+          <p class="sub-card-meta">Timer: <span id="docsTimer">60</span>s</p>
+        </div>
+
+        <div class="toolbar-row">
+          <button class="btn btn-outline" data-doc-action="bold">Bold Title</button>
+          <button class="btn btn-outline" data-doc-action="center">Center Heading</button>
+          <button class="btn btn-outline" data-doc-action="bullets">Bulleted List</button>
+          <button class="btn btn-outline" data-doc-action="image">Insert Image</button>
+        </div>
+
+        <div class="doc-preview">
+          <h3 class="doc-title" id="docTitle">Class Agenda</h3>
+          <p class="doc-heading" id="docHeading">Tuesday Meeting</p>
+          <ul id="docList">
+            <li>Project updates</li>
+            <li>Homework review</li>
+            <li>Next steps</li>
+          </ul>
+          <div id="docImage" class="doc-image-placeholder">Image Placeholder</div>
+        </div>
+
+        <div class="checklist">
+          <h3 class="sub-card-title">Checklist</h3>
+          <ul id="docsChecklist" class="info-list"></ul>
+        </div>
+        <p id="docsMessage" class="form-note"></p>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="docsLeaderboard" class="leaderboard-list"></ol>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
