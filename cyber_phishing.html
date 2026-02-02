@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Phishing or Legit?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="cyber_phishing.js"></script>
+</head>
+<body class="cs-body">
+  <a href="cyber_games.html" class="back-link">← Back to Cyber Games</a>
+
+  <div class="modal" id="phishingNameModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Your score will appear on the leaderboard.</p>
+      <div class="form-row">
+        <label for="phishingModalName" class="sr-only">Player name</label>
+        <input id="phishingModalName" class="input" type="text" placeholder="Your name" />
+        <button id="phishingModalStart" class="btn">Start Round</button>
+      </div>
+      <p id="phishingModalMessage" class="form-note"></p>
+    </div>
+  </div>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// Phishing or Legit?</h1>
+        <p class="page-subtitle">Decide if each message is safe or a phishing attempt.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title">Message Review</h2>
+        <p class="card-subtitle">You have 3 strikes. Score points for correct calls.</p>
+      </header>
+
+      <section class="sub-card">
+        <div class="sub-card-header">
+          <div>
+            <h3 class="sub-card-title">Scenario</h3>
+            <p id="phishingPrompt" class="quiz-prompt">Press start to begin.</p>
+          </div>
+          <div class="quiz-scoreboard">
+            <p class="sub-card-meta">Score: <span id="phishingScore">0</span></p>
+            <p class="sub-card-meta">Strikes: <span id="phishingStrikes">0</span> / 3</p>
+            <p class="sub-card-meta">Question: <span id="phishingProgress">0</span></p>
+          </div>
+        </div>
+        <div class="quiz-options">
+          <button id="phishingOptionPhish" class="btn quiz-option" type="button">Phishing</button>
+          <button id="phishingOptionLegit" class="btn quiz-option" type="button">Legit</button>
+        </div>
+        <p id="phishingMessage" class="quiz-message"></p>
+      </section>
+
+      <section class="sub-card sub-card-highlight">
+        <h3 class="sub-card-title">Round Controls</h3>
+        <div class="button-row">
+          <button id="phishingStartBtn" class="btn">Start Round</button>
+          <button id="phishingNextBtn" class="btn btn-outline" disabled>Next Scenario</button>
+        </div>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="phishingLeaderboard" class="leaderboard-list"></ol>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
