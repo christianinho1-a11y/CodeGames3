@@ -15,12 +15,13 @@ let currentTopic = "all";
 
 const elements = {};
 
-const validTopic = (topic) => ["all", "cs", "it", "cyber"].includes(topic);
+const validTopic = (topic) => ["all", "cs", "it", "cyber", "essentials"].includes(topic);
 const topicLabels = {
   all: "All Topics",
   cs: "Computer Science",
   it: "Information Technology",
   cyber: "Cybersecurity",
+  essentials: "Computer Essentials",
 };
 
 const getTopicFromQuery = () => {
@@ -37,6 +38,9 @@ const getBackLinkFromQuery = () => {
 const getBackLabel = (href) => {
   if (href.includes("it_games")) {
     return "IT Games";
+  }
+  if (href.includes("computer_essentials")) {
+    return "Computer Essentials";
   }
   if (href.includes("cyber_games")) {
     return "Cyber Games";

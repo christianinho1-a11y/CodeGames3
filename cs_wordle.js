@@ -119,6 +119,57 @@ const WORD_BANK = {
     "proxy",
     "vault",
   ],
+  essentials: [
+    "video",
+    "reels",
+    "trend",
+    "viral",
+    "memes",
+    "story",
+    "likes",
+    "share",
+    "click",
+    "swipe",
+    "emoji",
+    "audio",
+    "watch",
+    "sound",
+    "media",
+    "score",
+    "match",
+    "party",
+    "group",
+    "coach",
+    "photo",
+    "music",
+    "track",
+    "beats",
+    "dance",
+    "skate",
+    "board",
+    "pixel",
+    "chats",
+    "skins",
+    "badge",
+    "level",
+    "quest",
+    "boost",
+    "speed",
+    "trick",
+    "check",
+    "timer",
+    "focus",
+    "trend",
+    "pings",
+    "faves",
+    "clips",
+    "party",
+    "media",
+    "games",
+    "chats",
+    "reply",
+    "posty",
+  ],
 };
 
 const MAX_ROWS = 6;
@@ -160,13 +211,14 @@ const keyboardRows = [
 ];
 
 const normalize = (value) => value.trim().toLowerCase();
-const validTopic = (topic) => ["all", "cs", "it", "cyber"].includes(topic);
+const validTopic = (topic) => ["all", "cs", "it", "cyber", "essentials"].includes(topic);
 
 const topicLabels = {
   all: "All Topics",
   cs: "Computer Science",
   it: "Information Technology",
   cyber: "Cybersecurity",
+  essentials: "Computer Essentials",
 };
 
 const getTopicFromQuery = () => {
@@ -183,6 +235,9 @@ const getBackLinkFromQuery = () => {
 const getBackLabel = (href) => {
   if (href.includes("it_games")) {
     return "IT Games";
+  }
+  if (href.includes("computer_essentials")) {
+    return "Computer Essentials";
   }
   if (href.includes("cyber_games")) {
     return "Cyber Games";

@@ -275,6 +275,230 @@ const TENABLE_CATEGORIES = [
     topic: "it",
   },
   {
+    title: "Top 10 Games Students Mention",
+    answers: [
+      "Minecraft",
+      "Roblox",
+      "Fortnite",
+      "Among Us",
+      "Rocket League",
+      "Super Smash Bros",
+      "Mario Kart",
+      "Pokemon",
+      "NBA 2K",
+      "Mario Party",
+    ],
+    topic: "essentials",
+  },
+  {
+    title: "Top 10 Social Media & Video Apps (School-Friendly)",
+    answers: [
+      "YouTube",
+      "TikTok",
+      "Instagram",
+      "Snapchat",
+      "Discord",
+      "Pinterest",
+      "Reddit",
+      "Twitch",
+      "WhatsApp",
+      "BeReal",
+    ],
+    topic: "essentials",
+  },
+  {
+    title: "Top 10 Online Safety Reminders",
+    answers: [
+      "Strong passwords",
+      "Private accounts",
+      "Think before you post",
+      "Block strangers",
+      "Report bullying",
+      "Update apps",
+      "Use MFA",
+      "Avoid scam links",
+      "Ask a trusted adult",
+      "Log out on shared devices",
+    ],
+    topic: "essentials",
+  },
+  {
+    title: "Top 10 Student-Friendly Study Tools",
+    answers: [
+      "Quizlet",
+      "Kahoot",
+      "Google Docs",
+      "Google Slides",
+      "Google Drive",
+      "Nearpod",
+      "Edpuzzle",
+      "Canva",
+      "Padlet",
+      "Scratch",
+    ],
+    topic: "essentials",
+  },
+  {
+    title: "Top 10 Ways Students Share Online",
+    answers: [
+      "Post",
+      "Story",
+      "Comment",
+      "Like",
+      "Share",
+      "Reply",
+      "Stream",
+      "DM",
+      "Snap",
+      "Tag",
+    ],
+    topic: "essentials",
+  },
+  {
+    title: "Computer Essentials in the Lab",
+    answers: [
+      "Login credentials",
+      "File Explorer",
+      "Wi-Fi",
+      "Headphones",
+      "USB drive",
+      "Printer queue",
+      "Cloud storage",
+      "Battery check",
+      "Keyboard shortcuts",
+      "Projector",
+    ],
+    topic: "it",
+  },
+  {
+    title: "School-Friendly Apps & Platforms",
+    answers: [
+      "Google Classroom",
+      "YouTube",
+      "Quizlet",
+      "Kahoot",
+      "Scratch",
+      "Canva",
+      "Padlet",
+      "Minecraft Education",
+      "Google Docs",
+      "Google Drive",
+    ],
+    topic: "it",
+  },
+  {
+    title: "Most-Used Computer Parts",
+    answers: [
+      "CPU",
+      "RAM",
+      "SSD",
+      "GPU",
+      "Motherboard",
+      "Keyboard",
+      "Mouse",
+      "Monitor",
+      "Webcam",
+      "Speakers",
+    ],
+    topic: "it",
+  },
+  {
+    title: "Common Student Tech Issues",
+    answers: [
+      "Forgot password",
+      "Wi-Fi down",
+      "Battery dead",
+      "Frozen app",
+      "Printer jam",
+      "Login error",
+      "Slow computer",
+      "File missing",
+      "Audio not working",
+      "Upload failed",
+    ],
+    topic: "it",
+  },
+  {
+    title: "Programming Languages Students Hear About",
+    answers: [
+      "Python",
+      "Java",
+      "JavaScript",
+      "C++",
+      "C#",
+      "Scratch",
+      "Swift",
+      "SQL",
+      "HTML",
+      "Rust",
+    ],
+    topic: "cs",
+  },
+  {
+    title: "Popular Apps Students Use for School",
+    answers: [
+      "Google Classroom",
+      "Google Docs",
+      "Google Slides",
+      "Google Sheets",
+      "Google Drive",
+      "Canvas",
+      "Schoology",
+      "Kahoot",
+      "Quizlet",
+      "Nearpod",
+    ],
+    topic: "it",
+  },
+  {
+    title: "Cyber Threats Teens Should Know",
+    answers: [
+      "Phishing",
+      "Password reuse",
+      "Malware",
+      "Ransomware",
+      "Scams",
+      "Data breach",
+      "Fake Wi-Fi",
+      "Social engineering",
+      "Spyware",
+      "Identity theft",
+    ],
+    topic: "cyber",
+  },
+  {
+    title: "Tech Inventions That Changed Classrooms",
+    answers: [
+      "Laptop",
+      "Projector",
+      "Wi-Fi",
+      "Smartphone",
+      "Smartboard",
+      "Cloud storage",
+      "Video conferencing",
+      "Printer",
+      "USB drive",
+      "Calculator",
+    ],
+    topic: "it",
+  },
+  {
+    title: "Common File Extensions",
+    answers: [
+      ".docx",
+      ".pptx",
+      ".xlsx",
+      ".pdf",
+      ".jpg",
+      ".png",
+      ".mp3",
+      ".mp4",
+      ".txt",
+      ".zip",
+    ],
+    topic: "it",
+  },
+  {
     title: "Common Cyber Threats",
     answers: [
       "Phishing",
@@ -361,12 +585,13 @@ let modalStartBtnEl;
 let leaderboardEl;
 
 const normalizeGuess = (value) => value.trim().toLowerCase();
-const validTopic = (topic) => ["all", "cs", "it", "cyber"].includes(topic);
+const validTopic = (topic) => ["all", "cs", "it", "cyber", "essentials"].includes(topic);
 const topicLabels = {
   all: "All Topics",
   cs: "Computer Science",
   it: "Information Technology",
   cyber: "Cybersecurity",
+  essentials: "Computer Essentials",
 };
 
 const getTopicFromQuery = () => {
@@ -383,6 +608,9 @@ const getBackLinkFromQuery = () => {
 const getBackLabel = (href) => {
   if (href.includes("it_games")) {
     return "IT Games";
+  }
+  if (href.includes("computer_essentials")) {
+    return "Computer Essentials";
   }
   if (href.includes("cyber_games")) {
     return "Cyber Games";
