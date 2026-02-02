@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Port Match</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="it_port_match.js"></script>
+</head>
+<body class="cs-body">
+  <a href="it_games.html" class="back-link">← Back to IT Games</a>
+
+  <div class="modal" id="portNameModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Your score will appear on the leaderboard.</p>
+      <div class="form-row">
+        <label for="portModalName" class="sr-only">Player name</label>
+        <input id="portModalName" class="input" type="text" placeholder="Your name" />
+        <button id="portModalStart" class="btn">Start Round</button>
+      </div>
+      <p id="portModalMessage" class="form-note"></p>
+    </div>
+  </div>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// Port Match</h1>
+        <p class="page-subtitle">Match common services with their TCP/UDP ports.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title">Port Challenge</h2>
+        <p class="card-subtitle">Pick the correct port. 3 strikes max.</p>
+      </header>
+
+      <section class="sub-card">
+        <div class="sub-card-header">
+          <div>
+            <h3 class="sub-card-title">Service</h3>
+            <p id="portPrompt" class="quiz-prompt">Press start to begin.</p>
+          </div>
+          <div class="quiz-scoreboard">
+            <p class="sub-card-meta">Score: <span id="portScore">0</span></p>
+            <p class="sub-card-meta">Strikes: <span id="portStrikes">0</span> / 3</p>
+            <p class="sub-card-meta">Question: <span id="portProgress">0</span></p>
+          </div>
+        </div>
+        <div id="portOptions" class="quiz-options quiz-options-grid"></div>
+        <p id="portMessage" class="quiz-message"></p>
+      </section>
+
+      <section class="sub-card sub-card-highlight">
+        <h3 class="sub-card-title">Round Controls</h3>
+        <div class="button-row">
+          <button id="portStartBtn" class="btn">Start Round</button>
+          <button id="portNextBtn" class="btn btn-outline" disabled>Next Service</button>
+        </div>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="portLeaderboard" class="leaderboard-list"></ol>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
