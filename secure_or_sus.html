@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Secure or Sus?</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="secure_or_sus.js"></script>
+</head>
+<body class="cs-body">
+  <a href="cyber_games.html" class="back-link">← Back to Cyber Games</a>
+
+  <div class="modal" id="susModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Your score will appear on the leaderboard.</p>
+      <div class="form-row">
+        <label for="susName" class="sr-only">Player name</label>
+        <input id="susName" class="input" type="text" placeholder="Your name" />
+        <button id="susStart" class="btn">Start Round</button>
+      </div>
+      <p id="susModalMessage" class="form-note"></p>
+    </div>
+  </div>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// Secure or Sus?</h1>
+        <p class="page-subtitle">Decide if each scenario is safe or suspicious.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title">Scenario Scanner</h2>
+        <p class="card-subtitle">Build a streak by spotting safe behavior.</p>
+      </header>
+
+      <section class="sub-card">
+        <div class="sus-scoreboard">
+          <p class="sub-card-meta">Score: <span id="susScore">0</span></p>
+          <p class="sub-card-meta">Streak: <span id="susStreak">0</span></p>
+          <p class="sub-card-meta">Card: <span id="susRound">1</span> / 6</p>
+        </div>
+
+        <div class="scenario-card">
+          <h3 class="sub-card-title" id="susScenarioTitle">Scenario</h3>
+          <p class="card-subtitle" id="susScenario">Scenario text</p>
+        </div>
+
+        <div class="button-row">
+          <button id="susSecureBtn" class="btn">Secure</button>
+          <button id="susSusBtn" class="btn btn-outline">Sus</button>
+        </div>
+        <p id="susFeedback" class="form-note"></p>
+        <button id="susNext" class="btn btn-outline" disabled>Next Scenario</button>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="susLeaderboard" class="leaderboard-list"></ol>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

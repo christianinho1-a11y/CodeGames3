@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Network Cable Crafter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="network_cable_crafter.js"></script>
+</head>
+<body class="cs-body">
+  <a href="it_games.html" class="back-link">← Back to IT Games</a>
+
+  <div class="modal" id="cableModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Build cables and save your score.</p>
+      <div class="form-row">
+        <label for="cableName" class="sr-only">Player name</label>
+        <input id="cableName" class="input" type="text" placeholder="Your name" />
+        <button id="cableStart" class="btn">Start Crafting</button>
+      </div>
+      <p id="cableModalMessage" class="form-note"></p>
+    </div>
+  </div>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// Network Cable Crafter</h1>
+        <p class="page-subtitle">Place wires in the correct T568A/B order.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title">Cable Bench</h2>
+        <p class="card-subtitle">Select a standard, then click wires in order.</p>
+      </header>
+
+      <section class="sub-card">
+        <div class="form-row">
+          <label for="cableStandard" class="sr-only">Cable standard</label>
+          <select id="cableStandard" class="input" style="max-width: 220px;">
+            <option value="A">Practice: T568A</option>
+            <option value="B">Practice: T568B</option>
+          </select>
+          <button id="cableReset" class="btn btn-outline">Reset Wires</button>
+        </div>
+
+        <div class="form-row">
+          <p class="sub-card-meta">Score: <span id="cableScore">0</span></p>
+          <p class="sub-card-meta">Attempts: <span id="cableAttempts">0</span></p>
+        </div>
+
+        <div class="wire-grid" id="wireSlots"></div>
+        <div id="wireChoices" class="chip-grid"></div>
+
+        <div class="button-row">
+          <button id="cableSubmit" class="btn">Check Cable</button>
+        </div>
+        <p id="cableMessage" class="form-note"></p>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="cableLeaderboard" class="leaderboard-list"></ol>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Computer Science Games</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Computer Science Games</title>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="cs_language.js"></script>
+  </head>
 <body class="cs-body">
   <a href="index.html" class="back-link">← Back to Subjects</a>
 
@@ -29,6 +30,15 @@
           Use these games to reinforce what you’re teaching in Intro to CS or
           AP CSP: decision-making, boolean logic, and vocabulary.
         </p>
+        <div class="form-row" style="margin-top: 0.75rem;">
+          <span class="sub-card-meta" data-language-label>Language: JavaScript</span>
+          <label for="csLanguageSelect" class="sr-only">Practice language</label>
+          <select id="csLanguageSelect" class="input" data-language-select style="max-width: 220px;">
+            <option value="javascript">JavaScript</option>
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+          </select>
+        </div>
       </div>
       <ul class="hub-keypoints">
         <li>Great as bell ringers or exit tickets.</li>
@@ -80,6 +90,43 @@
           and Decimal → Binary.
         </p>
         <p class="game-card-meta">Mode: Single-player • Est. 5 minutes</p>
+      </a>
+
+      <!-- Algorithm Assembly (NEW) -->
+      <a href="algorithm_assembly.html" class="card game-card">
+        <div class="game-card-header">
+          <h2 class="game-card-title">// Algorithm Assembly</h2>
+          <span class="game-tag">Sorting</span>
+        </div>
+        <p class="game-card-text">
+          Arrange shuffled steps to build Bubble Sort, Selection Sort, and
+          Insertion Sort correctly.
+        </p>
+        <p class="game-card-meta">Mode: Single-player • Est. 6 minutes</p>
+      </a>
+
+      <!-- Debugging Dash (NEW) -->
+      <a href="debugging_dash.html" class="card game-card">
+        <div class="game-card-header">
+          <h2 class="game-card-title">// Debugging Dash</h2>
+          <span class="game-tag">Debugging</span>
+        </div>
+        <p class="game-card-text">
+          Race the timer to spot the bugs hiding in short code snippets.
+        </p>
+        <p class="game-card-meta">Mode: Single-player • Est. 5 minutes</p>
+      </a>
+
+      <!-- Variable Vault (NEW) -->
+      <a href="variable_vault.html" class="card game-card">
+        <div class="game-card-header">
+          <h2 class="game-card-title">// Variable Vault</h2>
+          <span class="game-tag">Data Types</span>
+        </div>
+        <p class="game-card-text">
+          Choose the best variable name, type, and value for each scenario.
+        </p>
+        <p class="game-card-meta">Mode: Single-player • Est. 6 minutes</p>
       </a>
     </section>
 

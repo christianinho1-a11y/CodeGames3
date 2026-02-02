@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Network Defender Simulator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <script defer src="network_defender.js"></script>
+</head>
+<body class="cs-body">
+  <a href="cyber_games.html" class="back-link">← Back to Cyber Games</a>
+
+  <div class="modal" id="defenderModal">
+    <div class="modal-card">
+      <h2 class="card-title">Enter your name</h2>
+      <p class="card-subtitle">Defend the server and save your score.</p>
+      <div class="form-row">
+        <label for="defenderName" class="sr-only">Player name</label>
+        <input id="defenderName" class="input" type="text" placeholder="Your name" />
+        <button id="defenderStart" class="btn">Start Defense</button>
+      </div>
+      <p id="defenderModalMessage" class="form-note"></p>
+    </div>
+  </div>
+
+  <main class="page-wrap">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">// Network Defender Simulator</h1>
+        <p class="page-subtitle">Place defenses to block incoming attacks.</p>
+      </div>
+    </header>
+
+    <section class="card card-main">
+      <header class="card-header">
+        <h2 class="card-title">Defense Console</h2>
+        <p class="card-subtitle">Choose defenses for each slot, then run the wave.</p>
+      </header>
+
+      <section class="sub-card">
+        <div class="defender-scoreboard">
+          <p class="sub-card-meta">Score: <span id="defenderScore">0</span></p>
+          <p class="sub-card-meta">Server Health: <span id="defenderHealth">3</span></p>
+          <p class="sub-card-meta">Wave: <span id="defenderWave">1</span> / 3</p>
+        </div>
+
+        <div class="defender-grid">
+          <div>
+            <h3 class="sub-card-title">Network Path</h3>
+            <div class="path-row">
+              <span class="tag">Internet</span>
+              <span class="tag">Slot 1</span>
+              <span class="tag">Slot 2</span>
+              <span class="tag">Slot 3</span>
+              <span class="tag">Server</span>
+            </div>
+            <div class="form-row">
+              <select id="defenderSlot1" class="input">
+                <option value="">Choose defense</option>
+                <option value="Firewall">Firewall</option>
+                <option value="Antivirus">Antivirus</option>
+                <option value="IDS">IDS</option>
+              </select>
+              <select id="defenderSlot2" class="input">
+                <option value="">Choose defense</option>
+                <option value="Firewall">Firewall</option>
+                <option value="Antivirus">Antivirus</option>
+                <option value="IDS">IDS</option>
+              </select>
+              <select id="defenderSlot3" class="input">
+                <option value="">Choose defense</option>
+                <option value="Firewall">Firewall</option>
+                <option value="Antivirus">Antivirus</option>
+                <option value="IDS">IDS</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <h3 class="sub-card-title">Incoming Attacks</h3>
+            <ol id="defenderAttacks" class="leaderboard-list"></ol>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button id="defenderRun" class="btn">Run Wave</button>
+          <button id="defenderReset" class="btn btn-outline">Reset Defenses</button>
+        </div>
+        <p id="defenderMessage" class="form-note"></p>
+      </section>
+
+      <section class="sub-card">
+        <header class="card-header">
+          <h3 class="sub-card-title">Leaderboard</h3>
+          <p class="card-subtitle small">Local scores stored on this device.</p>
+        </header>
+        <ol id="defenderLeaderboard" class="leaderboard-list"></ol>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

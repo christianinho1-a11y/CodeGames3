@@ -1,6 +1,7 @@
 const CONNECTIONS_STORAGE_KEY = "cs_connections_leaderboard";
 const CONNECTIONS_PUZZLE_COUNT = 4;
 const MAX_STRIKES = 4;
+const DAILY_KEY_PREFIX = "cs_connections_daily";
 
 let playerName = "";
 let puzzleGroups = [];
@@ -46,6 +47,27 @@ const getBackLabel = (href) => {
     return "Cyber Games";
   }
   return "CS Games";
+};
+
+const getTodayKey = () => new Date().toISOString().split("T")[0];
+
+const getDailyKey = () => {
+  if (!playerName) {
+    return "";
+  }
+  return `${DAILY_KEY_PREFIX}_${currentTopic}_${playerName.toLowerCase()}_${getTodayKey()}`;
+};
+
+const hasPlayedToday = () => {
+  const key = getDailyKey();
+  return key ? localStorage.getItem(key) === "done" : false;
+};
+
+const markPlayedToday = () => {
+  const key = getDailyKey();
+  if (key) {
+    localStorage.setItem(key, "done");
+  }
 };
 
 const shuffle = (array) => {
@@ -156,6 +178,7 @@ const finalizeGame = (didWin) => {
   saveLeaderboardLocal(entries);
   updateLeaderboardUI();
   saveLeaderboardRemote(entry);
+  markPlayedToday();
 };
 
 const renderSolvedGroups = () => {
@@ -252,6 +275,16 @@ const getGroupsForTopic = () => {
 };
 
 const buildPuzzle = () => {
+  if (hasPlayedToday()) {
+    elements.grid.innerHTML = "";
+    elements.solvedGroups.innerHTML = "";
+    elements.endCard.hidden = true;
+    elements.message.textContent = "Daily Connections puzzle already completed for this topic. Come back tomorrow.";
+    elements.submit.disabled = true;
+    stopTimer();
+    return;
+  }
+
   const pool = getGroupsForTopic();
   if (!pool.length || pool.length < 4) {
     elements.grid.innerHTML = "";
@@ -299,6 +332,11 @@ const startGame = () => {
     return;
   }
   playerName = nameValue;
+  if (hasPlayedToday()) {
+    elements.nameMessage.textContent = "You already completed today's puzzle for this topic.";
+    elements.nameMessage.className = "form-note warning";
+    return;
+  }
   elements.nameMessage.textContent = "";
   elements.nameMessage.className = "form-note";
   closeNameModal();

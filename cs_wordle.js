@@ -175,6 +175,7 @@ const WORD_BANK = {
 const MAX_ROWS = 6;
 const WORD_LENGTH = 5;
 const LEADERBOARD_KEY = "cs_wordle_leaderboard";
+const DAILY_KEY_PREFIX = "cs_wordle_daily";
 
 let currentWord = "";
 let currentRow = 0;
@@ -245,6 +246,27 @@ const getBackLabel = (href) => {
   return "CS Games";
 };
 
+const getTodayKey = () => new Date().toISOString().split("T")[0];
+
+const getDailyKey = () => {
+  if (!playerName) {
+    return "";
+  }
+  return `${DAILY_KEY_PREFIX}_${currentTopic}_${playerName.toLowerCase()}_${getTodayKey()}`;
+};
+
+const hasPlayedToday = () => {
+  const key = getDailyKey();
+  return key ? localStorage.getItem(key) === "done" : false;
+};
+
+const markPlayedToday = () => {
+  const key = getDailyKey();
+  if (key) {
+    localStorage.setItem(key, "done");
+  }
+};
+
 const setMessage = (text, tone = "") => {
   messageEl.textContent = text;
   messageEl.className = `wordle-message ${tone}`.trim();
@@ -303,6 +325,7 @@ const saveScore = (didWin) => {
   saveLeaderboard(entries);
   updateLeaderboardUI();
   scoreSaved = true;
+  markPlayedToday();
 };
 
 const getActiveWords = () => {
@@ -508,6 +531,13 @@ const closeNameModal = () => {
 const startRound = () => {
   if (!playerName) {
     openNameModal();
+    return;
+  }
+
+  if (hasPlayedToday()) {
+    const topicLabel = topicLabels[currentTopic] || "All Topics";
+    setMessage(`Daily Wordle already completed for ${topicLabel}. Come back tomorrow.`, "warning");
+    gameStarted = false;
     return;
   }
 
