@@ -131,6 +131,38 @@ const TENABLE_CATEGORIES = [
     topic: "it",
   },
   {
+    title: "Computer Essentials in the Lab",
+    answers: [
+      "Login credentials",
+      "File Explorer",
+      "Wi-Fi",
+      "Headphones",
+      "USB drive",
+      "Printer queue",
+      "Cloud storage",
+      "Battery check",
+      "Keyboard shortcuts",
+      "Projector",
+    ],
+    topic: "it",
+  },
+  {
+    title: "School-Friendly Apps & Platforms",
+    answers: [
+      "Google Classroom",
+      "YouTube",
+      "Quizlet",
+      "Kahoot",
+      "Scratch",
+      "Canva",
+      "Padlet",
+      "Minecraft Education",
+      "Google Docs",
+      "Google Drive",
+    ],
+    topic: "it",
+  },
+  {
     title: "Common Cyber Threats",
     answers: [
       "Phishing",
